@@ -34,6 +34,8 @@ model Mahalla {
   oila          Int
   tadbirkorlik  Int
   yatt          Int
+  mchj          Int    @default(0)
+  faoliyatTurlari String @default("")
   vakansiya     Int
   drayver       String
   agent         String

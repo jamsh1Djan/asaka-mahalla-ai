@@ -44,16 +44,28 @@ export default function MahallaEditPanel({ mahalla }: { mahalla: Mahalla }) {
             <input type="number" name="vakansiya" defaultValue={mahalla.vakansiya} />
           </div>
           <div className="field">
-            <label>Tadbirkorlik subyektlari</label>
+            <label>Jami tadbirkorlik subyektlari</label>
             <input type="number" name="tadbirkorlik" defaultValue={mahalla.tadbirkorlik} />
+          </div>
+          <div className="field">
+            <label>YATT soni</label>
+            <input type="number" name="yatt" defaultValue={mahalla.yatt} />
+          </div>
+          <div className="field">
+            <label>MChJ (kichik korxonalar) soni</label>
+            <input type="number" name="mchj" defaultValue={mahalla.mchj} />
           </div>
           <div className="field">
             <label>Aholi soni</label>
             <input type="number" name="aholi" defaultValue={mahalla.aholi} />
           </div>
-          <div className="field">
+          <div className="field" style={{ gridColumn: "1 / -1" }}>
             <label>Ixtisoslashuv (drayver)</label>
             <input name="drayver" defaultValue={mahalla.drayver} />
+          </div>
+          <div className="field" style={{ gridColumn: "1 / -1" }}>
+            <label>Tadbirkorlik joylari (vergul bilan ajrating)</label>
+            <input name="faoliyatTurlari" defaultValue={mahalla.faoliyatTurlari} placeholder="Sartaroshxona, Non yopish sexi, ..." />
           </div>
         </div>
         {state?.error && <div className="err">{state.error}</div>}

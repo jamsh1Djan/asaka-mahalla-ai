@@ -2,13 +2,17 @@
 
 import { useState, useTransition } from "react";
 import { getBusinessIdeasAction, type BusinessIdea } from "@/actions/ai";
+import { SOHALAR } from "@/lib/businessIdeas";
 
 const BUDGETS = ["5 mln gacha", "5-20 mln", "20-50 mln", "50 mln dan ko'p"];
 const TAJRIBALAR = ["Yangi boshlovchi", "Tajribam bor"];
+const AVTOMATIK = "AI o'zi tanlasin";
+const SOHA_OPTIONS = [AVTOMATIK, ...SOHALAR];
 
 export default function AiPlanner({ mahallaId, drayver, nomi }: { mahallaId: string; drayver: string; nomi: string }) {
   const [budget, setBudget] = useState(BUDGETS[1]);
   const [tajriba, setTajriba] = useState(TAJRIBALAR[0]);
+  const [soha, setSoha] = useState(AVTOMATIK);
   const [ideas, setIdeas] = useState<BusinessIdea[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -16,7 +20,12 @@ export default function AiPlanner({ mahallaId, drayver, nomi }: { mahallaId: str
   function run() {
     setError(null);
     startTransition(async () => {
-      const result = await getBusinessIdeasAction(mahallaId, budget, tajriba);
+      const result = await getBusinessIdeasAction(
+        mahallaId,
+        budget,
+        tajriba,
+        soha === AVTOMATIK ? "avtomatik" : soha
+      );
       if ("error" in result) {
         setError(result.error);
         setIdeas(null);
@@ -49,6 +58,16 @@ export default function AiPlanner({ mahallaId, drayver, nomi }: { mahallaId: str
           {TAJRIBALAR.map((t) => (
             <button key={t} type="button" className={`chip ${tajriba === t ? "active" : ""}`} onClick={() => setTajriba(t)}>
               {t}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="field">
+        <label>Qaysi sohaga qiziqasiz?</label>
+        <div className="choice-row">
+          {SOHA_OPTIONS.map((s) => (
+            <button key={s} type="button" className={`chip ${soha === s ? "active" : ""}`} onClick={() => setSoha(s)}>
+              {s}
             </button>
           ))}
         </div>

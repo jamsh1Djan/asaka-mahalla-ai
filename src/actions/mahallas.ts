@@ -20,12 +20,15 @@ export async function updateMahallaStatsAction(
 
   const vakansiya = Number(formData.get("vakansiya")) || 0;
   const tadbirkorlik = Number(formData.get("tadbirkorlik")) || 0;
+  const yatt = Number(formData.get("yatt")) || 0;
+  const mchj = Number(formData.get("mchj")) || 0;
   const aholi = Number(formData.get("aholi")) || 0;
   const drayver = String(formData.get("drayver") || "").trim();
+  const faoliyatTurlari = String(formData.get("faoliyatTurlari") || "").trim();
 
   await prisma.mahalla.update({
     where: { id: mahallaId },
-    data: { vakansiya, tadbirkorlik, aholi, drayver },
+    data: { vakansiya, tadbirkorlik, yatt, mchj, aholi, drayver, faoliyatTurlari },
   });
 
   revalidatePath(`/mahallalar/${mahallaId}`);

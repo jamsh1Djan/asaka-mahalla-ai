@@ -8,6 +8,11 @@ export type CreditProduct = {
   tag: "Jismoniy shaxslar" | "Yuridik shaxslar";
   nomi: string;
   miqdori: string;
+  /** Upper bound of the loan amount in so'm, used for deterministic matching against a
+   * business idea's startup cost (see pickCreditProduct below). The export product's
+   * $2M ceiling is modeled as a large sentinel — it is not meant to be matched against
+   * typical small mahalla-level business ideas. */
+  miqdoriSom: number;
   muddati: string;
   foiz: string;
   taminot: string;
@@ -20,6 +25,7 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     tag: "Jismoniy shaxslar",
     nomi: "Biznesga birinchi qadam 1.0",
     miqdori: "5 mln so'mgacha",
+    miqdoriSom: 5_000_000,
     muddati: "12 oygacha",
     foiz: "24%–28%",
     taminot: "Talab qilinmaydi",
@@ -31,6 +37,7 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     tag: "Jismoniy shaxslar",
     nomi: "Biznesga birinchi qadam 2.0",
     miqdori: "17 mln so'mgacha",
+    miqdoriSom: 17_000_000,
     muddati: "36 oygacha",
     foiz: "27%",
     taminot: "3-shaxs kafilligi yoki sug'urta polis",
@@ -41,6 +48,7 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     tag: "Jismoniy shaxslar",
     nomi: "Tadbirkorga ko'mak",
     miqdori: "25 mln so'mgacha",
+    miqdoriSom: 25_000_000,
     muddati: "36 oygacha",
     foiz: "25%",
     taminot: "3-shaxs kafilligi yoki sug'urta polis",
@@ -51,6 +59,7 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     tag: "Yuridik shaxslar",
     nomi: "Mahalla loyihasi",
     miqdori: "50 mln so'mgacha",
+    miqdoriSom: 50_000_000,
     muddati: "3 yilgacha",
     foiz: "25%",
     taminot: "3-shaxs kafilligi yoki sug'urta polis",
@@ -61,6 +70,7 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     tag: "Yuridik shaxslar",
     nomi: "Biznesga ishonch 2 (PQ-312)",
     miqdori: "300 mln so'mgacha",
+    miqdoriSom: 300_000_000,
     muddati: "7 yilgacha",
     foiz: "19%–23%",
     taminot: "100 mln gacha garovsiz",
@@ -71,12 +81,21 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     tag: "Yuridik shaxslar",
     nomi: "Tomorqadan eksportgacha",
     miqdori: "2 mln $ gacha",
+    miqdoriSom: 10_000_000_000,
     muddati: "12 oygacha",
     foiz: "5%",
     taminot: "3-shaxs kafilligi yoki sug'urta polis",
     maqsad: "Eksport qiluvchi tadbirkorlik subyektlari",
   },
 ];
+
+/** Deterministically picks the smallest credit product whose limit covers the given
+ * startup cost — grounds the AI planner's "mos kredit" answer in real numeric logic
+ * instead of leaving loan selection to free-text model output. */
+export function pickCreditProduct(costSom: number): CreditProduct {
+  const sorted = [...CREDIT_PRODUCTS].sort((a, b) => a.miqdoriSom - b.miqdoriSom);
+  return sorted.find((p) => p.miqdoriSom >= costSom) ?? sorted[sorted.length - 1];
+}
 
 export const IMTIYOZLAR = [
   {

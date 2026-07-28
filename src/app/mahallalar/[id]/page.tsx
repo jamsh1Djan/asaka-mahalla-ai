@@ -66,7 +66,17 @@ export default async function MahallaDetailPage({
           <div className="pill">
             <div className="ic" style={{ background: "var(--green-soft)" }}>💼</div>
             <b>{fmt(mahalla.tadbirkorlik)}</b>
-            <span>Tadbirkorlik subyektlari (YATT: {mahalla.yatt})</span>
+            <span>Jami tadbirkorlik subyektlari</span>
+          </div>
+          <div className="pill">
+            <div className="ic" style={{ background: "var(--green-soft)" }}>🧑‍🔧</div>
+            <b>{fmt(mahalla.yatt)}</b>
+            <span>YATT (yakka tartibdagi tadbirkorlar)</span>
+          </div>
+          <div className="pill">
+            <div className="ic" style={{ background: "var(--blue-soft)" }}>🏢</div>
+            <b>{fmt(mahalla.mchj)}</b>
+            <span>MChJ (kichik korxonalar)</span>
           </div>
           <div className="pill">
             <div className="ic" style={{ background: "var(--gold-soft)" }}>📋</div>
@@ -74,6 +84,19 @@ export default async function MahallaDetailPage({
             <span>Bo&apos;sh ish o&apos;rinlari</span>
           </div>
         </div>
+
+        {mahalla.faoliyatTurlari && (
+          <div className="card" style={{ marginBottom: 26 }}>
+            <h4 style={{ margin: "0 0 10px" }}>Mahalladagi tadbirkorlik joylari</h4>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {mahalla.faoliyatTurlari.split(",").map((t) => (
+                <span key={t} className="chip" style={{ borderColor: "var(--line)", background: "var(--sand2)", color: "var(--ink)" }}>
+                  {t.trim()}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-2" style={{ marginBottom: 10 }}>
           <div className="card">
