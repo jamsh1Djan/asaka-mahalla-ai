@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asaka Mahalla AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#C8102E;
+  --red-dark:#9C0C24;
+  --navy:#0B2545;
+  --navy2:#122d59;
+  --gold:#C69C4E;
+  --sand:#FAF7F0;
+  --sand2:#F2ECE0;
+  --ink:#1C1F26;
+  --sub:#5B6270;
+  --line:#E7E1D3;
+  --blue-soft:#EAF1FB;
+  --green-soft:#EAF6EE;
+  --rose-soft:#FBEAEA;
+  --gold-soft:#FBF3E2;
+  --radius:16px;
+  --shadow:0 10px 30px rgba(11,37,69,.08);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Manrope',system-ui,-apple-system,sans-serif;
+  background:var(--sand);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+img{max-width:100%;display:block;}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px;}
+
+/* ---------- Girih ornament band (signature motif) ---------- */
+.girih-band{
+  height:14px;
+  background-image:
+    linear-gradient(135deg, var(--gold) 25%, transparent 25%),
+    linear-gradient(225deg, var(--gold) 25%, transparent 25%),
+    linear-gradient(45deg, var(--gold) 25%, transparent 25%),
+    linear-gradient(315deg, var(--gold) 25%, var(--sand2) 25%);
+  background-position: 9px 0, 9px 0, 0 0, 0 0;
+  background-size: 18px 18px;
+  background-repeat: repeat-x;
+  opacity:.85;
+}
+.girih-band.dark{
+  background-image:
+    linear-gradient(135deg, var(--gold) 25%, transparent 25%),
+    linear-gradient(225deg, var(--gold) 25%, transparent 25%),
+    linear-gradient(45deg, var(--gold) 25%, transparent 25%),
+    linear-gradient(315deg, var(--gold) 25%, var(--navy) 25%);
+}
+
+/* ---------- Header ---------- */
+header.site{
+  position:sticky;top:0;z-index:40;
+  background:rgba(250,247,240,.92);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 24px;max-width:1160px;margin:0 auto;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.2px;cursor:pointer;}
+.brand .mark{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--red),var(--red-dark));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;
+  box-shadow:var(--shadow);
+}
+.brand .red{color:var(--red);}
+.navlinks{display:flex;gap:26px;font-weight:600;font-size:14.5px;color:var(--ink);flex-wrap:wrap;}
+.navlinks a{padding:6px 2px;border-bottom:2px solid transparent;opacity:.85;}
+.navlinks a:hover{opacity:1;border-color:var(--gold);}
+.navlinks a.active{opacity:1;border-color:var(--red);color:var(--red);}
+.navactions{display:flex;gap:10px;align-items:center;}
+.btn{
+  border:none;border-radius:999px;padding:10px 18px;font-weight:700;font-size:14px;
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+}
+.btn-primary{background:var(--red);color:#fff;box-shadow:0 6px 16px rgba(200,16,46,.28);}
+.btn-primary:hover{background:var(--red-dark);}
+.btn-outline{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+.btn-outline:hover{border-color:var(--navy);}
+.btn-ghost{background:transparent;color:var(--ink);font-weight:600;}
+.btn-sm{padding:7px 13px;font-size:13px;}
+.hidden-mobile{display:inline-flex;}
+@media (max-width:900px){
+  .navlinks{display:none;}
+}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;overflow:hidden;padding:56px 0 40px;}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center;}
+@media (max-width:920px){.hero-grid{grid-template-columns:1fr;}}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;background:var(--gold-soft);
+  color:#8a6a1f;border:1px solid #ecd9ad;padding:6px 14px;border-radius:999px;font-weight:700;font-size:12.5px;letter-spacing:.3px;margin-bottom:18px;
+}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--red);}
+h1.hero-title{font-size:44px;line-height:1.12;font-weight:800;letter-spacing:-1px;margin:0 0 16px;}
+h1.hero-title .accent{color:var(--red);}
+.hero-sub{font-size:16.5px;color:var(--sub);line-height:1.6;max-width:520px;margin-bottom:26px;}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px;}
+.stat-row{display:flex;gap:28px;flex-wrap:wrap;}
+.stat-item{min-width:110px;}
+.stat-num{font-size:22px;font-weight:800;color:var(--navy);}
+.stat-label{font-size:12.5px;color:var(--sub);}
+
+/* hero visual card */
+.hero-visual{
+  background:linear-gradient(160deg,var(--navy),#173a6e);
+  border-radius:24px;padding:22px;position:relative;box-shadow:var(--shadow);
+  min-height:340px;
+}
+.hero-visual::before{
+  content:"";position:absolute;inset:0;border-radius:24px;opacity:.15;
+  background-image:radial-gradient(circle at 20% 20%, var(--gold) 0, transparent 40%),
+                    radial-gradient(circle at 85% 75%, var(--gold) 0, transparent 35%);
+}
+.chatbox{position:relative;background:#fff;border-radius:16px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,.25);}
+.chat-row{display:flex;gap:10px;margin-bottom:12px;align-items:flex-start;}
+.chat-avatar{width:30px;height:30px;border-radius:50%;background:var(--red);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chat-bubble{background:var(--sand2);border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.45;max-width:88%;}
+.chat-row.me{flex-direction:row-reverse;}
+.chat-row.me .chat-bubble{background:var(--red);color:#fff;}
+.chat-row.me .chat-avatar{background:var(--navy);}
+
+/* ---------- Sections ---------- */
+section{padding:52px 0;}
+.section-head{max-width:640px;margin-bottom:30px;}
+.section-eyebrow{font-size:12.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+h2.section-title{font-size:28px;font-weight:800;letter-spacing:-.4px;margin:0 0 10px;}
+.section-desc{color:var(--sub);font-size:15px;line-height:1.6;}
+
+/* Benefits + map block */
+.benefits-block{
+  background:linear-gradient(135deg,var(--rose-soft),var(--sand2));
+  border:1px solid var(--line);
+  border-radius:24px;padding:32px;display:grid;grid-template-columns:.85fr 1.15fr;gap:30px;
+}
+@media (max-width:900px){.benefits-block{grid-template-columns:1fr;}}
+.benefits-block h3{font-size:23px;font-weight:800;margin:0 0 12px;letter-spacing:-.3px;}
+.benefits-list{list-style:none;padding:0;margin:18px 0;display:flex;flex-direction:column;gap:10px;}
+.benefits-list li{display:flex;gap:10px;font-size:14px;color:var(--ink);align-items:flex-start;}
+.benefits-list li .ic{color:var(--red);font-weight:800;}
+
+/* map */
+.map-card{background:#fff;border-radius:18px;padding:16px;box-shadow:var(--shadow);}
+.map-card h4{margin:0 0 4px;font-size:14px;font-weight:800;color:var(--navy);}
+.map-card p{margin:0 0 10px;font-size:12.5px;color:var(--sub);}
+svg.map-svg polygon, svg.map-svg path.plot{cursor:pointer;transition:filter .15s, transform .15s;}
+svg.map-svg .plot:hover{filter:brightness(1.08);}
+svg.map-svg text{font-family:'Manrope',sans-serif;pointer-events:none;}
+.map-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+.map-legend span{font-size:11.5px;color:var(--sub);display:flex;align-items:center;gap:5px;}
+.map-legend i{width:9px;height:9px;border-radius:3px;display:inline-block;}
+
+/* cards grid */
+.grid{display:grid;gap:18px;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+@media (max-width:900px){.grid-3{grid-template-columns:1fr 1fr;} .grid-2{grid-template-columns:1fr;}}
+@media (max-width:640px){.grid-3{grid-template-columns:1fr;}}
+
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;
+  box-shadow:var(--shadow);position:relative;
+}
+.card-credit .tag{display:inline-block;background:var(--navy);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;margin-bottom:12px;letter-spacing:.3px;}
+.card-credit h4{margin:0 0 12px;font-size:17px;font-weight:800;}
+.credit-rows{display:flex;flex-direction:column;gap:7px;margin-bottom:10px;}
+.credit-rows .row{display:flex;justify-content:space-between;font-size:13px;border-bottom:1px dashed var(--line);padding-bottom:6px;}
+.credit-rows .row b{color:var(--navy);}
+.credit-goal{font-size:12.5px;color:var(--sub);line-height:1.5;margin-top:8px;}
+
+.imtiyoz-card{display:flex;gap:14px;align-items:flex-start;}
+.imtiyoz-card .num{font-size:20px;font-weight:800;color:var(--red);min-width:74px;}
+.imtiyoz-card .txt{font-size:13.5px;color:var(--ink);line-height:1.5;}
+.imtiyoz-card .txt small{display:block;color:var(--sub);margin-top:2px;}
+
+/* mahalla cards */
+.mh-card{overflow:hidden;padding:0;}
+.mh-cover{height:110px;background:linear-gradient(135deg,var(--blue-soft),var(--sand2));position:relative;}
+.mh-cover img{width:100%;height:100%;object-fit:cover;}
+.mh-sector{position:absolute;top:10px;left:10px;background:rgba(11,37,69,.85);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;}
+.mh-body{padding:18px;}
+.mh-body h4{margin:0 0 4px;font-size:17px;font-weight:800;}
+.mh-body .drayver{font-size:12.5px;color:var(--sub);margin-bottom:12px;}
+.mh-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.mh-stats div{text-align:center;background:var(--sand2);border-radius:10px;padding:8px 4px;}
+.mh-stats b{display:block;font-size:14px;color:var(--navy);}
+.mh-stats span{font-size:10.5px;color:var(--sub);}
+
+/* stat pill row (mahalla detail) */
+.pill-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0;}
+@media (max-width:800px){.pill-row{grid-template-columns:repeat(2,1fr);}}
+.pill{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);}
+.pill .ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;margin-bottom:8px;}
+.pill b{display:block;font-size:19px;}
+.pill span{font-size:11.5px;color:var(--sub);}
+
+/* footer */
+footer.site{background:var(--navy);color:#dbe3ef;margin-top:40px;}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:30px;padding:44px 0 28px;}
+@media (max-width:800px){.foot-grid{grid-template-columns:1fr 1fr;}}
+.foot-grid h5{color:#fff;font-size:13px;margin:0 0 12px;font-weight:800;letter-spacing:.3px;}
+.foot-grid a,.foot-grid p{display:block;color:#b9c4d6;font-size:13px;margin-bottom:8px;}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.1);padding:16px 0;font-size:12px;color:#8fa0bb;text-align:center;}
+
+/* buttons variant on dark */
+.btn-gold{background:var(--gold);color:#3a2c0c;}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(11,20,33,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .15s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border-radius:20px;max-width:460px;width:100%;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.3);max-height:88vh;overflow:auto;position:relative;}
+.modal.wide{max-width:640px;}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:var(--sub);cursor:pointer;}
+.modal h3{margin:0 0 4px;font-size:20px;font-weight:800;}
+.modal p.sub{color:var(--sub);font-size:13.5px;margin:0 0 18px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.field input,.field select,.field textarea{
+  width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;background:#fff;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--navy);}
+.tabs{display:flex;gap:6px;background:var(--sand2);padding:4px;border-radius:12px;margin-bottom:20px;}
+.tabs button{flex:1;border:none;background:transparent;padding:9px;border-radius:9px;font-weight:700;font-size:13.5px;color:var(--sub);}
+.tabs button.active{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.08);}
+.err{color:var(--red);font-size:12.5px;margin-top:-6px;margin-bottom:10px;}
+.ok-box{background:var(--green-soft);border:1px solid #cfe9d6;border-radius:14px;padding:18px;font-size:14px;line-height:1.6;}
+
+/* dashboard */
+.dash-tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+.dash-tabs button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 16px;font-weight:700;font-size:13px;}
+.dash-tabs button.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.table{width:100%;border-collapse:collapse;font-size:13.5px;}
+.table th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--sub);padding:8px 10px;border-bottom:1.5px solid var(--line);}
+.table td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle;}
+.status-badge{padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;}
+.status-yangi{background:var(--rose-soft);color:var(--red);}
+.status-korib{background:var(--gold-soft);color:#8a6a1f;}
+.status-bog{background:var(--green-soft);color:#2b7a43;}
+.mini-input{width:80px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:13px;}
+.badge-role{background:var(--navy);color:#fff;font-size:11px;padding:3px 9px;border-radius:999px;}
+
+/* AI planner */
+.ai-box{background:linear-gradient(135deg,#0B2545,#1a3a68);color:#fff;border-radius:20px;padding:26px;margin-top:26px;}
+.ai-box h3{margin:0 0 6px;font-size:19px;font-weight:800;}
+.ai-box p{color:#b9c4d6;font-size:13.5px;margin:0 0 18px;}
+.choice-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.chip{border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;}
+.chip.active{background:var(--gold);color:#3a2c0c;border-color:var(--gold);}
+.idea-card{background:#fff;color:var(--ink);border-radius:14px;padding:16px;margin-top:10px;}
+.idea-card h5{margin:0 0 6px;font-size:15px;font-weight:800;color:var(--navy);}
+.idea-card .row{display:flex;justify-content:space-between;font-size:12.5px;color:var(--sub);margin-top:6px;border-top:1px dashed var(--line);padding-top:6px;}
+.spinner{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin .7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* splash intro */
+#splash{
+  position:fixed;inset:0;background:radial-gradient(circle at 50% 55%, #143royalvar 0%, var(--navy) 70%);
+  background:radial-gradient(circle at 50% 55%, #16375f 0%, #081729 75%);
+  z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;
+  animation:splashOut .6s ease 2.3s forwards;
+}
+@keyframes splashOut{to{opacity:0;visibility:hidden;pointer-events:none;}}
+.splash-ring{
+  width:120px;height:120px;border-radius:50%;
+  border:2px solid rgba(198,156,78,.35);border-top-color:var(--gold);
+  animation:ringspin 1.8s linear infinite;position:relative;
+}
+@keyframes ringspin{to{transform:rotate(360deg);}}
+.splash-glow{
+  position:absolute;inset:-40px;border-radius:50%;
+  background:radial-gradient(circle, rgba(198,156,78,.35), transparent 70%);
+  animation:pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.5;transform:scale(.9);}50%{opacity:1;transform:scale(1.05);}}
+.splash-mark{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:26px;opacity:0;animation:markIn .5s ease 1.1s forwards;
+}
+@keyframes markIn{to{opacity:1;}}
+.splash-title{margin-top:22px;color:#fff;font-weight:800;font-size:20px;opacity:0;animation:markIn .5s ease 1.4s forwards;letter-spacing:-.2px;}
+.splash-title span{color:var(--gold);}
+.splash-sub{color:#8fa0bb;font-size:12.5px;margin-top:6px;opacity:0;animation:markIn .5s ease 1.6s forwards;}
+
+.toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:14px 20px;border-radius:12px;font-size:13.5px;box-shadow:var(--shadow);z-index:200;animation:fadeIn .2s ease;}
+
+.link-btn{background:none;border:none;color:var(--red);font-weight:700;font-size:13px;padding:0;}
+.small-muted{font-size:12px;color:var(--sub);}
+hr.soft{border:none;border-top:1px solid var(--line);margin:18px 0;}
+
+.empty{text-align:center;padding:30px;color:var(--sub);font-size:14px;}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="splash-glow"></div>
+  <div class="splash-ring">
+    <div class="splash-mark">AM</div>
+  </div>
+  <div class="splash-title">Asaka<span>Mahalla</span> AI</div>
+  <div class="splash-sub">Mahalla bankiri uchun aqlli raqamli yordamchi</div>
+</div>
+
+<div id="app"></div>
+
+<script>
+/* ============ DATA ============ */
+const CREDIT_PRODUCTS = [
+  {tag:"Jismoniy shaxslar", nomi:"Biznesga birinchi qadam 1.0", miqdori:"5 mln so'mgacha", muddati:"12 oygacha", foiz:"24%–28%", taminot:"Talab qilinmaydi", maqsad:"Ijtimoiy soliq to'lovchi, o'zini o'zi band qilgan jismoniy shaxslarni qo'llab-quvvatlash"},
+  {tag:"Jismoniy shaxslar", nomi:"Biznesga birinchi qadam 2.0", miqdori:"17 mln so'mgacha", muddati:"36 oygacha", foiz:"27%", taminot:"3-shaxs kafilligi yoki sug'urta polis", maqsad:"Asakabank biriktirilgan MFYlarda ro'yxatdagi ijtimoiy soliq to'lovchi shaxslar"},
+  {tag:"Jismoniy shaxslar", nomi:"Tadbirkorga ko'mak", miqdori:"25 mln so'mgacha", muddati:"36 oygacha", foiz:"25%", taminot:"3-shaxs kafilligi yoki sug'urta polis", maqsad:"Bank kartasidan muntazam foydalanuvchi, band shaxslarni qo'llab-quvvatlash"},
+  {tag:"Yuridik shaxslar", nomi:"Mahalla loyihasi", miqdori:"50 mln so'mgacha", muddati:"3 yilgacha", foiz:"25%", taminot:"3-shaxs kafilligi yoki sug'urta polis", maqsad:"O'z biznes loyihasini muvaffaqiyatli amalga oshirgan tadbirkorlik subyektlari"},
+  {tag:"Yuridik shaxslar", nomi:"Biznesga ishonch 2 (PQ-312)", miqdori:"300 mln so'mgacha", muddati:"7 yilgacha", foiz:"19%–23%", taminot:"100 mln gacha garovsiz", maqsad:"Kamida 1 yil faoliyat yuritayotgan kichik tadbirkorlik subyektlari"},
+  {tag:"Yuridik shaxslar", nomi:"Tomorqadan eksportgacha", miqdori:"2 mln $ gacha", muddati:"12 oygacha", foiz:"5%", taminot:"3-shaxs kafilligi yoki sug'urta polis", maqsad:"Eksport qiluvchi tadbirkorlik subyektlari"},
+];
+
+const IMTIYOZLAR = [
+  {num:"50 mln", txt:"O'zini o'zi band qilgan shaxslarga garov ta'minotisiz kreditlar"},
+  {num:"100 mln", txt:"Chorvachilikka ixtisoslashgan mahallalarda naslli chorva moli xaridi va tuyachilik uchun kreditlar"},
+  {num:"1000 mln", txt:"Chegara va anklav hududlardagi mahallalarda turizm va xizmat ko'rsatish tadbirkorlariga kreditlar"},
+  {num:"150 mln", txt:"Turizm salohiyati yuqori mahallalarda uy-mehmonxonalari tashkil qilish uchun kreditlar (garovsiz)"},
+  {num:"150 mln", txt:"Ixtisoslashuvi 50%dan yuqori mahallada mahsulot saqlash/qayta ishlash minitexnologiyalari uchun kredit (garovsiz)"},
+  {num:"12% yillik", txt:"Og'ir toifadagi tumanlarda oilaviy tadbirkorlikni rivojlantirish dasturlari doirasidagi kreditlar"},
+];
+
+const SEED_MAHALLAS = [
+  {id:"otchopar1", nomi:"Otchopar 1", sector:"1-sektor", tashkil:1934, aholi:8626, erkak:4160, ayol:4464,
+   xonadon:1840, oila:4011, tadbirkorlik:154, yatt:36, vakansiya:8, drayver:"Xizmat ko'rsatish",
+   banker:"Karimov Jamshid", agent:"Usmonova Malika Islomovna", image:"", color:"#C8102E"},
+  {id:"otchopar2", nomi:"Otchopar 2", sector:"4-sektor", tashkil:1966, aholi:6420, erkak:3311, ayol:3109,
+   xonadon:2024, oila:2089, tadbirkorlik:26, yatt:12, vakansiya:14, drayver:"Ishlab chiqarish, xizmat ko'rsatish, savdo-sanoat",
+   banker:"Karimov Jamshid", agent:"Ortiqov Ziyoviddin Faxriddin o'g'li", image:"", color:"#0B2545"},
+  {id:"yurtobod", nomi:"Yurtobod", sector:"2-sektor", tashkil:2015, aholi:5314, erkak:2544, ayol:2770,
+   xonadon:1492, oila:1874, tadbirkorlik:16, yatt:15, vakansiya:14, drayver:"Aholiga savdo va maishiy xizmat ko'rsatish",
+   banker:"G'affarov Sardor O'ktam o'g'li", agent:"Xabibullayeva Yunona Lovar qizi", image:"", color:"#C69C4E"},
+  {id:"yangiariq", nomi:"Yangiariq", sector:"3-sektor", tashkil:1950, aholi:4560, erkak:2260, ayol:2300,
+   xonadon:749, oila:795, tadbirkorlik:5, yatt:2, vakansiya:0, drayver:"Oziq-ovqat va xizmat ko'rsatish",
+   banker:"G'affarov Sardor O'ktam o'g'li", agent:"Rustamova Mehrigiyo Vali qizi", image:"", color:"#2b7a43"},
+  {id:"oqtepa", nomi:"Oqtepa", sector:"2-sektor", tashkil:1930, aholi:7751, erkak:3950, ayol:3801,
+   xonadon:1557, oila:3552, tadbirkorlik:64, yatt:82, vakansiya:8, drayver:"Aholiga savdo va maishiy xizmat ko'rsatish",
+   banker:"Burxonov Tolibjon Musurmon o'g'li", agent:"Karimova Shahzoda Ahrorovna", image:"", color:"#1a3a68"},
+  {id:"posira", nomi:"Posira", sector:"4-sektor", tashkil:1992, aholi:7553, erkak:3800, ayol:3753,
+   xonadon:2360, oila:2777, tadbirkorlik:285, yatt:97, vakansiya:17, drayver:"Aholiga savdo va maishiy xizmat ko'rsatish",
+   banker:"Burxonov Tolibjon Musurmon o'g'li", agent:"—", image:"", color:"#8a6a1f"},
+  {id:"muruvvat", nomi:"Muruvvat", sector:"2-sektor", tashkil:1975, aholi:5138, erkak:2475, ayol:2663,
+   xonadon:1320, oila:1472, tadbirkorlik:38, yatt:6, vakansiya:4, drayver:"Aholiga savdo va maishiy xizmat ko'rsatish",
+   banker:"Burxonov Tolibjon Musurmon o'g'li", agent:"Zaitova Kamola Xamidullayevna", image:"", color:"#9C0C24"},
+];
+
+const SEED_BANKERS = [
+  {login:"admin", parol:"admin2026", role:"admin", ism:"Bosh administrator", mahallalar:[], telefon:"", telegram:"", ishvaqti:""},
+  {login:"jamshidkarimov", parol:"123", role:"banker", ism:"Karimov Jamshid", mahallalar:["otchopar1","otchopar2"], telefon:"+998 90 123 45 67", telegram:"https://t.me/Jamsh1d_Kar1mov", ishvaqti:"09:00 – 18:00"},
+];
+
+/* map polygon layout (illustrative district segmentation, not to geo-scale) */
+const MAP_LAYOUT = {
+  otchopar1:  "180,40 300,20 340,110 260,150 160,130",
+  otchopar2:  "300,20 430,45 440,140 340,110",
+  yurtobod:   "440,140 470,240 380,270 340,180 260,150 340,110",
+  oqtepa:     "160,130 260,150 340,180 300,270 190,260 130,210",
+  muruvvat:   "40,150 160,130 130,210 60,240",
+  posira:     "60,240 130,210 190,260 170,340 70,340",
+  yangiariq:  "170,340 190,260 300,270 380,270 340,360 220,380"
+};
+
+/* ============ STATE ============ */
+let S = {
+  route:"home", params:{}, session:null,
+  mahallas: [...SEED_MAHALLAS.map(m=>({...m}))],
+  bankers: [...SEED_BANKERS.map(b=>({...b}))],
+  applications: [],
+  loaded:false
+};
+
+const $app = document.getElementById("app");
+
+/* ============ STORAGE ============ */
+async function safeGet(key){
+  try{
+    const r = await window.storage.get(key, true);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){ return null; }
+}
+async function safeSet(key, val){
+  try{ await window.storage.set(key, JSON.stringify(val), true); }catch(e){ /* ignore */ }
+}
+
+async function initState(){
+  const m = await safeGet("mahallas");
+  const b = await safeGet("bankers");
+  const a = await safeGet("applications");
+  if(m) S.mahallas = m; else await safeSet("mahallas", S.mahallas);
+  if(b) S.bankers = b; else await safeSet("bankers", S.bankers);
+  if(a) S.applications = a; else await safeSet("applications", S.applications);
+  S.loaded = true;
+}
+
+function persistMahallas(){ safeSet("mahallas", S.mahallas); }
+function persistBankers(){ safeSet("bankers", S.bankers); }
+function persistApplications(){ safeSet("applications", S.applications); }
+
+/* ============ HELPERS ============ */
+function fmt(n){ return Number(n).toLocaleString("uz-UZ"); }
+function findMahalla(id){ return S.mahallas.find(m=>m.id===id); }
+function totalAholi(){ return S.mahallas.reduce((s,m)=>s+Number(m.aholi||0),0); }
+function totalTadbirkor(){ return S.mahallas.reduce((s,m)=>s+Number(m.tadbirkorlik||0),0); }
+function totalVakansiya(){ return S.mahallas.reduce((s,m)=>s+Number(m.vakansiya||0),0); }
+function isBanker(){ return S.session && (S.session.role==="banker"||S.session.role==="admin"); }
+function isAdmin(){ return S.session && S.session.role==="admin"; }
+function bankerFor(mahallaId){
+  if(isAdmin()) return true;
+  if(S.session && S.session.role==="banker"){
+    const acc = S.bankers.find(b=>b.login===S.session.login);
+    return acc && acc.mahallalar.includes(mahallaId);
+  }
+  return false;
+}
+function toast(msg){
+  const t = document.createElement("div");
+  t.className="toast"; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2600);
+}
+function esc(s){ return (s||"").toString().replace(/</g,"&lt;"); }
+
+function navigate(route, params={}){
+  S.route = route; S.params = params;
+  closeModal();
+  render();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ============ MODAL SYSTEM ============ */
+let modalStack = null;
+function openModal(html){
+  modalStack = html;
+  renderModal();
+}
+function closeModal(){ modalStack = null; renderModal(); }
+function renderModal(){
+  let el = document.getElementById("modal-root");
+  if(!el){ el = document.createElement("div"); el.id="modal-root"; document.body.appendChild(el); }
+  el.innerHTML = modalStack ? `<div class="overlay" onmousedown="if(event.target===this)closeModal()">${modalStack}</div>` : "";
+}
+
+/* ============ LOGIN ============ */
+let loginTab = "fuqaro";
+function openLogin(){
+  loginTab = "fuqaro";
+  renderLoginModal();
+}
+function renderLoginModal(){
+  openModal(`
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h3>Xush kelibsiz</h3>
+      <p class="sub">Tizimga kirish usulini tanlang</p>
+      <div class="tabs">
+        <button class="${loginTab==='fuqaro'?'active':''}" onclick="loginTab='fuqaro';renderLoginModal()">Fuqaro sifatida</button>
+        <button class="${loginTab==='banker'?'active':''}" onclick="loginTab='banker';renderLoginModal()">Mahalla bankiri</button>
+      </div>
+      ${loginTab==='fuqaro' ? `
+        <div class="field"><label>Ism familiya</label><input id="lg-name" placeholder="Masalan: Aliyev Vali"></div>
+        <div class="field"><label>Telefon raqami</label><input id="lg-phone" placeholder="+998 90 000 00 00"></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doCitizenLogin()">Kirish</button>
+      `:`
+        <div class="field"><label>Login</label><input id="lg-login" placeholder="login"></div>
+        <div class="field"><label>Parol</label><input id="lg-pass" type="password" placeholder="••••••"></div>
+        <div id="lg-err" class="err" style="display:none">Login yoki parol noto'g'ri</div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doBankerLogin()">Kirish</button>
+        <p class="small-muted" style="margin-top:12px">Demo: jamshidkarimov / 123</p>
+      `}
+    </div>
+  `);
+}
+function doCitizenLogin(){
+  const name = document.getElementById("lg-name").value.trim();
+  const phone = document.getElementById("lg-phone").value.trim();
+  if(!name){ toast("Ismingizni kiriting"); return; }
+  S.session = {role:"fuqaro", name, phone};
+  closeModal();
+  toast("Xush kelibsiz, "+name+"!");
+  render();
+}
+function doBankerLogin(){
+  const login = document.getElementById("lg-login").value.trim();
+  const pass = document.getElementById("lg-pass").value;
+  const acc = S.bankers.find(b=>b.login===login && b.parol===pass);
+  if(!acc){ document.getElementById("lg-err").style.display="block"; return; }
+  S.session = {role:acc.role, login:acc.login, ism:acc.ism};
+  closeModal();
+  toast("Xush kelibsiz, "+acc.ism);
+  navigate(acc.role==="admin" ? "admin" : "bankir");
+}
+function logout(){ S.session=null; toast("Chiqdingiz"); navigate("home"); }
+
+/* ============ ARIZA (APPLICATION) ============ */
+function openArizaModal(mahallaId){
+  const m = findMahalla(mahallaId);
+  const prefillName = S.session && S.session.role==="fuqaro" ? S.session.name : "";
+  const prefillPhone = S.session && S.session.role==="fuqaro" ? S.session.phone : "";
+  openModal(`
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h3>Ariza berish</h3>
+      <p class="sub">${m.nomi} mahallasi bankiriga ariza yuboriladi</p>
+      <div class="field"><label>Ism familiya</label><input id="az-name" value="${esc(prefillName)}" placeholder="Ism familiyangiz"></div>
+      <div class="field"><label>Telefon raqami</label><input id="az-phone" value="${esc(prefillPhone)}" placeholder="+998 90 000 00 00"></div>
+      <div class="field"><label>Qaysi kredit turi qiziqtiradi</label>
+        <select id="az-kredit">
+          ${CREDIT_PRODUCTS.map(c=>`<option>${c.nomi}</option>`).join("")}
+          <option>Boshqa / bilmayman</option>
+        </select>
+      </div>
+      <div class="field"><label>Qisqacha izoh</label><textarea id="az-izoh" rows="3" placeholder="Biznes g'oyangiz yoki savolingiz"></textarea></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitAriza('${mahallaId}')">Arizani yuborish</button>
+    </div>
+  `);
+}
+function submitAriza(mahallaId){
+  const name = document.getElementById("az-name").value.trim();
+  const phone = document.getElementById("az-phone").value.trim();
+  if(!name || !phone){ toast("Ism va telefon raqamini kiriting"); return; }
+  const app = {
+    id: "az" + Date.now(),
+    mahallaId,
+    fio:name, phone,
+    kredit:document.getElementById("az-kredit").value,
+    izoh:document.getElementById("az-izoh").value.trim(),
+    status:"yangi",
+    createdAt:new Date().toISOString()
+  };
+  S.applications.unshift(app);
+  persistApplications();
+  openModal(`
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h3>✅ Ariza qabul qilindi</h3>
+      <div class="ok-box">
+        1-chi ariza qabul qilindi.<br><br>
+        Arizangizni mahalla bankiri ko'rib chiqadi va siz bilan bog'lanadi. Javobni qo'ng'iroq yoki SMS orqali bildiradi.
+      </div>
+      <button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:16px" onclick="closeModal()">Yopish</button>
+    </div>
+  `);
+}
+
+/* ============ AI BUSINESS PLANNER ============ */
+let aiChoice = {budget:"5-20 mln", tajriba:"Yangi boshlovchi"};
+let aiLoading = false;
+let aiResult = null;
+let aiError = null;
+
+function setAiChoice(key, val){ aiChoice[key]=val; renderAiBox(); }
+
+function renderAiBox(mahalla){
+  const el = document.getElementById("ai-box-root");
+  if(!el) return;
+  el.innerHTML = `
+    <h3>🤖 AI biznes-reja tavsiyachisi</h3>
+    <p>${mahalla.nomi} mahallasining ixtisoslashuvi (${mahalla.drayver}) asosida, sizga mos biznes g'oyalarini va ularga mos kredit turini taklif qilamiz.</p>
+    <div class="field"><label style="color:#cfd8e6">Boshlang'ich byudjetingiz</label>
+      <div class="choice-row">
+        ${["5 mln gacha","5-20 mln","20-50 mln","50 mln dan ko'p"].map(b=>`<button class="chip ${aiChoice.budget===b?'active':''}" onclick="setAiChoice('budget','${b}')">${b}</button>`).join("")}
+      </div>
+    </div>
+    <div class="field"><label style="color:#cfd8e6">Tajribangiz</label>
+      <div class="choice-row">
+        ${["Yangi boshlovchi","Tajribam bor"].map(t=>`<button class="chip ${aiChoice.tajriba===t?'active':''}" onclick="setAiChoice('tajriba','${t}')">${t}</button>`).join("")}
+      </div>
+    </div>
+    <button class="btn btn-gold" onclick="runAiPlanner('${mahalla.id}')" ${aiLoading?'disabled':''}>
+      ${aiLoading ? '<span class="spinner"></span> Tahlil qilinmoqda...' : 'AI tavsiyasini olish'}
+    </button>
+    <div id="ai-result">
+      ${aiError ? `<p style="color:#ffb4b4;margin-top:14px">${esc(aiError)}</p>` : ""}
+      ${aiResult ? aiResult.map(idea=>`
+        <div class="idea-card">
+          <h5>${esc(idea.name||idea.nomi||"")}</h5>
+          <div style="font-size:13px;color:var(--ink)">${esc(idea.tavsif||idea.description||"")}</div>
+          <div class="row"><span>Boshlang'ich xarajat</span><b>${esc(idea.boshlangich_xarajat||idea.budget||"")}</b></div>
+          <div class="row"><span>Taxminiy oylik daromad</span><b>${esc(idea.kutilayotgan_oylik_daromad||idea.income||"")}</b></div>
+          <div class="row"><span>Mos kredit turi</span><b>${esc(idea.mos_kredit||idea.credit||"")}</b></div>
+        </div>
+      `).join("") : ""}
+    </div>
+  `;
+}
+
+async function runAiPlanner(mahallaId){
+  const m = findMahalla(mahallaId);
+  aiLoading = true; aiError=null; aiResult=null;
+  renderAiBox(m);
+  const sysPrompt = `Sen Asaka Mahalla AI platformasining biznes-reja maslahatchisisan. Faqat O'zbek tilida javob ber. Foydalanuvchiga mahalla ixtisoslashuviga mos, REAL va tanqidiy asoslangan (haddan tashqari bo'rttirilmagan) 3 ta biznes g'oyasini tavsiya qil. Har bir g'oya uchun taxminiy boshlang'ich xarajat va kutilayotgan oylik daromadni so'mda taxminiy diapazon sifatida ko'rsat. Quyidagi mavjud kredit mahsulotlaridan foydalanuvchining byudjeti va daromadiga ENG MOS bo'lganini tanlab ko'rsat: ${CREDIT_PRODUCTS.map(c=>c.nomi+" ("+c.miqdori+", "+c.foiz+")").join("; ")}.
+Javobni FAQAT quyidagi JSON massiv formatida qaytar, boshqa hech qanday matn, izoh yoki markdown belgisisiz:
+[{"name":"...", "tavsif":"...", "boshlangich_xarajat":"...", "kutilayotgan_oylik_daromad":"...", "mos_kredit":"..."}]`;
+  const userPrompt = `Mahalla: ${m.nomi}. Ixtisoslashuv/drayver: ${m.drayver}. Mahalladagi tadbirkorlik subyektlari soni: ${m.tadbirkorlik}. Foydalanuvchi byudjeti: ${aiChoice.budget}. Tajribasi: ${aiChoice.tajriba}.`;
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-6",
+        max_tokens:1000,
+        system: sysPrompt,
+        messages:[{role:"user", content:userPrompt}]
+      })
+    });
+    const data = await response.json();
+    const text = (data.content||[]).map(c=>c.text||"").join("\n");
+    const clean = text.replace(/```json|```/g,"").trim();
+    const parsed = JSON.parse(clean);
+    aiResult = parsed;
+  }catch(e){
+    aiError = "AI tavsiyasini olishda xatolik yuz berdi. Birozdan so'ng qayta urinib ko'ring.";
+  }
+  aiLoading = false;
+  renderAiBox(m);
+}
+
+/* ============ IMAGE UPLOAD (resize to dataURL) ============ */
+function handleMahallaImage(input, mahallaId){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const canvas = document.createElement("canvas");
+      const w = 480, h = Math.round(480 * img.height/img.width);
+      canvas.width=w; canvas.height=h;
+      canvas.getContext("2d").drawImage(img,0,0,w,h);
+      const dataUrl = canvas.toDataURL("image/jpeg",0.6);
+      const m = findMahalla(mahallaId);
+      m.image = dataUrl;
+      persistMahallas();
+      toast("Rasm yangilandi");
+      render();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ============ RENDER: LAYOUT ============ */
+function header(){
+  const links = [
+    ["home","Bosh sahifa"], ["kreditlar","Kreditlar"], ["kalkulyator","Kalkulyator"],
+    ["oldindan","Oldindan tasdiq"], ["mahallalar","Mahallam"]
+  ];
+  return `
+  <header class="site">
+    <div class="nav">
+      <div class="brand" onclick="navigate('home')"><span class="mark">AM</span>Asaka<span class="red">Mahalla</span>&nbsp;AI</div>
+      <div class="navlinks">
+        ${links.map(([r,l])=>`<a class="${S.route===r?'active':''}" onclick="navigate('${r}')">${l}</a>`).join("")}
+        ${isBanker() ? `<a class="${S.route==='bankir'||S.route==='admin'?'active':''}" onclick="navigate('${isAdmin()?'admin':'bankir'}')">${isAdmin()?'Admin panel':'Bankir kabineti'}</a>` : ""}
+      </div>
+      <div class="navactions">
+        ${S.session ? `
+          <span class="small-muted hidden-mobile">${esc(S.session.ism||S.session.name)}</span>
+          <button class="btn btn-outline btn-sm" onclick="logout()">Chiqish</button>
+        ` : `
+          <button class="btn btn-outline btn-sm" onclick="openLogin()">Kirish</button>
+        `}
+        <button class="btn btn-primary btn-sm hidden-mobile" onclick="navigate('mahallalar')">✨ AI bilan suhbat</button>
+      </div>
+    </div>
+    <div class="girih-band"></div>
+  </header>`;
+}
+function footer(){
+  return `
+  <footer class="site">
+    <div class="girih-band dark"></div>
+    <div class="wrap foot-grid">
+      <div>
+        <h5>Asaka Mahalla AI</h5>
+        <p style="max-width:280px">Mahalla bankiri uchun aqlli raqamli yordamchi. Yunusobod tumani Asakabank BXM uchun ishlab chiqilgan.</p>
+      </div>
+      <div>
+        <h5>Bo'limlar</h5>
+        <a onclick="navigate('kreditlar')">Kredit mahsulotlari</a>
+        <a onclick="navigate('kalkulyator')">Kalkulyator</a>
+        <a onclick="navigate('oldindan')">Oldindan tasdiq</a>
+        <a onclick="navigate('mahallalar')">Mahallalar</a>
+      </div>
+      <div>
+        <h5>Bankirlar</h5>
+        <a onclick="openLogin()">Bankir sifatida kirish</a>
+        <a onclick="navigate('vazifalar')">Bankir vazifalari</a>
+      </div>
+      <div>
+        <h5>Aloqa</h5>
+        <p>Yunusobod tumani, Toshkent</p>
+        <p>Asakabank BXM</p>
+      </div>
+    </div>
+    <div class="foot-bottom">© 2026 Asaka Mahalla AI — Asakabank platformasi</div>
+  </footer>`;
+}
+function layout(content){
+  $app.innerHTML = header() + content + footer();
+}
+
+/* ============ RENDER: HOME ============ */
+function renderMap(){
+  const polys = Object.entries(MAP_LAYOUT).map(([id,pts])=>{
+    const m = findMahalla(id);
+    return `<polygon class="plot" points="${pts}" fill="${m.color}" fill-opacity="0.16" stroke="${m.color}" stroke-width="2" onclick="navigate('mahalla',{id:'${id}'})"/>`;
+  }).join("");
+  const labels = Object.entries(MAP_LAYOUT).map(([id,pts])=>{
+    const m = findMahalla(id);
+    const xs = pts.split(" ").map(p=>+p.split(",")[0]);
+    const ys = pts.split(" ").map(p=>+p.split(",")[1]);
+    const cx = xs.reduce((a,b)=>a+b,0)/xs.length;
+    const cy = ys.reduce((a,b)=>a+b,0)/ys.length;
+    return `<g onclick="navigate('mahalla',{id:'${id}'})" style="cursor:pointer">
+      <text x="${cx}" y="${cy-4}" font-size="12" font-weight="800" fill="${m.color}" text-anchor="middle">${m.nomi}</text>
+      <text x="${cx}" y="${cy+11}" font-size="10" fill="#5B6270" text-anchor="middle">${fmt(m.aholi)} aholi</text>
+    </g>`;
+  }).join("");
+  return `
+    <div class="map-card">
+      <h4>Yunusobod tumani — mahallalar xaritasi</h4>
+      <p>Mahallani tanlang va batafsil ma'lumotni ko'ring</p>
+      <svg class="map-svg" viewBox="0 0 520 400" style="width:100%;height:auto">
+        ${polys}${labels}
+      </svg>
+      <div class="map-legend">
+        ${S.mahallas.map(m=>`<span><i style="background:${m.color}"></i>${m.nomi}</span>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderHome(){
+  const content = `
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> Asaka Digital · Yunusobod BXM</div>
+          <h1 class="hero-title">Bankka bormasdan <span class="accent">barcha bank ishlarini</span> bajaring</h1>
+          <p class="hero-sub">Kredit tanlash, ariza berish, mahalla bankiri bilan bog'lanish, imtiyozlarni ko'rish — hammasi bir platformada, sun'iy intellekt yordamida.</p>
+          <div class="hero-cta">
+            <button class="btn btn-primary" onclick="navigate('mahallalar')">✨ AI yordamchi bilan boshlash</button>
+            <button class="btn btn-outline" onclick="navigate('oldindan')">Oldindan tasdiqni tekshirish →</button>
+          </div>
+          <div class="stat-row">
+            <div class="stat-item"><div class="stat-num">${S.mahallas.length}</div><div class="stat-label">Ulangan mahallalar</div></div>
+            <div class="stat-item"><div class="stat-num">${fmt(totalAholi())}</div><div class="stat-label">Jami aholi</div></div>
+            <div class="stat-item"><div class="stat-num">${fmt(totalTadbirkor())}</div><div class="stat-label">Tadbirkorlik subyektlari</div></div>
+            <div class="stat-item"><div class="stat-num">${fmt(totalVakansiya())}</div><div class="stat-label">Bo'sh ish o'rinlari</div></div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="chatbox">
+            <div class="chat-row"><div class="chat-avatar">AI</div><div class="chat-bubble">Assalomu alaykum! Kredit yoki biznes reja bo'yicha yordam beraymi?</div></div>
+            <div class="chat-row me"><div class="chat-avatar">Siz</div><div class="chat-bubble">Menga 20 million kredit kerak, o'zimni o'zim band qilganman</div></div>
+            <div class="chat-row"><div class="chat-avatar">AI</div><div class="chat-bubble">Sizga <b>Biznesga birinchi qadam 2.0</b> (17 mln, 27%) mos keladi. Batafsil ko'raymi?</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="benefits-block">
+          <div>
+            <h3>Mahallangiz ixtisoslashuvi va faoliyat turingizga qarab siz olishingiz mumkin bo'lgan imtiyozlar</h3>
+            <p class="section-desc">Har bir mahalla o'ziga xos iqtisodiy yo'nalishga ega — PQ-49 imtiyozlari, biznes g'oyalari va kredit tavsiyalari shu asosida shakllantiriladi.</p>
+            <ul class="benefits-list">
+              <li><span class="ic">✓</span> Garovsiz kreditlar — 150 mln so'mgacha</li>
+              <li><span class="ic">✓</span> AI orqali mahallangizga mos biznes g'oyasi</li>
+              <li><span class="ic">✓</span> Mahalla bankiri bilan to'g'ridan-to'g'ri aloqa</li>
+            </ul>
+            <button class="btn btn-primary" onclick="navigate('mahallalar')">Mahallamni tanlash →</button>
+          </div>
+          ${renderMap()}
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-eyebrow">Kredit mahsulotlari</div>
+          <h2 class="section-title">Mahalla bankiri uchun eng kerakli kreditlar</h2>
+          <p class="section-desc">Jismoniy va yuridik shaxslar uchun Asakabank kredit mahsulotlari — bir joyda.</p>
+        </div>
+        <div class="grid grid-3">
+          ${CREDIT_PRODUCTS.slice(0,3).map(creditCard).join("")}
+        </div>
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn btn-outline" onclick="navigate('kreditlar')">Barcha kreditlarni ko'rish →</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-eyebrow">O'z mahallangizni tanlang</div>
+          <h2 class="section-title">Yunusobod tumani mahallalari</h2>
+          <p class="section-desc">Har bir mahalla — o'z bankiri, ko'rsatkichlari va biznes imkoniyatlari bilan.</p>
+        </div>
+        <div class="grid grid-3">
+          ${S.mahallas.slice(0,3).map(mahallaCard).join("")}
+        </div>
+        <div style="text-align:center;margin-top:20px">
+          <button class="btn btn-outline" onclick="navigate('mahallalar')">Barcha mahallalarni ko'rish →</button>
+        </div>
+      </div>
+    </section>
+  `;
+  layout(content);
+}
+
+function creditCard(c){
+  return `
+    <div class="card card-credit">
+      <span class="tag">${c.tag}</span>
+      <h4>${c.nomi}</h4>
+      <div class="credit-rows">
+        <div class="row"><span>Miqdori</span><b>${c.miqdori}</b></div>
+        <div class="row"><span>Muddati</span><b>${c.muddati}</b></div>
+        <div class="row"><span>Foiz stavkasi</span><b>${c.foiz}</b></div>
+        <div class="row"><span>Ta'minoti</span><b>${c.taminot}</b></div>
+      </div>
+      <div class="credit-goal">${c.maqsad}</div>
+    </div>
+  `;
+}
+function mahallaCard(m){
+  return `
+    <div class="card mh-card" onclick="navigate('mahalla',{id:'${m.id}'})" style="cursor:pointer">
+      <div class="mh-cover">
+        ${m.image ? `<img src="${m.image}">` : ""}
+        <span class="mh-sector">${m.sector}</span>
+      </div>
+      <div class="mh-body">
+        <h4>${m.nomi} MFY</h4>
+        <div class="drayver">${m.drayver}</div>
+        <div class="mh-stats">
+          <div><b>${fmt(m.aholi)}</b><span>aholi</span></div>
+          <div><b>${fmt(m.tadbirkorlik)}</b><span>tadbirkor</span></div>
+          <div><b>${fmt(m.vakansiya)}</b><span>vakansiya</span></div>
+        </div>
+        <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Batafsil →</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ============ RENDER: KREDITLAR ============ */
+function renderKreditlar(){
+  const content = `
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-eyebrow">Kredit mahsulotlari</div>
+          <h2 class="section-title">Barcha kredit turlari</h2>
+          <p class="section-desc">Aholi bandligini ta'minlash bo'yicha jismoniy va yuridik shaxslarga taklif etiladigan kredit mahsulotlari.</p>
+        </div>
+        <div class="grid grid-3">${CREDIT_PRODUCTS.map(creditCard).join("")}</div>
+
+        <div class="section-head" style="margin-top:50px">
+          <div class="section-eyebrow">PQ-49 · 05.02.2026</div>
+          <h2 class="section-title">Tadbirkorlikni rivojlantirish bo'yicha imtiyoz va kompensatsiyalar</h2>
+          <p class="section-desc">O'zbekiston Respublikasi Prezidentining hududlarni rivojlantirish to'g'risidagi qarori asosidagi imtiyozlar.</p>
+        </div>
+        <div class="grid grid-2">
+          ${IMTIYOZLAR.map(i=>`
+            <div class="card imtiyoz-card">
+              <div class="num">${i.num}</div>
+              <div class="txt">${i.txt}</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </section>
+  `;
+  layout(content);
+}
+
+/* ============ RENDER: KALKULYATOR ============ */
+let calcState = {productIdx:0, amount:10000000, months:12};
+function renderKalkulyator(){
+  const p = CREDIT_PRODUCTS[calcState.productIdx];
+  const rateMatch = p.foiz.match(/(\d+)/g);
+  const rate = rateMatch ? Number(rateMatch[rateMatch.length-1]) : 25;
+  const monthlyRate = rate/100/12;
+  const n = calcState.months;
+  const A = calcState.amount;
+  const payment = monthlyRate>0 ? (A*monthlyRate)/(1-Math.pow(1+monthlyRate,-n)) : A/n;
+
+  const content = `
+    <section>
+      <div class="wrap" style="max-width:720px">
+        <div class="section-head">
+          <div class="section-eyebrow">Kalkulyator</div>
+          <h2 class="section-title">Kredit to'lovini hisoblang</h2>
+          <p class="section-desc">Summani va muddatni o'zgartiring — natija darhol yangilanadi.</p>
+        </div>
+        <div class="card">
+          <div class="field">
+            <label>Kredit turi</label>
+            <select onchange="calcState.productIdx=Number(this.value);renderKalkulyator()">
+              ${CREDIT_PRODUCTS.map((c,i)=>`<option value="${i}" ${i===calcState.productIdx?'selected':''}>${c.nomi} (${c.foiz})</option>`).join("")}
+            </select>
+          </div>
+          <div class="field">
+            <label>Summa: <b>${fmt(calcState.amount)} so'm</b></label>
+            <input type="range" min="1000000" max="300000000" step="500000" value="${calcState.amount}"
+              oninput="calcState.amount=Number(this.value);renderKalkulyator()">
+            <input type="number" class="mini-input" style="width:100%;margin-top:8px" value="${calcState.amount}"
+              oninput="calcState.amount=Number(this.value)||0;renderKalkulyator()">
+          </div>
+          <div class="field">
+            <label>Muddati: <b>${calcState.months} oy</b></label>
+            <input type="range" min="3" max="84" step="1" value="${calcState.months}"
+              oninput="calcState.months=Number(this.value);renderKalkulyator()">
+          </div>
+          <hr class="soft">
+          <div class="pill-row" style="grid-template-columns:repeat(2,1fr)">
+            <div class="pill"><span>Oylik to'lov (taxminiy)</span><b>${fmt(Math.round(payment))} so'm</b></div>
+            <div class="pill"><span>Yillik foiz stavkasi</span><b>${rate}%</b></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:10px" onclick="navigate('oldindan')">Oldindan tasdiqni tekshirish →</button>
+        </div>
+      </div>
+    </section>
+  `;
+  layout(content);
+}
+
+/* ============ RENDER: OLDINDAN TASDIQ ============ */
+let preState = {daromad:5000000, summa:10000000, turi:"Jismoniy shaxs"};
+function renderOldindan(){
+  const nisbat = preState.summa / (preState.daromad*12);
+  const approved = nisbat <= 3;
+  const content = `
+    <section>
+      <div class="wrap" style="max-width:640px">
+        <div class="section-head">
+          <div class="section-eyebrow">Oldindan tasdiq</div>
+          <h2 class="section-title">To'lov qulayligini tekshirish</h2>
+          <p class="section-desc">Ma'lumotlarni kiriting — natija darhol, qayta bosishsiz yangilanadi.</p>
+        </div>
+        <div class="card">
+          <div class="field">
+            <label>Shaxs turi</label>
+            <select onchange="preState.turi=this.value;renderOldindan()">
+              <option ${preState.turi==='Jismoniy shaxs'?'selected':''}>Jismoniy shaxs</option>
+              <option ${preState.turi==='Yuridik shaxs'?'selected':''}>Yuridik shaxs</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Oylik daromadingiz (so'm)</label>
+            <input type="number" value="${preState.daromad}" oninput="preState.daromad=Number(this.value)||0;renderOldindan()">
+          </div>
+          <div class="field">
+            <label>Xohlagan kredit summasi (so'm)</label>
+            <input type="number" value="${preState.summa}" oninput="preState.summa=Number(this.value)||0;renderOldindan()">
+          </div>
+          <hr class="soft">
+          <div class="ok-box" style="${approved?'':'background:var(--rose-soft);border-color:#f0c9c9'}">
+            ${approved ? `✅ Oldindan tasdiqlangan. Xohlagan summangiz yillik daromadingizga mos keladi. Mahalla bankiringiz bilan bog'lanib, arizani rasmiylashtirishingiz mumkin.`
+                       : `⚠️ Ushbu summa joriy daromadingiz uchun biroz yuqori. Kichikroq summa yoki uzunroq muddat bilan qayta urinib ko'ring.`}
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+  layout(content);
+}
+
+/* ============ RENDER: MAHALLA LIST ============ */
+function renderMahallaList(){
+  const content = `
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-eyebrow">O'z mahallangizni tanlang</div>
+          <h2 class="section-title">Yunusobod tumani — barcha mahallalar</h2>
+          <p class="section-desc">Mahallani tanlang: bankir ma'lumoti, ko'rsatkichlar va AI biznes-tavsiyalarini ko'ring.</p>
+        </div>
+        ${renderMap()}
+        <div style="height:26px"></div>
+        <div class="grid grid-3">${S.mahallas.map(mahallaCard).join("")}</div>
+      </div>
+    </section>
+  `;
+  layout(content);
+}
+
+/* ============ RENDER: MAHALLA DETAIL ============ */
+function renderMahallaDetail(id){
+  const m = findMahalla(id);
+  if(!m){ layout(`<section class="wrap"><div class="empty">Mahalla topilmadi</div></section>`); return; }
+  const canEdit = bankerFor(m.id);
+  aiResult=null; aiError=null; aiLoading=false;
+  const content = `
+    <section style="padding-bottom:0">
+      <div class="wrap">
+        <div class="section-eyebrow">Yunusobod tumani · ${m.sector}</div>
+        <h2 class="section-title" style="font-size:32px">${m.nomi} MFY</h2>
+        <p class="section-desc">Mahalla ${m.tashkil}-yilda tashkil etilgan. Asosiy yo'nalish: <b>${m.drayver}</b></p>
+
+        ${m.image ? `<img src="${m.image}" style="width:100%;max-height:280px;object-fit:cover;border-radius:18px;margin:18px 0">` : ""}
+
+        <div class="pill-row">
+          <div class="pill"><div class="ic" style="background:var(--rose-soft)">👥</div><b>${fmt(m.aholi)}</b><span>Jami aholi (${fmt(m.erkak)} erkak, ${fmt(m.ayol)} ayol)</span></div>
+          <div class="pill"><div class="ic" style="background:var(--blue-soft)">🏠</div><b>${fmt(m.xonadon)}</b><span>Xonadonlar soni</span></div>
+          <div class="pill"><div class="ic" style="background:var(--green-soft)">💼</div><b>${fmt(m.tadbirkorlik)}</b><span>Tadbirkorlik subyektlari (YATT: ${m.yatt})</span></div>
+          <div class="pill"><div class="ic" style="background:var(--gold-soft)">📋</div><b>${fmt(m.vakansiya)}</b><span>Bo'sh ish o'rinlari</span></div>
+        </div>
+
+        <div class="grid grid-2" style="margin-bottom:10px">
+          <div class="card">
+            <h4 style="margin:0 0 12px">Mahalla bankiri</h4>
+            <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">
+              <div class="chat-avatar" style="background:var(--navy);width:44px;height:44px;font-size:16px">${m.banker.split(" ").map(w=>w[0]).slice(0,2).join("")}</div>
+              <div>
+                <div style="font-weight:800">${m.banker}</div>
+                <div class="small-muted">${m.nomi} mahallasi bo'yicha</div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center" onclick="openArizaModal('${m.id}')">Bankir bilan bog'lanish / Ariza berish</button>
+          </div>
+          <div class="card">
+            <h4 style="margin:0 0 12px">Mahalla agenti</h4>
+            <p style="font-size:14px;margin:0 0 8px"><b>${m.agent}</b></p>
+            <p class="small-muted">Aholini tadbirkorlikka jalb qilish, moliyaviy savodxonlik va bandlikni ta'minlash bo'yicha ko'maklashadi.</p>
+            ${canEdit ? `
+              <hr class="soft">
+              <label class="small-muted">Mahalla rasmini yangilash (bankir/admin)</label>
+              <input type="file" accept="image/*" onchange="handleMahallaImage(this,'${m.id}')">
+            ` : ""}
+          </div>
+        </div>
+
+        <div id="ai-box-root" class="ai-box"></div>
+
+        ${canEdit ? renderMahallaEditPanel(m) : ""}
+      </div>
+    </section>
+  `;
+  layout(content);
+  renderAiBox(m);
+}
+
+function renderMahallaEditPanel(m){
+  return `
+    <div class="card" style="margin-top:26px">
+      <h4 style="margin:0 0 4px">Ko'rsatkichlarni tahrirlash <span class="badge-role">Bankir/Admin</span></h4>
+      <p class="small-muted" style="margin-bottom:16px">O'zgarishlar darhol saytda va fuqarolarga ko'rinadigan holatga o'tadi.</p>
+      <div class="grid grid-2">
+        <div class="field"><label>Bo'sh ish o'rinlari</label><input type="number" id="edit-vak" value="${m.vakansiya}"></div>
+        <div class="field"><label>Tadbirkorlik subyektlari</label><input type="number" id="edit-tad" value="${m.tadbirkorlik}"></div>
+        <div class="field"><label>Aholi soni</label><input type="number" id="edit-aholi" value="${m.aholi}"></div>
+        <div class="field"><label>Ixtisoslashuv (drayver)</label><input id="edit-drayver" value="${esc(m.drayver)}"></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveMahallaEdit('${m.id}')">Saqlash</button>
+    </div>
+    ${renderArizalarTable(m.id)}
+  `;
+}
+function saveMahallaEdit(id){
+  const m = findMahalla(id);
+  m.vakansiya = Number(document.getElementById("edit-vak").value)||0;
+  m.tadbirkorlik = Number(document.getElementById("edit-tad").value)||0;
+  m.aholi = Number(document.getElementById("edit-aholi").value)||0;
+  m.drayver = document.getElementById("edit-drayver").value;
+  persistMahallas();
+  toast("Ko'rsatkichlar yangilandi");
+  render();
+}
+
+function renderArizalarTable(filterMahallaId){
+  const list = S.applications.filter(a => !filterMahallaId || a.mahallaId===filterMahallaId);
+  if(list.length===0) return `<div class="card" style="margin-top:18px"><div class="empty">Hozircha arizalar yo'q</div></div>`;
+  return `
+    <div class="card" style="margin-top:18px">
+      <h4 style="margin:0 0 14px">Arizalar ${filterMahallaId ? "("+findMahalla(filterMahallaId).nomi+")" : "(barchasi)"}</h4>
+      <table class="table">
+        <tr><th>F.I.O</th><th>Telefon</th><th>Kredit turi</th><th>Mahalla</th><th>Holati</th></tr>
+        ${list.map(a=>`
+          <tr>
+            <td>${esc(a.fio)}</td>
+            <td>${esc(a.phone)}</td>
+            <td>${esc(a.kredit)}</td>
+            <td>${findMahalla(a.mahallaId)?.nomi||"—"}</td>
+            <td>
+              <select onchange="updateArizaStatus('${a.id}',this.value)">
+                <option value="yangi" ${a.status==='yangi'?'selected':''}>Yangi</option>
+                <option value="korib" ${a.status==='korib'?'selected':''}>Ko'rib chiqilmoqda</option>
+                <option value="bog" ${a.status==='bog'?'selected':''}>Bog'lanildi</option>
+              </select>
+            </td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>
+  `;
+}
+function updateArizaStatus(id, status){
+  const a = S.applications.find(x=>x.id===id);
+  if(a){ a.status=status; persistApplications(); toast("Holat yangilandi"); render(); }
+}
+
+/* ============ RENDER: BANKIR VAZIFALARI (info page) ============ */
+function renderVazifalar(){
+  const content = `
+    <section>
+      <div class="wrap" style="max-width:760px">
+        <div class="section-head">
+          <div class="section-eyebrow">Ma'lumot</div>
+          <h2 class="section-title">"Mahalla bankiri" va "Yordamchi agent" vazifalari</h2>
+        </div>
+        <div class="card">
+          <h4>Mahalla bankiri</h4>
+          <ul>
+            <li>Mahallaning tadbirkorlik imkoniyatlarini o'rganish, aholi bilan muloqotda bo'lish, yangi ish o'rinlarini yaratish choralarini ko'rish</li>
+            <li>Aholini kredit olish, biznesni yo'lga qo'yish va mahsulot sotishga o'rgatish</li>
+            <li>Oilaviy tadbirkorlik dasturlari doirasida kredit olgan fuqarolarga moliyaviy maslahat berish</li>
+            <li>Aholi va tadbirkorlar takliflarini bank rahbariyatiga yetkazish</li>
+          </ul>
+          <hr class="soft">
+          <h4>Yordamchi agent</h4>
+          <ul>
+            <li>Aholini tadbirkorlikka jalb qilish, bandlikni ta'minlashda mahalla bankiriga ko'maklashish</li>
+            <li>Moliyaviy savodxonlikni oshirish bo'yicha faoliyat olib borish</li>
+            <li>Aholi takliflari va qiyinchiliklarini o'rganib, xulosalarni yetkazish</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  `;
+  layout(content);
+}
+
+/* ============ RENDER: BANKER CABINET ============ */
+let dashTab = "arizalar";
+function renderBankirCabinet(){
+  if(!isBanker()){ openLogin(); navigate("home"); return; }
+  const acc = S.bankers.find(b=>b.login===S.session.login);
+  const myMahallas = S.mahallas.filter(m=>acc.mahallalar.includes(m.id));
+  const content = `
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-eyebrow">Bankir kabineti</div>
+          <h2 class="section-title">Assalomu alaykum, ${acc.ism}</h2>
+          <p class="section-desc">Sizga biriktirilgan mahallalar: ${myMahallas.map(m=>m.nomi).join(", ")||"— (admin biriktiradi)"}</p>
+        </div>
+        <div class="dash-tabs">
+          <button class="${dashTab==='arizalar'?'active':''}" onclick="dashTab='arizalar';render()">Arizalar</button>
+          <button class="${dashTab==='mahallalar'?'active':''}" onclick="dashTab='mahallalar';render()">Mahallalarim</button>
+          <button class="${dashTab==='profil'?'active':''}" onclick="dashTab='profil';render()">Profil</button>
+        </div>
+        ${dashTab==='arizalar' ? myMahallas.map(m=>renderArizalarTable(m.id)).join("") : ""}
+        ${dashTab==='mahallalar' ? `<div class="grid grid-2">${myMahallas.map(m=>`
+          <div class="card">
+            <h4>${m.nomi}</h4>
+            <p class="small-muted">${m.drayver}</p>
+            <button class="btn btn-outline btn-sm" onclick="navigate('mahalla',{id:'${m.id}'})">Ko'rish va tahrirlash →</button>
+          </div>
+        `).join("")}</div>` : ""}
+        ${dashTab==='profil' ? renderProfileForm(acc) : ""}
+      </div>
+    </section>
+  `;
+  layout(content);
+}
+function renderProfileForm(acc){
+  return `
+    <div class="card" style="max-width:480px">
+      <h4 style="margin:0 0 14px">Profil ma'lumotlari</h4>
+      <div class="field"><label>Ism familiya</label><input id="pf-ism" value="${esc(acc.ism)}"></div>
+      <div class="field"><label>Ish vaqti</label><input id="pf-vaqt" value="${esc(acc.ishvaqti)}" placeholder="09:00 – 18:00"></div>
+      <div class="field"><label>Telefon raqami</label><input id="pf-tel" value="${esc(acc.telefon)}" placeholder="+998 90 000 00 00"></div>
+      <div class="field"><label>Telegram (bog'lanish uchun)</label><input id="pf-tg" value="${esc(acc.telegram)}" placeholder="https://t.me/username"></div>
+      <button class="btn btn-primary" onclick="saveProfile('${acc.login}')">Saqlash</button>
+    </div>
+  `;
+}
+function saveProfile(login){
+  const acc = S.bankers.find(b=>b.login===login);
+  acc.ism = document.getElementById("pf-ism").value;
+  acc.ishvaqti = document.getElementById("pf-vaqt").value;
+  acc.telefon = document.getElementById("pf-tel").value;
+  acc.telegram = document.getElementById("pf-tg").value;
+  persistBankers();
+  toast("Profil yangilandi");
+  render();
+}
+
+/* ============ RENDER: ADMIN PANEL ============ */
+let adminTab = "bankirlar";
+function renderAdmin(){
+  if(!isAdmin()){ openLogin(); navigate("home"); return; }
+  const content = `
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-eyebrow">Admin panel</div>
+          <h2 class="section-title">Boshqaruv paneli</h2>
+          <p class="section-desc">Barcha mahallalar, bankirlar va arizalarni to'liq boshqarish</p>
+        </div>
+        <div class="dash-tabs">
+          <button class="${adminTab==='bankirlar'?'active':''}" onclick="adminTab='bankirlar';render()">Bankirlar</button>
+          <button class="${adminTab==='mahallalar'?'active':''}" onclick="adminTab='mahallalar';render()">Mahallalar</button>
+          <button class="${adminTab==='arizalar'?'active':''}" onclick="adminTab='arizalar';render()">Barcha arizalar</button>
+        </div>
+        ${adminTab==='bankirlar' ? renderAdminBankers() : ""}
+        ${adminTab==='mahallalar' ? renderAdminMahallas() : ""}
+        ${adminTab==='arizalar' ? renderArizalarTable(null) : ""}
+      </div>
+    </section>
+  `;
+  layout(content);
+}
+function renderAdminBankers(){
+  const rows = S.bankers.filter(b=>b.role==="banker").map(b=>`
+    <tr>
+      <td><input class="mini-input" style="width:130px" value="${esc(b.ism)}" onchange="updateBanker('${b.login}','ism',this.value)"></td>
+      <td><input class="mini-input" style="width:110px" value="${esc(b.login)}" disabled></td>
+      <td><input class="mini-input" style="width:90px" value="${esc(b.parol)}" onchange="updateBanker('${b.login}','parol',this.value)"></td>
+      <td>${S.mahallas.map(m=>`
+        <label style="font-size:11.5px;margin-right:6px"><input type="checkbox" ${b.mahallalar.includes(m.id)?'checked':''} onchange="toggleBankerMahalla('${b.login}','${m.id}',this.checked)"> ${m.nomi}</label>
+      `).join("")}</td>
+    </tr>
+  `).join("");
+  return `
+    <div class="card">
+      <h4 style="margin:0 0 14px">Bankirlar ro'yxati</h4>
+      <table class="table">
+        <tr><th>Ism</th><th>Login</th><th>Parol</th><th>Biriktirilgan mahallalar</th></tr>
+        ${rows}
+      </table>
+      <hr class="soft">
+      <h4>Yangi bankir qo'shish</h4>
+      <div class="grid grid-2">
+        <div class="field"><label>Ism familiya</label><input id="nb-ism"></div>
+        <div class="field"><label>Login</label><input id="nb-login"></div>
+        <div class="field"><label>Parol</label><input id="nb-parol"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addBanker()">Qo'shish</button>
+    </div>
+  `;
+}
+function updateBanker(login, field, val){
+  const b = S.bankers.find(x=>x.login===login);
+  b[field]=val; persistBankers(); toast("Yangilandi");
+}
+function toggleBankerMahalla(login, mahallaId, checked){
+  const b = S.bankers.find(x=>x.login===login);
+  if(checked){ if(!b.mahallalar.includes(mahallaId)) b.mahallalar.push(mahallaId); }
+  else{ b.mahallalar = b.mahallalar.filter(x=>x!==mahallaId); }
+  persistBankers(); toast("Biriktiruv yangilandi");
+}
+function addBanker(){
+  const ism = document.getElementById("nb-ism").value.trim();
+  const login = document.getElementById("nb-login").value.trim();
+  const parol = document.getElementById("nb-parol").value.trim();
+  if(!ism||!login||!parol){ toast("Hamma maydonlarni to'ldiring"); return; }
+  if(S.bankers.find(b=>b.login===login)){ toast("Bu login band"); return; }
+  S.bankers.push({login,parol,role:"banker",ism,mahallalar:[],telefon:"",telegram:"",ishvaqti:""});
+  persistBankers(); toast("Bankir qo'shildi"); render();
+}
+function renderAdminMahallas(){
+  return `
+    <div class="grid grid-2">
+      ${S.mahallas.map(m=>`
+        <div class="card">
+          <h4>${m.nomi}</h4>
+          <div class="field"><label>Aholi</label><input class="mini-input" style="width:100%" type="number" value="${m.aholi}" onchange="adminUpdateMahalla('${m.id}','aholi',this.value)"></div>
+          <div class="field"><label>Tadbirkorlik subyektlari</label><input class="mini-input" style="width:100%" type="number" value="${m.tadbirkorlik}" onchange="adminUpdateMahalla('${m.id}','tadbirkorlik',this.value)"></div>
+          <div class="field"><label>Bo'sh ish o'rinlari</label><input class="mini-input" style="width:100%" type="number" value="${m.vakansiya}" onchange="adminUpdateMahalla('${m.id}','vakansiya',this.value)"></div>
+          <button class="btn btn-outline btn-sm" onclick="removeMahalla('${m.id}')">O'chirish</button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+function adminUpdateMahalla(id, field, val){
+  const m = findMahalla(id);
+  m[field] = isNaN(val) ? val : Number(val);
+  persistMahallas(); toast("Yangilandi");
+}
+function removeMahalla(id){
+  if(!confirm("Rostdan ham o'chirilsinmi?")) return;
+  S.mahallas = S.mahallas.filter(m=>m.id!==id);
+  persistMahallas(); toast("O'chirildi"); render();
+}
+
+/* ============ MASTER RENDER ============ */
+function render(){
+  switch(S.route){
+    case "home": return renderHome();
+    case "kreditlar": return renderKreditlar();
+    case "kalkulyator": return renderKalkulyator();
+    case "oldindan": return renderOldindan();
+    case "mahallalar": return renderMahallaList();
+    case "mahalla": return renderMahallaDetail(S.params.id);
+    case "vazifalar": return renderVazifalar();
+    case "bankir": return renderBankirCabinet();
+    case "admin": return renderAdmin();
+    default: return renderHome();
+  }
+}
+
+/* ============ BOOT ============ */
+(async function boot(){
+  await initState();
+  render();
+  setTimeout(()=>{ const s=document.getElementById("splash"); if(s) s.remove(); }, 3200);
+})();
+</script>
+</body>
+</html>

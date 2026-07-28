@@ -1,0 +1,203 @@
+# Asaka Mahalla AI — loyihani qurish uchun texnik topshiriq
+
+## 1. Loyiha haqida
+
+"Asaka Mahalla AI" — Asakabank Yunusobod tumani BXM (bank xizmatlari markazi) uchun ishlab
+chiqilayotgan platforma. Tagline: **"Mahalla bankiri uchun aqlli raqamli yordamchi."**
+
+Maqsad: fuqarolar bankka bormasdan kredit tanlashi, ariza berishi, mahalla bankiri bilan
+bog'lanishi va sun'iy intellekt yordamida o'z mahallasiga mos biznes g'oyasi va kredit turini
+topa olishi. Mahalla bankirlari esa o'z mahallalaridan kelgan arizalarni va ko'rsatkichlarni
+shu platforma orqali boshqaradi.
+
+**Muhim: men allaqachon Claude.ai chatida to'liq ishlaydigan frontend prototipini (bitta HTML
+fayl, mock/vaqtinchalik ma'lumotlar bilan) qurib chiqdim — u ilova qilingan
+`asaka-mahalla-ai-prototype.html` faylida. Undagi dizayn tizimi, sahifa strukturasi va barcha
+UI komponentlarini ASOSIY REFERENS sifatida ishlat va shu asosda to'liq, production-ready
+loyihaga aylantir (haqiqiy backend, baza, autentifikatsiya bilan).**
+
+---
+
+## 2. Texnik stack tavsiyasi
+
+- Frontend: React (yoki Next.js) + Tailwind CSS
+- Backend: Node.js/Express yoki Next.js API routes
+- Baza: PostgreSQL (yoki SQLite — dev bosqichida)
+- Autentifikatsiya: haqiqiy parol xeshlash (bcrypt), sessiya/JWT — prototipdagi "oddiy tekst
+  parol" yechimi FAQAT demo edi, productionda ishlatilmaydi
+- AI: Anthropic Claude API (biznes-reja tavsiyachisi uchun)
+- Rasm yuklash: fayllarni serverda saqlash (yoki S3-uyoshi obyekt xotira), prototipdagi
+  base64-in-browser yechim faqat demo edi
+
+Agar boshqa stack afzal ko'rilsa (masalan Laravel/PHP — original texnik topshiriqda tilga
+olingan edi), shu bo'yicha ham mos yozuv beraman, lekin standart tavsiyam yuqoridagi.
+
+---
+
+## 3. Dizayn tizimi (asl brend materiallaridan olingan)
+
+**Ranglar:**
+- Asaka Red: `#C8102E` (asosiy CTA, brend rangi)
+- Navy: `#0B2545` (sarlavhalar, footer, dark bo'limlar)
+- Gold/Accent: `#C69C4E` (milliy ornament — "hoshiya" chiziqlari, ikkilamchi urg'u)
+- Sand (fon): `#FAF7F0`
+- Soft blue / soft green / rose — statistik kartalar uchun yengil fon ranglari
+
+**Tipografiya:** Manrope (400–800 og'irliklar) — bu brendning o'z dizayn tizimida aniqlangan
+shrift.
+
+**Signature element:** girih/milliy naqsh chizig'i (geometrik uchburchak/yulduzsimon
+"hoshiya" banner) header ostida va footer ustida — bu O'zbek milliy uslubini zamonaviy
+UI bilan bog'laydigan asosiy vizual imzo. Prototipda CSS gradient-based patterns bilan
+amalga oshirilgan, xohlasa SVG pattern bilan yanada boyitish mumkin.
+
+Umumiy uslub: zamonaviy + milliy uyg'unlik, Asakabank brendi saqlanib qolishi shart (qizil-oq),
+generic/shablon SaaS ko'rinishidan qochish.
+
+---
+
+## 4. Sahifalar va funksionallik
+
+### 4.1 Bosh sahifa
+- Hero: sarlavha, qisqa tavsif, ikkita CTA ("AI yordamchi bilan boshlash", "Oldindan
+  tasdiqni tekshirish"), statistika qatori (jami mahallalar, aholi, tadbirkorlar, vakansiyalar)
+- Chat-demo vizual blok (AI bilan namunaviy dialog)
+- "Mahallangiz ixtisoslashuvi va faoliyat turingizga qarab siz olishingiz mumkin bo'lgan
+  imtiyozlar" bloki + shu yerning o'zida yoki tagida **interaktiv Yunusobod tumani xaritasi**
+  (7 mahalla, har biri bosiladigan mintaqa, bosilganda mahalla sahifasiga o'tadi)
+- Top-3 kredit mahsuloti kartochkalari
+- Top-3 mahalla kartochkasi + "Barchasini ko'rish" tugmasi
+
+### 4.2 Kreditlar sahifasi
+- Barcha 6 ta kredit mahsuloti (pastga qarang — bo'lim 6)
+- PQ-49 imtiyoz va kompensatsiyalar bloki
+
+### 4.3 Kalkulyator
+- Kredit turini tanlash, summa va muddatni slider/input orqali o'zgartirish
+- **MUHIM BUG FIX:** natija (oylik to'lov) HAR BIR o'zgarishda darhol qayta hisoblanishi kerak,
+  qayta bosishni talab qilmasdan (eski versiyada shu joyda xato bor edi)
+
+### 4.4 Oldindan tasdiq ("To'lov qulayligini tekshirish")
+- Shaxs turi, oylik daromad, xohlagan summa — natija darhol chiqadi
+- **MUHIM BUG FIX:** raqam kiritishda erkin o'zgartirish imkoni bo'lishi kerak (eski versiyada
+  sonlarni o'zgartirish uchun qayta bosish kerak edi — bu tuzatilishi shart)
+
+### 4.5 Mahalla ro'yxati va batafsil sahifa
+- Xarita + barcha mahallalar grid ko'rinishida
+- Har bir mahalla sahifasida:
+  - Statistika: aholi (erkak/ayol), xonadonlar, tadbirkorlik subyektlari, YATT, bo'sh ish
+    o'rinlari, ixtisoslashuv (drayver)
+  - Mahalla bankiri va agent ma'lumoti + "Ariza berish" tugmasi
+  - **AI biznes-reja tavsiyachisi**: foydalanuvchi byudjet va tajriba darajasini tanlaydi →
+    Claude API chaqiriladi → mahalla ixtisoslashuviga mos 2–3 ta biznes g'oyasi, taxminiy
+    xarajat/daromad va ENG MOS kredit mahsuloti taklif qilinadi
+  - Bankir/admin uchun: ko'rsatkichlarni tahrirlash formasi, mahalla rasmini yuklash,
+    o'sha mahalladan kelgan arizalar jadvali
+
+### 4.6 Ariza berish oqimi
+- Forma: ism, telefon, kredit turi, izoh
+- Yuborilgach — **BITTA sodda tasdiq xabari** ko'rsatiladi ("Arizangiz qabul qilindi.
+  Mahalla bankiri ko'rib chiqadi va siz bilan bog'lanadi. Javobni qo'ng'iroq yoki SMS orqali
+  bildiradi.") — 5 bosqichli murakkab jarayon KERAK EMAS (bu eski versiyadagi talab edi)
+- Ariza **darhol** tegishli mahalla bankirining kabinetida ko'rinishi shart (eski versiyada
+  bankir va fuqaro ma'lumotlari sinxronlanmasdi — bu MUHIM tuzatish)
+
+### 4.7 Kirish tizimi
+- Ikki yo'nalish: **Fuqaro sifatida** (ism+telefon, yengil) va **Mahalla bankiri sifatida**
+  (login+parol)
+- Bankir login qilganda — o'ziga biriktirilgan mahalla(lar)ni ko'radi, boshqa mahallalarga
+  kira olmaydi
+- **Katta admin** (bosh administrator) — barcha ma'lumotlarni to'liq boshqarish huquqiga ega:
+  - Yangi bankir yaratish (login/parol) va unga bir yoki bir nechta mahalla biriktirish
+  - Istalgan bankirning login/parolini keyinchalik o'zgartirish
+  - Istalgan mahalla ma'lumotini to'g'ridan-to'g'ri tahrirlash
+  - Barcha arizalarni ko'rish
+
+### 4.8 Bankir kabineti
+- O'ziga biriktirilgan mahalla(lar)dan kelgan arizalar ro'yxati, holatini o'zgartirish
+  (Yangi / Ko'rib chiqilmoqda / Bog'lanildi)
+- Mahalla ko'rsatkichlarini tahrirlash (bo'sh ish o'rinlari, tadbirkorlik soni va h.k.)
+- Mahalla rasmini yuklash
+- O'z profilini tahrirlash (ism, telefon, ish vaqti, telegram)
+
+### 4.9 Admin panel
+- Bankirlar boshqaruvi (yuqoridagi 4.7 barchasi + qo'shish/o'chirish)
+- Barcha mahallalar ustidan to'liq nazorat
+- Barcha arizalar ko'rinishi
+
+---
+
+## 5. Intro/logo animatsiyasi
+
+Saytga kirilganda ~3 soniyalik splash-effekt: markazda aylanayotgan halqa, pastda nur,
+so'ngra "AsakaMahalla AI" logotipi va tagline paydo bo'lib, keyin sayt ochiladi. Prototipda
+CSS keyframe animatsiyasi bilan amalga oshirilgan — shu g'oyani saqlab qolish kerak.
+
+---
+
+## 6. Ma'lumotlar (real, MFY pasportlaridan olingan — Yunusobod tumani)
+
+| Mahalla | Aholi | Xonadon | Tadbirkorlik sub. | YATT | Vakansiya | Drayver (ixtisoslashuv) | Bankir |
+|---|---|---|---|---|---|---|---|
+| Otchopar 1 | 8 626 | 1 840 | 154 | 36 | 8 | Xizmat ko'rsatish | Karimov Jamshid |
+| Otchopar 2 | 6 420 | 2 024 | 26 | 12 | 14 | Ishlab chiqarish, xizmat, savdo-sanoat | Karimov Jamshid |
+| Yurtobod | 5 314 | 1 492 | 16 | 15 | 14 | Aholiga savdo va maishiy xizmat | G'affarov Sardor O'ktam o'g'li |
+| Yangiariq | 4 560 | 749 | 5 | 2 | — | Oziq-ovqat va xizmat ko'rsatish | G'affarov Sardor O'ktam o'g'li |
+| Oqtepa | 7 751 | 1 557 | 64 | 82 | 8 | Aholiga savdo va maishiy xizmat | Burxonov Tolibjon Musurmon o'g'li |
+| Posira | 7 553 | 2 360 | 285 | 97 | 17 | Aholiga savdo va maishiy xizmat | Burxonov Tolibjon Musurmon o'g'li |
+| Muruvvat | 5 138 | 1 320 | 38 | 6 | 4 | Aholiga savdo va maishiy xizmat | Burxonov Tolibjon Musurmon o'g'li |
+
+Demo login: `jamshidkarimov` / `123` → Otchopar 1 va Otchopar 2 mahallalariga biriktirilgan.
+Admin: `admin` / `admin2026` (productionda bu haqiqiy xavfsiz parolga almashtiriladi).
+
+### Kredit mahsulotlari
+
+**Jismoniy shaxslar uchun:**
+1. Biznesga birinchi qadam 1.0 — 5 mln so'mgacha, 12 oygacha, 24–28%, ta'minotsiz
+2. Biznesga birinchi qadam 2.0 — 17 mln so'mgacha, 36 oygacha, 27%, 3-shaxs kafilligi/sug'urta
+3. Tadbirkorga ko'mak — 25 mln so'mgacha, 36 oygacha, 25%, 3-shaxs kafilligi/sug'urta
+
+**Yuridik shaxslar uchun:**
+4. Mahalla loyihasi — 50 mln so'mgacha, 3 yilgacha, 25%, 3-shaxs kafilligi/sug'urta
+5. Biznesga ishonch 2 (PQ-312) — 300 mln so'mgacha, 7 yilgacha, 19–23%, 100 mln gacha garovsiz
+6. Tomorqadan eksportgacha — 2 mln $ gacha, 12 oygacha, 5%, 3-shaxs kafilligi/sug'urta
+
+### PQ-49 imtiyozlari (05.02.2026 qarori)
+- O'zini o'zi band qilganlarga garovsiz kredit — 50 mln so'mgacha
+- Chorvachilik ixtisoslashgan mahallalar — 100 mln so'mgacha
+- Turizm/xizmat (chegara/anklav hududlar) — 1000 mln so'mgacha
+- Turizm salohiyati yuqori mahallalarda mehmonxona — 150 mln so'mgacha (garovsiz)
+- Ixtisoslashuvi 50%+ mahallada saqlash/qayta ishlash texnologiyalari — 150 mln so'mgacha (garovsiz)
+- Og'ir toifadagi tumanlarda oilaviy tadbirkorlik — 12% yillik
+- Kompensatsiya: mahsulot yetishtirish loyihalariga 4% punkt, qayta ishlash loyihalariga 6% punkt
+
+---
+
+## 7. Mahalla bankiri va Yordamchi agent vazifalari (kontekst uchun, AI mantig'iga asos)
+
+**Mahalla bankiri:** mahallaning tadbirkorlik imkoniyatlarini o'rganish, aholi bilan
+muloqotda bo'lish, kredit olish/qaytarishga o'rgatish, biznes g'oyalarini loyihaga aylantirish,
+moliyaviy maslahat berish, takliflarni bank rahbariyatiga yetkazish.
+
+**Yordamchi agent:** aholini tadbirkorlikka jalb qilish, moliyaviy savodxonlikni oshirish,
+bankirga ko'maklashish, muammolarni o'rganib xulosa berish.
+
+---
+
+## 8. Ustuvorliklar (birinchi bosqichda nimadan boshlash kerak)
+
+1. Baza sxemasi va autentifikatsiya (fuqaro / bankir / admin rollari)
+2. Mahalla CRUD + real 7 mahalla ma'lumotini bazaga yuklash
+3. Ariza berish + bankir kabinetida real vaqtda ko'rinishi (sinxronizatsiya)
+4. Bankir/admin boshqaruv paneli
+5. AI biznes-reja tavsiyachisi (Claude API integratsiyasi)
+6. Kalkulyator va oldindan tasdiq (bug fixlar bilan)
+7. Dizayn polishi — girih ornament, intro animatsiya, responsive
+
+---
+
+## 9. Ilova qilingan fayl
+
+`asaka-mahalla-ai-prototype.html` — bitta HTML faylda ishlaydigan to'liq frontend prototip
+(barcha yuqoridagi sahifalar, mock ma'lumotlar bilan). Buni ochib ko'rib, dizayn va UX
+qarorlarini xuddi shu tarzda (yoki yaxshilab) real loyihaga ko'chir.

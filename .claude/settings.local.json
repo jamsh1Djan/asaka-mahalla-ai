@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(node -v)",
+      "PowerShell(npm -v)",
+      "PowerShell(docker --version)",
+      "PowerShell(Get-Command node,npm,npx,git,docker,python,python3 -ErrorAction SilentlyContinue)",
+      "PowerShell(winget --version 2>$null)",
+      "PowerShell(winget install -e --id OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements --disable-interactivity)",
+      "PowerShell(winget install -e --id Git.Git --accept-source-agreements --accept-package-agreements --disable-interactivity)",
+      "PowerShell(Get-Command chromium-cli -ErrorAction SilentlyContinue)"
+    ]
+  }
+}

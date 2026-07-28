@@ -1,0 +1,87 @@
+// Asaka Mahalla AI — Prisma schema
+// Dev: SQLite (file-based, zero setup). Production: switch provider to "postgresql"
+// and set DATABASE_URL to a Postgres connection string — models below are portable as-is.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BANKER
+  ADMIN
+}
+
+enum ApplicationStatus {
+  YANGI
+  KORIB
+  BOG
+}
+
+model Mahalla {
+  id            String   @id
+  nomi          String
+  sector        String
+  tashkil       Int
+  aholi         Int
+  erkak         Int
+  ayol          Int
+  xonadon       Int
+  oila          Int
+  tadbirkorlik  Int
+  yatt          Int
+  vakansiya     Int
+  drayver       String
+  agent         String
+  image         String?
+  color         String
+  mapPoints     String
+
+  bankers       BankerMahalla[]
+  applications  Application[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Banker {
+  id           String   @id @default(cuid())
+  login        String   @unique
+  passwordHash String
+  role         Role     @default(BANKER)
+  ism          String
+  telefon      String?
+  telegram     String?
+  ishVaqti     String?
+
+  mahallalar   BankerMahalla[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Explicit join table (banker <-> mahalla), many-to-many
+model BankerMahalla {
+  bankerId  String
+  mahallaId String
+  banker    Banker  @relation(fields: [bankerId], references: [id], onDelete: Cascade)
+  mahalla   Mahalla @relation(fields: [mahallaId], references: [id], onDelete: Cascade)
+
+  @@id([bankerId, mahallaId])
+}
+
+model Application {
+  id        String            @id @default(cuid())
+  mahallaId String
+  mahalla   Mahalla           @relation(fields: [mahallaId], references: [id], onDelete: Cascade)
+  fio       String
+  phone     String
+  kredit    String
+  izoh      String?
+  status    ApplicationStatus @default(YANGI)
+  createdAt DateTime          @default(now())
+}
