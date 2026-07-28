@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession, isBanker } from "@/lib/auth";
+import { logActivity } from "@/lib/activityLog";
 import type { ApplicationStatus } from "@prisma/client";
 
 export type ArizaState = { error?: string; success?: boolean } | null;
@@ -40,6 +41,12 @@ export async function updateArizaStatusAction(applicationId: string, status: App
     where: { id: applicationId },
     data: { status },
   });
+
+  await logActivity(
+    session.bankerId,
+    "ariza_korildi",
+    `ariza: ${applicationId}, yangi holat: ${status}`
+  );
 
   revalidatePath("/bankir");
   revalidatePath("/admin");

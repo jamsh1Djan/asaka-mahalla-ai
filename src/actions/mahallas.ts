@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession, isAdmin } from "@/lib/auth";
 import { canEditMahalla } from "@/lib/authz";
+import { logActivity } from "@/lib/activityLog";
 
 export type MahallaEditState = { error?: string; success?: boolean } | null;
 
@@ -30,6 +31,9 @@ export async function updateMahallaStatsAction(
     where: { id: mahallaId },
     data: { vakansiya, tadbirkorlik, yatt, mchj, aholi, drayver, faoliyatTurlari },
   });
+
+  const actorId = session?.kind === "banker" ? session.bankerId : null;
+  await logActivity(actorId, "mahalla_tahrirlandi", `mahalla: ${mahallaId}`);
 
   revalidatePath(`/mahallalar/${mahallaId}`);
   revalidatePath("/mahallalar");
@@ -57,6 +61,9 @@ export async function uploadMahallaImageAction(mahallaId: string, formData: Form
     data: { image: `/uploads/mahallas/${filename}` },
   });
 
+  const actorId = session?.kind === "banker" ? session.bankerId : null;
+  await logActivity(actorId, "mahalla_tahrirlandi", `mahalla: ${mahallaId} (rasm yangilandi)`);
+
   revalidatePath(`/mahallalar/${mahallaId}`);
   revalidatePath("/mahallalar");
   revalidatePath("/");
@@ -74,6 +81,8 @@ export async function adminUpdateMahallaAction(mahallaId: string, formData: Form
     where: { id: mahallaId },
     data: { aholi, tadbirkorlik, vakansiya },
   });
+
+  await logActivity(session.bankerId, "mahalla_tahrirlandi", `mahalla: ${mahallaId} (admin)`);
 
   revalidatePath("/admin");
   revalidatePath(`/mahallalar/${mahallaId}`);

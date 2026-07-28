@@ -61,9 +61,20 @@ model Banker {
   ishVaqti     String?
 
   mahallalar   BankerMahalla[]
+  activityLogs ActivityLog[]
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  bankerId  String?
+  banker    Banker?  @relation(fields: [bankerId], references: [id], onDelete: SetNull)
+  action    String
+  detail    String?
+  ipAddress String?
+  createdAt DateTime @default(now())
 }
 
 // Explicit join table (banker <-> mahalla), many-to-many

@@ -5,6 +5,7 @@ import { getSession, isAdmin } from "@/lib/auth";
 import ArizalarTable from "@/components/ArizalarTable";
 import AdminBankersPanel from "@/components/AdminBankersPanel";
 import AdminMahallasPanel from "@/components/AdminMahallasPanel";
+import AdminActivityLogPanel from "@/components/AdminActivityLogPanel";
 
 export const metadata = { title: "Admin panel — Asaka Mahalla AI" };
 
@@ -12,19 +13,22 @@ const TABS = [
   ["bankirlar", "Bankirlar"],
   ["mahallalar", "Mahallalar"],
   ["arizalar", "Barcha arizalar"],
+  ["jurnal", "Faoliyat jurnali"],
 ] as const;
 
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; logAction?: string }>;
 }) {
   const session = await getSession();
   if (!isAdmin(session)) redirect("/kirish?rol=banker");
 
-  const { tab: rawTab } = await searchParams;
-  const tab = (["bankirlar", "mahallalar", "arizalar"] as const).includes(rawTab as never)
-    ? (rawTab as "bankirlar" | "mahallalar" | "arizalar")
+  const { tab: rawTab, logAction } = await searchParams;
+  const tab = (["bankirlar", "mahallalar", "arizalar", "jurnal"] as const).includes(
+    rawTab as never
+  )
+    ? (rawTab as "bankirlar" | "mahallalar" | "arizalar" | "jurnal")
     : "bankirlar";
 
   const mahallas = await prisma.mahalla.findMany({ orderBy: { nomi: "asc" } });
@@ -65,6 +69,7 @@ export default async function AdminPage({
         {tab === "bankirlar" && <AdminBankersPanel bankers={bankers} mahallas={mahallas} />}
         {tab === "mahallalar" && <AdminMahallasPanel mahallas={mahallas} />}
         {tab === "arizalar" && <ArizalarTable applications={applications} title="Barcha arizalar" />}
+        {tab === "jurnal" && <AdminActivityLogPanel actionFilter={logAction} />}
       </div>
     </section>
   );

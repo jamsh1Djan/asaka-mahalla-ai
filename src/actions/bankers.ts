@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession, isAdmin } from "@/lib/auth";
+import { logActivity } from "@/lib/activityLog";
+import { validatePassword } from "@/lib/password";
 
 export type AddBankerState = { error?: string; success?: boolean } | null;
 
@@ -19,14 +21,18 @@ export async function addBankerAction(
   const parol = String(formData.get("parol") || "").trim();
   if (!ism || !login || !parol) return { error: "Hamma maydonlarni to'ldiring" };
 
+  const passwordIssue = validatePassword(parol);
+  if (passwordIssue) return { error: passwordIssue };
+
   const existing = await prisma.banker.findUnique({ where: { login } });
   if (existing) return { error: "Bu login band" };
 
   const passwordHash = await bcrypt.hash(parol, 10);
-  await prisma.banker.create({
+  const created = await prisma.banker.create({
     data: { login, passwordHash, role: "BANKER", ism },
   });
 
+  await logActivity(session.bankerId, "banker_qoshildi", `yangi bankir: ${created.ism} (${login})`);
   revalidatePath("/admin");
   return { success: true };
 }
@@ -34,9 +40,14 @@ export async function addBankerAction(
 export async function updateBankerCredentialsAction(
   bankerId: string,
   data: { ism?: string; login?: string; parol?: string }
-) {
+): Promise<{ error?: string }> {
   const session = await getSession();
-  if (!isAdmin(session)) throw new Error("Ruxsat yo'q");
+  if (!isAdmin(session)) return { error: "Ruxsat yo'q" };
+
+  if (data.parol) {
+    const passwordIssue = validatePassword(data.parol);
+    if (passwordIssue) return { error: passwordIssue };
+  }
 
   const updateData: { ism?: string; login?: string; passwordHash?: string } = {};
   if (data.ism !== undefined) updateData.ism = data.ism;
@@ -44,7 +55,11 @@ export async function updateBankerCredentialsAction(
   if (data.parol) updateData.passwordHash = await bcrypt.hash(data.parol, 10);
 
   await prisma.banker.update({ where: { id: bankerId }, data: updateData });
+
+  const changed = Object.keys(updateData).join(", ");
+  await logActivity(session.bankerId, "banker_ozgartirildi", `bankir: ${bankerId} (${changed})`);
   revalidatePath("/admin");
+  return {};
 }
 
 export async function toggleBankerMahallaAction(
@@ -67,6 +82,11 @@ export async function toggleBankerMahallaAction(
     });
   }
 
+  await logActivity(
+    session.bankerId,
+    "banker_ozgartirildi",
+    `bankir: ${bankerId}, mahalla ${checked ? "biriktirildi" : "olib tashlandi"}: ${mahallaId}`
+  );
   revalidatePath("/admin");
 }
 
@@ -90,6 +110,7 @@ export async function saveProfileAction(
     data: { ism, ishVaqti, telefon, telegram },
   });
 
+  await logActivity(session.bankerId, "profil_yangilandi");
   revalidatePath("/bankir");
   return { success: true };
 }

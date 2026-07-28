@@ -62,6 +62,6 @@ export function isBanker(session: Session | null): session is BankerSession {
   return !!session && session.kind === "banker";
 }
 
-export function isAdmin(session: Session | null): boolean {
+export function isAdmin(session: Session | null): session is BankerSession {
   return isBanker(session) && session.role === "ADMIN";
 }

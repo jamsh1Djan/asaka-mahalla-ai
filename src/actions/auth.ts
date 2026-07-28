@@ -3,7 +3,8 @@
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { setSession, clearSession } from "@/lib/auth";
+import { setSession, clearSession, getSession } from "@/lib/auth";
+import { logActivity } from "@/lib/activityLog";
 
 export type AuthState = { error?: string } | null;
 
@@ -39,10 +40,15 @@ export async function bankerLoginAction(
     ism: acc.ism,
     role: acc.role,
   });
+  await logActivity(acc.id, "login", `rol: ${acc.role}`);
   redirect(acc.role === "ADMIN" ? "/admin" : "/bankir");
 }
 
 export async function logoutAction() {
+  const session = await getSession();
+  if (session?.kind === "banker") {
+    await logActivity(session.bankerId, "logout");
+  }
   await clearSession();
   redirect("/");
 }
