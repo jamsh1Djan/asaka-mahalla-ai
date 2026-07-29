@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { fmtDateTime } from "@/lib/format";
 
 const ACTION_LABELS: Record<string, string> = {
   login: "Kirish",
@@ -9,18 +10,14 @@ const ACTION_LABELS: Record<string, string> = {
   banker_qoshildi: "Bankir qo'shildi",
   banker_ozgartirildi: "Bankir o'zgartirildi",
   profil_yangilandi: "Profil yangilandi",
+  mahalla_qoshildi: "Mahalla qo'shildi",
+  mahalla_ochirildi: "Mahalla o'chirildi",
+  parol_reset_qilindi: "Parol reset qilindi",
+  parol_ozgartirildi: "Parol o'zgartirildi",
+  "2fa_yoqildi": "2FA yoqildi",
+  "2fa_ochirildi": "2FA o'chirildi",
+  tizim_sozlamasi_ozgartirildi: "Tizim sozlamasi o'zgartirildi",
 };
-
-function fmtDateTime(d: Date) {
-  return new Intl.DateTimeFormat("uz-UZ", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).format(d);
-}
 
 export default async function AdminActivityLogPanel({ actionFilter }: { actionFilter?: string }) {
   const where = actionFilter && actionFilter in ACTION_LABELS ? { action: actionFilter } : {};

@@ -6,6 +6,7 @@ import ArizalarTable from "@/components/ArizalarTable";
 import ProfileForm from "@/components/ProfileForm";
 import MahallaCard from "@/components/MahallaCard";
 import ListingsManager from "@/components/ListingsManager";
+import TwoFactorSection from "@/components/TwoFactorSection";
 
 export const metadata = { title: "Bankir kabineti — Asaka Mahalla AI" };
 
@@ -34,6 +35,8 @@ export default async function BankirPage({
     where: { id: session.bankerId },
     include: { mahallalar: { include: { mahalla: true } } },
   });
+  if (banker.mustChangePassword) redirect("/parol-almashtirish");
+
   const myMahallas = banker.mahallalar.map((bm) => bm.mahalla);
   const myMahallaIds = myMahallas.map((m) => m.id);
 
@@ -87,7 +90,12 @@ export default async function BankirPage({
 
         {tab === "elonlar" && <ListingsManager listings={listings} mahallas={myMahallas} />}
 
-        {tab === "profil" && <ProfileForm banker={banker} />}
+        {tab === "profil" && (
+          <>
+            <ProfileForm banker={banker} />
+            <TwoFactorSection totpEnabled={banker.totpEnabled} />
+          </>
+        )}
       </div>
     </section>
   );

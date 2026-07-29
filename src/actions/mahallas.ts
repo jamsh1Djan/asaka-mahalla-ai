@@ -26,10 +26,11 @@ export async function updateMahallaStatsAction(
   const aholi = Number(formData.get("aholi")) || 0;
   const drayver = String(formData.get("drayver") || "").trim();
   const faoliyatTurlari = String(formData.get("faoliyatTurlari") || "").trim();
+  const manzil = String(formData.get("manzil") || "").trim();
 
   await prisma.mahalla.update({
     where: { id: mahallaId },
-    data: { vakansiya, tadbirkorlik, yatt, mchj, aholi, drayver, faoliyatTurlari },
+    data: { vakansiya, tadbirkorlik, yatt, mchj, aholi, drayver, faoliyatTurlari, manzil },
   });
 
   const actorId = session?.kind === "banker" ? session.bankerId : null;
@@ -86,6 +87,100 @@ export async function adminUpdateMahallaAction(mahallaId: string, formData: Form
 
   revalidatePath("/admin");
   revalidatePath(`/mahallalar/${mahallaId}`);
+  revalidatePath("/mahallalar");
+  revalidatePath("/");
+}
+
+function slugify(nomi: string): string {
+  const base = nomi
+    .toLowerCase()
+    .replace(/[^a-z0-9а-яёʻʼ']+/gi, "-")
+    .replace(/^-+|-+$/g, "");
+  return `${base}-${Date.now().toString(36)}`;
+}
+
+export type CreateMahallaState = { error?: string; success?: boolean } | null;
+
+export async function createMahallaAction(
+  _prevState: CreateMahallaState,
+  formData: FormData
+): Promise<CreateMahallaState> {
+  const session = await getSession();
+  if (!isAdmin(session)) return { error: "Ruxsat yo'q" };
+
+  const nomi = String(formData.get("nomi") || "").trim();
+  const tuman = String(formData.get("tuman") || "").trim() || "Yunusobod";
+  const manzil = String(formData.get("manzil") || "").trim();
+  const aholi = Number(formData.get("aholi")) || 0;
+  const mahallaBankiri = String(formData.get("mahallaBankiri") || "").trim();
+  if (!nomi) return { error: "Mahalla nomini kiriting" };
+
+  const id = slugify(nomi);
+  const mahalla = await prisma.mahalla.create({
+    data: {
+      id,
+      nomi,
+      tuman,
+      manzil,
+      aholi,
+      sector: tuman,
+      tashkil: new Date().getFullYear(),
+      erkak: 0,
+      ayol: 0,
+      xonadon: 0,
+      oila: 0,
+      tadbirkorlik: 0,
+      yatt: 0,
+      mchj: 0,
+      vakansiya: 0,
+      drayver: "",
+      agent: "",
+      color: "#0B2545",
+      mapPoints: null,
+      isSeed: false,
+    },
+  });
+
+  if (mahallaBankiri) {
+    await prisma.bankerMahalla.create({
+      data: { bankerId: mahallaBankiri, mahallaId: mahalla.id, assignedBy: session.bankerId },
+    });
+  }
+
+  await logActivity(session.bankerId, "mahalla_qoshildi", `mahalla: ${mahalla.nomi} (${mahalla.id})`);
+
+  revalidatePath("/admin");
+  revalidatePath("/mahallalar");
+  revalidatePath("/");
+  return { success: true };
+}
+
+export async function toggleMahallaStatusAction(mahallaId: string, status: "FAOL" | "FAOL_EMAS") {
+  const session = await getSession();
+  if (!isAdmin(session)) throw new Error("Ruxsat yo'q");
+
+  await prisma.mahalla.update({ where: { id: mahallaId }, data: { status } });
+  await logActivity(session.bankerId, "mahalla_tahrirlandi", `mahalla: ${mahallaId}, status: ${status}`);
+
+  revalidatePath("/admin");
+  revalidatePath("/mahallalar");
+  revalidatePath("/");
+}
+
+export async function deleteMahallaAction(mahallaId: string) {
+  const session = await getSession();
+  if (!isAdmin(session)) throw new Error("Ruxsat yo'q");
+
+  const mahalla = await prisma.mahalla.findUnique({ where: { id: mahallaId } });
+  if (!mahalla) throw new Error("Mahalla topilmadi");
+  if (mahalla.isSeed) {
+    throw new Error("Bu asl Yunusobod MFY ma'lumoti — o'chirib bo'lmaydi, faqat tahrirlash mumkin");
+  }
+
+  await prisma.mahalla.delete({ where: { id: mahallaId } });
+  await logActivity(session.bankerId, "mahalla_ochirildi", `mahalla: ${mahalla.nomi} (${mahallaId})`);
+
+  revalidatePath("/admin");
   revalidatePath("/mahallalar");
   revalidatePath("/");
 }

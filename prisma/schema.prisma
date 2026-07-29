@@ -28,51 +28,77 @@ enum ListingType {
   BOSHQA
 }
 
+enum MahallaStatus {
+  FAOL
+  FAOL_EMAS
+}
+
+enum BankerStatus {
+  FAOL
+  BLOKLANGAN
+}
+
 model Mahalla {
-  id            String   @id
-  nomi          String
-  sector        String
-  tashkil       Int
-  aholi         Int
-  erkak         Int
-  ayol          Int
-  xonadon       Int
-  oila          Int
-  tadbirkorlik  Int
-  yatt          Int
-  mchj          Int    @default(0)
-  faoliyatTurlari String @default("")
-  vakansiya     Int
-  drayver       String
-  agent         String
-  image         String?
-  color         String
-  mapPoints     String
+  id              String        @id
+  nomi            String
+  sector          String
+  tuman           String        @default("Yunusobod")
+  manzil          String        @default("")
+  status          MahallaStatus @default(FAOL)
+  /// True for the 7 real Yunusobod MFY seeded from official data — protected from deletion.
+  isSeed          Boolean       @default(false)
+  tashkil         Int
+  aholi           Int
+  erkak           Int
+  ayol            Int
+  xonadon         Int
+  oila            Int
+  tadbirkorlik    Int
+  yatt            Int
+  mchj            Int           @default(0)
+  faoliyatTurlari String        @default("")
+  vakansiya       Int
+  drayver         String
+  agent           String
+  image           String?
+  color           String
+  /// SVG polygon points for the home-page map — absent for admin-added mahallas
+  /// (they simply don't render on the map, only in the list).
+  mapPoints       String?
 
-  bankers       BankerMahalla[]
-  applications  Application[]
-  listings      Listing[]
+  bankers      BankerMahalla[]
+  applications Application[]
+  listings     Listing[]
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Banker {
-  id           String   @id @default(cuid())
-  login        String   @unique
-  passwordHash String
-  role         Role     @default(BANKER)
-  ism          String
-  telefon      String?
-  telegram     String?
-  ishVaqti     String?
+  id                 String       @id @default(cuid())
+  login              String       @unique
+  passwordHash       String
+  role               Role         @default(BANKER)
+  status             BankerStatus @default(FAOL)
+  /// Forces a redirect to the change-password page on next login — set after
+  /// account creation or an admin-triggered password reset.
+  mustChangePassword Boolean      @default(false)
+  ism                String
+  telefon            String?
+  telegram           String?
+  ishVaqti           String?
+  lastLoginAt        DateTime?
+
+  totpSecret  String?
+  totpEnabled Boolean @default(false)
 
   mahallalar   BankerMahalla[]
   activityLogs ActivityLog[]
   listings     Listing[]
+  loginLogs    LoginLog[]
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ActivityLog {
@@ -85,12 +111,26 @@ model ActivityLog {
   createdAt DateTime @default(now())
 }
 
+/// One row per session — created at login, closed (logoutAt set) at logout.
+/// A null logoutAt on a recent row means the session is still active.
+model LoginLog {
+  id        String   @id @default(cuid())
+  bankerId  String
+  banker    Banker   @relation(fields: [bankerId], references: [id], onDelete: Cascade)
+  loginAt   DateTime @default(now())
+  logoutAt  DateTime?
+  ipAddress String?
+  userAgent String?
+}
+
 // Explicit join table (banker <-> mahalla), many-to-many
 model BankerMahalla {
-  bankerId  String
-  mahallaId String
-  banker    Banker  @relation(fields: [bankerId], references: [id], onDelete: Cascade)
-  mahalla   Mahalla @relation(fields: [mahallaId], references: [id], onDelete: Cascade)
+  bankerId   String
+  mahallaId  String
+  banker     Banker   @relation(fields: [bankerId], references: [id], onDelete: Cascade)
+  mahalla    Mahalla  @relation(fields: [mahallaId], references: [id], onDelete: Cascade)
+  assignedAt DateTime @default(now())
+  assignedBy String?
 
   @@id([bankerId, mahallaId])
 }
@@ -122,13 +162,14 @@ model Listing {
   createdBy   String
   banker      Banker      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Singleton row (id is always 1) holding platform-wide, admin-editable settings.
 model SystemSettings {
-  id                Int      @id @default(1)
-  aiPlannerYoqilgan Boolean  @default(true)
-  updatedAt         DateTime @updatedAt
+  id                  Int      @id @default(1)
+  aiPlannerYoqilgan   Boolean  @default(true)
+  enforce2faForAdmins Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
 }

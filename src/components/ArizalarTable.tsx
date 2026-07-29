@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { updateArizaStatusAction } from "@/actions/applications";
+import { fmtDate } from "@/lib/format";
 import type { Application, ApplicationStatus, Mahalla } from "@prisma/client";
 
 const STATUS_LABEL: Record<ApplicationStatus, string> = {
@@ -39,6 +40,7 @@ export default function ArizalarTable({
             <th>Telefon</th>
             <th>Kredit turi</th>
             <th>Mahalla</th>
+            <th>Sana</th>
             <th>Holati</th>
           </tr>
         </thead>
@@ -49,6 +51,7 @@ export default function ArizalarTable({
               <td>{a.phone}</td>
               <td>{a.kredit}</td>
               <td>{a.mahalla.nomi}</td>
+              <td className="small-muted">{fmtDate(a.createdAt)}</td>
               <td>
                 <select
                   defaultValue={a.status}

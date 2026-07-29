@@ -4,14 +4,21 @@ import { useActionState, useState, useTransition } from "react";
 import {
   addBankerAction,
   toggleBankerMahallaAction,
+  toggleBankerStatusAction,
+  resetBankerPasswordAction,
   updateBankerCredentialsAction,
   type AddBankerState,
 } from "@/actions/bankers";
 import { validatePassword } from "@/lib/password";
+import { fmtDateTime } from "@/lib/format";
 import PasswordStrengthMeter from "@/components/PasswordStrengthMeter";
-import type { Banker, Mahalla, Role } from "@prisma/client";
+import type { Banker, Mahalla } from "@prisma/client";
 
 type BankerWithMahallas = Banker & { mahallalar: { mahallaId: string }[] };
+
+function fmtLastLogin(d: Date | null) {
+  return d ? fmtDateTime(d) : "— hali kirmagan";
+}
 
 export default function AdminBankersPanel({
   bankers,
@@ -29,6 +36,7 @@ export default function AdminBankersPanel({
   );
   const [newPassword, setNewPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
+  const [tempPasswordFor, setTempPasswordFor] = useState<{ bankerId: string; password: string } | null>(null);
 
   function handleAddSubmit(e: React.FormEvent<HTMLFormElement>) {
     const issue = validatePassword(newPassword);
@@ -49,15 +57,16 @@ export default function AdminBankersPanel({
         albatta almashtiring.
       </div>
 
-      <h4 style={{ margin: "0 0 14px" }}>Foydalanuvchilar ro&apos;yxati</h4>
+      <h4 style={{ margin: "0 0 14px" }}>Bankirlar ro&apos;yxati</h4>
       <table className="table">
         <thead>
           <tr>
             <th>Ism</th>
             <th>Login</th>
-            <th>Parol</th>
-            <th>Rol</th>
             <th>Biriktirilgan mahallalar</th>
+            <th>Oxirgi kirgan vaqt</th>
+            <th>Status</th>
+            <th>Amallar</th>
           </tr>
         </thead>
         <tbody>
@@ -79,39 +88,7 @@ export default function AdminBankersPanel({
                     }
                   />
                 </td>
-                <td>
-                  <input
-                    className="mini-input"
-                    style={{ width: 110 }}
-                    defaultValue={b.login}
-                    disabled={isPending}
-                    onBlur={(e) =>
-                      startTransition(async () => {
-                        await updateBankerCredentialsAction(b.id, { login: e.target.value });
-                      })
-                    }
-                  />
-                </td>
-                <td>
-                  <BankerPasswordCell bankerId={b.id} disabled={isPending} />
-                </td>
-                <td>
-                  <select
-                    className="mini-input"
-                    style={{ width: 110 }}
-                    defaultValue={b.role}
-                    disabled={isPending || isSelf}
-                    title={isSelf ? "O'z rolingizni bu yerdan o'zgartira olmaysiz" : undefined}
-                    onChange={(e) =>
-                      startTransition(async () => {
-                        await updateBankerCredentialsAction(b.id, { role: e.target.value as Role });
-                      })
-                    }
-                  >
-                    <option value="BANKER">Bankir</option>
-                    <option value="ADMIN">Super Admin</option>
-                  </select>
-                </td>
+                <td className="small-muted">{b.login}</td>
                 <td>
                   {mahallas.map((m) => (
                     <label key={m.id} style={{ fontSize: 11.5, marginRight: 6 }}>
@@ -129,13 +106,64 @@ export default function AdminBankersPanel({
                     </label>
                   ))}
                 </td>
+                <td className="small-muted">{fmtLastLogin(b.lastLoginAt)}</td>
+                <td>
+                  <span className={`status-badge ${b.status === "FAOL" ? "status-bog" : "status-yangi"}`}>
+                    {b.status === "FAOL" ? "Faol" : "Bloklangan"}
+                  </span>
+                </td>
+                <td>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      disabled={isPending || isSelf}
+                      title={isSelf ? "O'zingizni bloklay olmaysiz" : undefined}
+                      onClick={() =>
+                        startTransition(() =>
+                          toggleBankerStatusAction(b.id, b.status === "FAOL" ? "BLOKLANGAN" : "FAOL")
+                        )
+                      }
+                    >
+                      {b.status === "FAOL" ? "Bloklash" : "Blokdan chiqarish"}
+                    </button>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      disabled={isPending}
+                      onClick={() =>
+                        startTransition(async () => {
+                          const res = await resetBankerPasswordAction(b.id);
+                          if ("tempPassword" in res) {
+                            setTempPasswordFor({ bankerId: b.id, password: res.tempPassword });
+                          }
+                        })
+                      }
+                    >
+                      Parolni reset qilish
+                    </button>
+                  </div>
+                  {tempPasswordFor?.bankerId === b.id && (
+                    <div className="ok-box" style={{ marginTop: 8, fontSize: 12.5 }}>
+                      Vaqtinchalik parol: <code>{tempPasswordFor.password}</code>
+                      <br />
+                      Buni bankirga xavfsiz yo&apos;l bilan yetkazing — qayta ko&apos;rsatilmaydi.
+                      <br />
+                      <button
+                        className="link-btn"
+                        style={{ marginTop: 4 }}
+                        onClick={() => setTempPasswordFor(null)}
+                      >
+                        Yopish
+                      </button>
+                    </div>
+                  )}
+                </td>
               </tr>
             );
           })}
         </tbody>
       </table>
       <hr className="soft" />
-      <h4>Yangi foydalanuvchi qo&apos;shish</h4>
+      <h4>Yangi bankir qo&apos;shish</h4>
       <form action={formAction} onSubmit={handleAddSubmit}>
         <div className="grid grid-2">
           <div className="field">
@@ -147,7 +175,11 @@ export default function AdminBankersPanel({
             <input name="login" required />
           </div>
           <div className="field">
-            <label>Parol</label>
+            <label>Telefon raqam</label>
+            <input name="telefon" placeholder="+998 90 000 00 00" />
+          </div>
+          <div className="field">
+            <label>Boshlang&apos;ich parol</label>
             <input
               name="parol"
               required
@@ -167,58 +199,24 @@ export default function AdminBankersPanel({
             </select>
           </div>
         </div>
+        <div className="field">
+          <label>Biriktirilgan mahalla(lar)</label>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+            {mahallas.map((m) => (
+              <label key={m.id} style={{ fontSize: 13 }}>
+                <input type="checkbox" name="mahallaIds" value={m.id} /> {m.nomi}
+              </label>
+            ))}
+          </div>
+        </div>
+        <p className="small-muted" style={{ margin: "4px 0 12px" }}>
+          Birinchi marta kirganda tizim parolni majburiy almashtirishni so&apos;raydi.
+        </p>
         {(localError || state?.error) && <div className="err">{localError || state?.error}</div>}
         <button className="btn btn-primary" type="submit" disabled={addPending}>
           {addPending ? "Qo'shilmoqda..." : "Qo'shish"}
         </button>
       </form>
-    </div>
-  );
-}
-
-function BankerPasswordCell({ bankerId, disabled }: { bankerId: string; disabled: boolean }) {
-  const [value, setValue] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
-
-  function commit() {
-    if (!value) return;
-    const issue = validatePassword(value);
-    if (issue) {
-      setError(issue);
-      return;
-    }
-    startTransition(async () => {
-      const res = await updateBankerCredentialsAction(bankerId, { parol: value });
-      if (res.error) {
-        setError(res.error);
-      } else {
-        setError(null);
-        setValue("");
-      }
-    });
-  }
-
-  return (
-    <div>
-      <input
-        className="mini-input"
-        style={{ width: 100 }}
-        placeholder="yangi parol"
-        value={value}
-        disabled={disabled || pending}
-        onChange={(e) => {
-          setValue(e.target.value);
-          setError(null);
-        }}
-        onBlur={commit}
-      />
-      <PasswordStrengthMeter password={value} />
-      {error && (
-        <div className="err" style={{ marginTop: 4, marginBottom: 0, fontSize: 11, maxWidth: 160 }}>
-          {error}
-        </div>
-      )}
     </div>
   );
 }

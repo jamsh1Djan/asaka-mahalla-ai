@@ -142,10 +142,11 @@ const MAHALLAS = [
 
 async function main() {
   for (const m of MAHALLAS) {
+    const data = { ...m, mapPoints: MAP_LAYOUT[m.id], isSeed: true, tuman: "Yunusobod" };
     await prisma.mahalla.upsert({
       where: { id: m.id },
-      update: { ...m, mapPoints: MAP_LAYOUT[m.id] },
-      create: { ...m, mapPoints: MAP_LAYOUT[m.id] },
+      update: data,
+      create: data,
     });
   }
 

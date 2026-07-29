@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { deleteListingAction } from "@/actions/listings";
-import { fmt } from "@/lib/format";
+import { fmt, fmtDate } from "@/lib/format";
 import ListingForm from "@/components/ListingForm";
 import type { Listing, Mahalla } from "@prisma/client";
 
@@ -66,7 +66,7 @@ export default function ListingsManager({
                 <div className="small-muted">Tel: {l.telefon}</div>
                 {l.amalMuddati && (
                   <div className="small-muted">
-                    Amal qiladi: {new Date(l.amalMuddati).toLocaleDateString("uz-UZ")}
+                    Amal qiladi: {fmtDate(l.amalMuddati)}
                   </div>
                 )}
                 <div style={{ display: "flex", gap: 8, marginTop: 12 }}>

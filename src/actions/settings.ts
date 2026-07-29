@@ -15,17 +15,18 @@ export async function updateSystemSettingsAction(
   if (!isAdmin(session)) return { error: "Ruxsat yo'q" };
 
   const aiPlannerYoqilgan = formData.get("aiPlannerYoqilgan") === "on";
+  const enforce2faForAdmins = formData.get("enforce2faForAdmins") === "on";
 
   await prisma.systemSettings.upsert({
     where: { id: 1 },
-    update: { aiPlannerYoqilgan },
-    create: { id: 1, aiPlannerYoqilgan },
+    update: { aiPlannerYoqilgan, enforce2faForAdmins },
+    create: { id: 1, aiPlannerYoqilgan, enforce2faForAdmins },
   });
 
   await logActivity(
     session.bankerId,
     "tizim_sozlamasi_ozgartirildi",
-    `AI tavsiyachi: ${aiPlannerYoqilgan ? "yoqildi" : "o'chirildi"}`
+    `AI tavsiyachi: ${aiPlannerYoqilgan ? "yoqildi" : "o'chirildi"}, admin 2FA majburiy: ${enforce2faForAdmins ? "ha" : "yo'q"}`
   );
 
   revalidatePath("/admin");

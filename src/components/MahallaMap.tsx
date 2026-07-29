@@ -8,7 +8,13 @@ function centerOf(points: string) {
   return { cx, cy };
 }
 
-export default function MahallaMap({ mahallas }: { mahallas: Mahalla[] }) {
+export default function MahallaMap({ mahallas: allMahallas }: { mahallas: Mahalla[] }) {
+  // Admin-added mahallas have no hand-drawn polygon yet — they simply don't
+  // appear on the map (still fully visible in the grid/list views).
+  const mahallas = allMahallas.filter(
+    (m): m is Mahalla & { mapPoints: string } => !!m.mapPoints
+  );
+
   return (
     <div className="map-card">
       <h4>Yunusobod tumani — mahallalar xaritasi</h4>
