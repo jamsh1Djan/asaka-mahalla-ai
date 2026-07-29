@@ -5,12 +5,14 @@ import { getSession, isBanker } from "@/lib/auth";
 import ArizalarTable from "@/components/ArizalarTable";
 import ProfileForm from "@/components/ProfileForm";
 import MahallaCard from "@/components/MahallaCard";
+import ListingsManager from "@/components/ListingsManager";
 
 export const metadata = { title: "Bankir kabineti — Asaka Mahalla AI" };
 
 const TABS = [
   ["arizalar", "Arizalar"],
   ["mahallalar", "Mahallalarim"],
+  ["elonlar", "E'lonlar boshqaruvi"],
   ["profil", "Profil"],
 ] as const;
 
@@ -24,8 +26,8 @@ export default async function BankirPage({
   if (session.role === "ADMIN") redirect("/admin");
 
   const { tab: rawTab } = await searchParams;
-  const tab = (["arizalar", "mahallalar", "profil"] as const).includes(rawTab as never)
-    ? (rawTab as "arizalar" | "mahallalar" | "profil")
+  const tab = (["arizalar", "mahallalar", "elonlar", "profil"] as const).includes(rawTab as never)
+    ? (rawTab as "arizalar" | "mahallalar" | "elonlar" | "profil")
     : "arizalar";
 
   const banker = await prisma.banker.findUniqueOrThrow({
@@ -38,6 +40,15 @@ export default async function BankirPage({
   const applications =
     tab === "arizalar"
       ? await prisma.application.findMany({
+          where: { mahallaId: { in: myMahallaIds } },
+          include: { mahalla: { select: { nomi: true } } },
+          orderBy: { createdAt: "desc" },
+        })
+      : [];
+
+  const listings =
+    tab === "elonlar"
+      ? await prisma.listing.findMany({
           where: { mahallaId: { in: myMahallaIds } },
           include: { mahalla: { select: { nomi: true } } },
           orderBy: { createdAt: "desc" },
@@ -73,6 +84,8 @@ export default async function BankirPage({
             ))}
           </div>
         )}
+
+        {tab === "elonlar" && <ListingsManager listings={listings} mahallas={myMahallas} />}
 
         {tab === "profil" && <ProfileForm banker={banker} />}
       </div>

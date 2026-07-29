@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession, isAdmin } from "@/lib/auth";
 import { logActivity } from "@/lib/activityLog";
 import { validatePassword } from "@/lib/password";
+import type { Role } from "@prisma/client";
 
 export type AddBankerState = { error?: string; success?: boolean } | null;
 
@@ -19,6 +20,8 @@ export async function addBankerAction(
   const ism = String(formData.get("ism") || "").trim();
   const login = String(formData.get("login") || "").trim();
   const parol = String(formData.get("parol") || "").trim();
+  const roleRaw = String(formData.get("role") || "BANKER");
+  const role: Role = roleRaw === "ADMIN" ? "ADMIN" : "BANKER";
   if (!ism || !login || !parol) return { error: "Hamma maydonlarni to'ldiring" };
 
   const passwordIssue = validatePassword(parol);
@@ -29,29 +32,37 @@ export async function addBankerAction(
 
   const passwordHash = await bcrypt.hash(parol, 10);
   const created = await prisma.banker.create({
-    data: { login, passwordHash, role: "BANKER", ism },
+    data: { login, passwordHash, role, ism },
   });
 
-  await logActivity(session.bankerId, "banker_qoshildi", `yangi bankir: ${created.ism} (${login})`);
+  await logActivity(
+    session.bankerId,
+    "banker_qoshildi",
+    `yangi ${role === "ADMIN" ? "admin" : "bankir"}: ${created.ism} (${login})`
+  );
   revalidatePath("/admin");
   return { success: true };
 }
 
 export async function updateBankerCredentialsAction(
   bankerId: string,
-  data: { ism?: string; login?: string; parol?: string }
+  data: { ism?: string; login?: string; parol?: string; role?: Role }
 ): Promise<{ error?: string }> {
   const session = await getSession();
   if (!isAdmin(session)) return { error: "Ruxsat yo'q" };
+  if (data.role && bankerId === session.bankerId) {
+    return { error: "O'z rolingizni bu yerdan o'zgartira olmaysiz" };
+  }
 
   if (data.parol) {
     const passwordIssue = validatePassword(data.parol);
     if (passwordIssue) return { error: passwordIssue };
   }
 
-  const updateData: { ism?: string; login?: string; passwordHash?: string } = {};
+  const updateData: { ism?: string; login?: string; passwordHash?: string; role?: Role } = {};
   if (data.ism !== undefined) updateData.ism = data.ism;
   if (data.login !== undefined) updateData.login = data.login;
+  if (data.role !== undefined) updateData.role = data.role;
   if (data.parol) updateData.passwordHash = await bcrypt.hash(data.parol, 10);
 
   await prisma.banker.update({ where: { id: bankerId }, data: updateData });

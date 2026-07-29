@@ -22,6 +22,12 @@ enum ApplicationStatus {
   BOG
 }
 
+enum ListingType {
+  IJARA
+  ISH
+  BOSHQA
+}
+
 model Mahalla {
   id            String   @id
   nomi          String
@@ -45,6 +51,7 @@ model Mahalla {
 
   bankers       BankerMahalla[]
   applications  Application[]
+  listings      Listing[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -62,6 +69,7 @@ model Banker {
 
   mahallalar   BankerMahalla[]
   activityLogs ActivityLog[]
+  listings     Listing[]
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -97,4 +105,30 @@ model Application {
   izoh      String?
   status    ApplicationStatus @default(YANGI)
   createdAt DateTime          @default(now())
+}
+
+model Listing {
+  id          String      @id @default(cuid())
+  mahallaId   String
+  mahalla     Mahalla     @relation(fields: [mahallaId], references: [id], onDelete: Cascade)
+  turi        ListingType
+  sarlavha    String
+  tavsif      String
+  narx        Int?
+  manzil      String
+  telefon     String
+  amalMuddati DateTime?
+  image       String?
+  createdBy   String
+  banker      Banker      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// Singleton row (id is always 1) holding platform-wide, admin-editable settings.
+model SystemSettings {
+  id                Int      @id @default(1)
+  aiPlannerYoqilgan Boolean  @default(true)
+  updatedAt         DateTime @updatedAt
 }

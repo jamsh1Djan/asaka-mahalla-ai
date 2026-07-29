@@ -9,16 +9,18 @@ import {
 } from "@/actions/bankers";
 import { validatePassword } from "@/lib/password";
 import PasswordStrengthMeter from "@/components/PasswordStrengthMeter";
-import type { Banker, Mahalla } from "@prisma/client";
+import type { Banker, Mahalla, Role } from "@prisma/client";
 
 type BankerWithMahallas = Banker & { mahallalar: { mahallaId: string }[] };
 
 export default function AdminBankersPanel({
   bankers,
   mahallas,
+  currentBankerId,
 }: {
   bankers: BankerWithMahallas[];
   mahallas: Mahalla[];
+  currentBankerId: string;
 }) {
   const [isPending, startTransition] = useTransition();
   const [state, formAction, addPending] = useActionState<AddBankerState, FormData>(
@@ -47,19 +49,21 @@ export default function AdminBankersPanel({
         albatta almashtiring.
       </div>
 
-      <h4 style={{ margin: "0 0 14px" }}>Bankirlar ro&apos;yxati</h4>
+      <h4 style={{ margin: "0 0 14px" }}>Foydalanuvchilar ro&apos;yxati</h4>
       <table className="table">
         <thead>
           <tr>
             <th>Ism</th>
             <th>Login</th>
             <th>Parol</th>
+            <th>Rol</th>
             <th>Biriktirilgan mahallalar</th>
           </tr>
         </thead>
         <tbody>
           {bankers.map((b) => {
             const assigned = new Set(b.mahallalar.map((m) => m.mahallaId));
+            const isSelf = b.id === currentBankerId;
             return (
               <tr key={b.id}>
                 <td>
@@ -92,6 +96,23 @@ export default function AdminBankersPanel({
                   <BankerPasswordCell bankerId={b.id} disabled={isPending} />
                 </td>
                 <td>
+                  <select
+                    className="mini-input"
+                    style={{ width: 110 }}
+                    defaultValue={b.role}
+                    disabled={isPending || isSelf}
+                    title={isSelf ? "O'z rolingizni bu yerdan o'zgartira olmaysiz" : undefined}
+                    onChange={(e) =>
+                      startTransition(async () => {
+                        await updateBankerCredentialsAction(b.id, { role: e.target.value as Role });
+                      })
+                    }
+                  >
+                    <option value="BANKER">Bankir</option>
+                    <option value="ADMIN">Super Admin</option>
+                  </select>
+                </td>
+                <td>
                   {mahallas.map((m) => (
                     <label key={m.id} style={{ fontSize: 11.5, marginRight: 6 }}>
                       <input
@@ -114,7 +135,7 @@ export default function AdminBankersPanel({
         </tbody>
       </table>
       <hr className="soft" />
-      <h4>Yangi bankir qo&apos;shish</h4>
+      <h4>Yangi foydalanuvchi qo&apos;shish</h4>
       <form action={formAction} onSubmit={handleAddSubmit}>
         <div className="grid grid-2">
           <div className="field">
@@ -137,6 +158,13 @@ export default function AdminBankersPanel({
               }}
             />
             <PasswordStrengthMeter password={newPassword} />
+          </div>
+          <div className="field">
+            <label>Rol</label>
+            <select name="role" defaultValue="BANKER">
+              <option value="BANKER">Mahalla bankiri</option>
+              <option value="ADMIN">Super Admin</option>
+            </select>
           </div>
         </div>
         {(localError || state?.error) && <div className="err">{localError || state?.error}</div>}

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { pickCreditProduct } from "@/lib/data";
 import { BUSINESS_IDEAS } from "@/lib/businessIdeas";
 import { fmt } from "@/lib/format";
+import { getSystemSettings } from "@/lib/settings";
 
 export type BusinessIdea = {
   nomi: string;
@@ -80,6 +81,11 @@ export async function getBusinessIdeasAction(
   tajriba: string,
   soha: string = "avtomatik"
 ): Promise<AiPlannerResult> {
+  const settings = await getSystemSettings();
+  if (!settings.aiPlannerYoqilgan) {
+    return { error: "AI biznes-reja tavsiyachisi hozircha administrator tomonidan o'chirilgan." };
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return {

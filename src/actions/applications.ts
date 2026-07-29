@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession, isBanker } from "@/lib/auth";
+import { canEditMahalla } from "@/lib/authz";
 import { logActivity } from "@/lib/activityLog";
 import type { ApplicationStatus } from "@prisma/client";
 
@@ -36,6 +37,10 @@ export async function submitArizaAction(
 export async function updateArizaStatusAction(applicationId: string, status: ApplicationStatus) {
   const session = await getSession();
   if (!isBanker(session)) throw new Error("Ruxsat yo'q");
+
+  const existing = await prisma.application.findUnique({ where: { id: applicationId } });
+  if (!existing) throw new Error("Ariza topilmadi");
+  if (!(await canEditMahalla(session, existing.mahallaId))) throw new Error("Ruxsat yo'q");
 
   const app = await prisma.application.update({
     where: { id: applicationId },

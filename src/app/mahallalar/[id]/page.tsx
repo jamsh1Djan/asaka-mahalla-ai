@@ -4,10 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { fmt, initials } from "@/lib/format";
 import { getSession } from "@/lib/auth";
 import { canEditMahalla } from "@/lib/authz";
+import { getSystemSettings } from "@/lib/settings";
 import ArizaForm from "@/components/ArizaForm";
 import AiPlanner from "@/components/AiPlanner";
 import MahallaEditPanel from "@/components/MahallaEditPanel";
 import ArizalarTable from "@/components/ArizalarTable";
+import PublicListings from "@/components/PublicListings";
 
 export default async function MahallaDetailPage({
   params,
@@ -21,13 +23,23 @@ export default async function MahallaDetailPage({
   const session = await getSession();
   const canEdit = await canEditMahalla(session, id);
 
-  const applications = canEdit
-    ? await prisma.application.findMany({
-        where: { mahallaId: id },
-        include: { mahalla: { select: { nomi: true } } },
-        orderBy: { createdAt: "desc" },
-      })
-    : [];
+  const [applications, listings, settings] = await Promise.all([
+    canEdit
+      ? prisma.application.findMany({
+          where: { mahallaId: id },
+          include: { mahalla: { select: { nomi: true } } },
+          orderBy: { createdAt: "desc" },
+        })
+      : Promise.resolve([]),
+    prisma.listing.findMany({
+      where: {
+        mahallaId: id,
+        OR: [{ amalMuddati: null }, { amalMuddati: { gte: new Date() } }],
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    getSystemSettings(),
+  ]);
 
   const citizenName = session?.kind === "fuqaro" ? session.name : undefined;
   const citizenPhone = session?.kind === "fuqaro" ? session.phone : undefined;
@@ -122,7 +134,15 @@ export default async function MahallaDetailPage({
           </div>
         </div>
 
-        <AiPlanner mahallaId={mahalla.id} drayver={mahalla.drayver} nomi={mahalla.nomi} />
+        <PublicListings listings={listings} />
+
+        {settings.aiPlannerYoqilgan ? (
+          <AiPlanner mahallaId={mahalla.id} drayver={mahalla.drayver} nomi={mahalla.nomi} />
+        ) : (
+          <div className="card small-muted">
+            AI biznes-reja tavsiyachisi hozircha administrator tomonidan o&apos;chirilgan.
+          </div>
+        )}
 
         {canEdit && (
           <>
