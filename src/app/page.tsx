@@ -5,6 +5,7 @@ import { CREDIT_PRODUCTS } from "@/lib/data";
 import MahallaMap from "@/components/MahallaMap";
 import CreditCard from "@/components/CreditCard";
 import MahallaCard from "@/components/MahallaCard";
+import HoshiyaBand from "@/components/HoshiyaBand";
 
 export default async function HomePage() {
   const mahallas = await prisma.mahalla.findMany({ orderBy: { nomi: "asc" } });
@@ -80,6 +81,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <HoshiyaBand />
+
       <section>
         <div className="wrap">
           <div className="benefits-block">
@@ -112,6 +115,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <HoshiyaBand />
 
       <section>
         <div className="wrap">

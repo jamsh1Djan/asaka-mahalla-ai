@@ -6,12 +6,15 @@
    ornament, card/modal/dashboard system, splash intro. */
 
 :root {
-  --red: #c8102e;
-  --red-dark: #9c0c24;
+  --red: #b0202e;
+  --red-dark: #8a1523;
   --navy: #0b2545;
   --navy2: #122d59;
-  --gold: #c69c4e;
-  --sand: #faf7f0;
+  --gold: #c9a227;
+  --gold-light: #e0bf5c;
+  --teal: #1b4b5a;
+  --teal-light: #266478;
+  --sand: #fbf8f2;
   --sand2: #f2ece0;
   --ink: #1c1f26;
   --sub: #5b6270;
@@ -71,23 +74,23 @@ img {
   padding: 0 24px;
 }
 
-/* ---------- Girih ornament band (signature motif) ---------- */
-.girih-band {
-  height: 14px;
-  background-image: linear-gradient(135deg, var(--gold) 25%, transparent 25%),
-    linear-gradient(225deg, var(--gold) 25%, transparent 25%),
-    linear-gradient(45deg, var(--gold) 25%, transparent 25%),
-    linear-gradient(315deg, var(--gold) 25%, var(--sand2) 25%);
-  background-position: 9px 0, 9px 0, 0 0, 0 0;
-  background-size: 18px 18px;
-  background-repeat: repeat-x;
-  opacity: 0.85;
+/* ---------- Hoshiya ornament band (signature motif) ---------- */
+.hoshiya-band {
+  width: 100%;
+  line-height: 0;
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.08), transparent);
+  border-top: 1px solid rgba(201, 162, 39, 0.35);
+  border-bottom: 1px solid rgba(27, 75, 90, 0.2);
 }
-.girih-band.dark {
-  background-image: linear-gradient(135deg, var(--gold) 25%, transparent 25%),
-    linear-gradient(225deg, var(--gold) 25%, transparent 25%),
-    linear-gradient(45deg, var(--gold) 25%, transparent 25%),
-    linear-gradient(315deg, var(--gold) 25%, var(--navy) 25%);
+.hoshiya-band.dark {
+  background: linear-gradient(180deg, rgba(224, 191, 92, 0.1), transparent);
+  border-top: 1px solid rgba(224, 191, 92, 0.3);
+  border-bottom: 1px solid rgba(79, 143, 163, 0.25);
+}
+.hoshiya-divider {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
 /* ---------- Header ---------- */
@@ -119,15 +122,10 @@ header.site {
 .brand .mark {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--red), var(--red-dark));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-weight: 800;
-  font-size: 15px;
-  box-shadow: var(--shadow);
+  flex-shrink: 0;
 }
 .brand .red {
   color: var(--red);
@@ -160,7 +158,7 @@ header.site {
   align-items: center;
 }
 .btn {
-  border: none;
+  border: 1.5px solid transparent;
   border-radius: 999px;
   padding: 10px 18px;
   font-weight: 700;
@@ -169,27 +167,57 @@ header.site {
   align-items: center;
   gap: 8px;
   white-space: nowrap;
+  position: relative;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.15s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 .btn-primary {
-  background: var(--red);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.09) 0px,
+      rgba(255, 255, 255, 0.09) 2px,
+      transparent 2px,
+      transparent 9px
+    ),
+    linear-gradient(135deg, var(--red), var(--red-dark));
   color: #fff;
-  box-shadow: 0 6px 16px rgba(200, 16, 46, 0.28);
+  border-color: rgba(201, 162, 39, 0.55);
+  box-shadow: 0 6px 16px rgba(176, 32, 46, 0.28);
 }
 .btn-primary:hover {
-  background: var(--red-dark);
+  box-shadow:
+    0 6px 18px rgba(176, 32, 46, 0.32),
+    0 0 0 4px rgba(201, 162, 39, 0.18);
+  border-color: var(--gold-light);
+  transform: translateY(-1px);
 }
 .btn-outline {
-  background: #fff;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(201, 162, 39, 0.05) 0px,
+      rgba(201, 162, 39, 0.05) 2px,
+      transparent 2px,
+      transparent 9px
+    ),
+    #fff;
   color: var(--ink);
   border: 1.5px solid var(--line);
 }
 .btn-outline:hover {
-  border-color: var(--navy);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.12);
+  transform: translateY(-1px);
 }
 .btn-ghost {
   background: transparent;
   color: var(--ink);
   font-weight: 600;
+  border-color: transparent;
 }
 .btn-sm {
   padding: 7px 13px;
@@ -435,12 +463,21 @@ h2.section-title {
 }
 svg.map-svg a .plot {
   cursor: pointer;
+  transform-box: fill-box;
+  transform-origin: center;
   transition:
     filter 0.15s,
-    transform 0.15s;
+    transform 0.15s,
+    fill-opacity 0.15s;
 }
 svg.map-svg a:hover .plot {
-  filter: brightness(1.08);
+  filter: brightness(1.08) drop-shadow(0 3px 8px rgba(11, 37, 69, 0.22));
+  transform: scale(1.025);
+  fill-opacity: 0.32 !important;
+}
+svg.map-svg .plot.inactive {
+  stroke-dasharray: 5 4;
+  fill-opacity: 0.09 !important;
 }
 svg.map-svg a:hover text {
   text-decoration: underline;
@@ -451,20 +488,25 @@ svg.map-svg text {
 .map-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 12px;
 }
 .map-legend span {
   font-size: 11.5px;
+  font-weight: 600;
   color: var(--sub);
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  background: var(--sand2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 11px;
 }
 .map-legend i {
-  width: 9px;
-  height: 9px;
-  border-radius: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
   display: inline-block;
 }
 
@@ -966,36 +1008,77 @@ footer.site {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  animation: splashOut 0.6s ease 2.3s forwards;
+  animation: splashBgOut 0.5s ease 2.4s forwards;
 }
-@keyframes splashOut {
+@keyframes splashBgOut {
   to {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
   }
 }
-.splash-ring {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 2px solid rgba(198, 156, 78, 0.35);
-  border-top-color: var(--gold);
-  animation: ringspin 1.8s linear infinite;
-  position: relative;
+.splash-corner {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border: 2px solid rgba(201, 162, 39, 0.45);
+  opacity: 0;
+  animation: cornerIn 0.6s ease 0.8s forwards;
 }
-@keyframes ringspin {
+.splash-corner.tl {
+  top: 26px;
+  left: 26px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 12px;
+}
+.splash-corner.tr {
+  top: 26px;
+  right: 26px;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 12px;
+}
+.splash-corner.bl {
+  bottom: 26px;
+  left: 26px;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: 12px;
+}
+.splash-corner.br {
+  bottom: 26px;
+  right: 26px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 12px;
+}
+@keyframes cornerIn {
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+  }
+}
+.splash-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: splashShrink 0.45s ease 2.3s forwards;
+}
+@keyframes splashShrink {
+  to {
+    transform: translate(-42vw, -42vh) scale(0.32);
+    opacity: 0;
   }
 }
 .splash-glow {
   position: absolute;
-  inset: -40px;
+  inset: -30px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(198, 156, 78, 0.35), transparent 70%);
-  animation: pulse 1.6s ease-in-out infinite;
+  animation:
+    logoIn 0.5s ease forwards,
+    pulse 1.6s ease-in-out 0.5s infinite;
 }
 @keyframes pulse {
   0%,
@@ -1009,30 +1092,32 @@ footer.site {
   }
 }
 .splash-mark {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  animation: logoIn 0.5s ease forwards;
+}
+@keyframes logoIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.splash-title {
+  margin-top: 20px;
   color: #fff;
   font-weight: 800;
-  font-size: 26px;
+  font-size: 20px;
   opacity: 0;
   animation: markIn 0.5s ease 1.1s forwards;
+  letter-spacing: -0.2px;
 }
 @keyframes markIn {
   to {
     opacity: 1;
   }
-}
-.splash-title {
-  margin-top: 22px;
-  color: #fff;
-  font-weight: 800;
-  font-size: 20px;
-  opacity: 0;
-  animation: markIn 0.5s ease 1.4s forwards;
-  letter-spacing: -0.2px;
 }
 .splash-title span {
   color: var(--gold);
@@ -1042,7 +1127,23 @@ footer.site {
   font-size: 12.5px;
   margin-top: 6px;
   opacity: 0;
-  animation: markIn 0.5s ease 1.6s forwards;
+  animation: markIn 0.5s ease 1.3s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #splash {
+    animation: splashBgOut 0.3s ease 0.9s forwards;
+  }
+  .splash-corner,
+  .splash-inner,
+  .splash-glow,
+  .splash-mark,
+  .splash-title,
+  .splash-sub {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .toast {

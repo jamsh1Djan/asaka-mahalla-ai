@@ -20,15 +20,26 @@ export default function MahallaMap({ mahallas: allMahallas }: { mahallas: Mahall
       <h4>Yunusobod tumani — mahallalar xaritasi</h4>
       <p>Mahallani tanlang va batafsil ma&apos;lumotni ko&apos;ring</p>
       <svg className="map-svg" viewBox="0 0 520 400" style={{ width: "100%", height: "auto" }}>
+        <defs>
+          <pattern id="map-texture" width="18" height="18" patternUnits="userSpaceOnUse">
+            <circle cx="1.2" cy="1.2" r="1.2" fill="var(--navy)" opacity="0.05" />
+          </pattern>
+          <filter id="map-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#0b2545" floodOpacity="0.16" />
+          </filter>
+        </defs>
+        <rect x="0" y="0" width="520" height="400" fill="url(#map-texture)" rx="18" />
         {mahallas.map((m) => (
           <a key={m.id} href={`/mahallalar/${m.id}`}>
             <polygon
-              className="plot"
+              className={`plot ${m.status === "FAOL_EMAS" ? "inactive" : ""}`}
               points={m.mapPoints}
               fill={m.color}
-              fillOpacity={0.16}
+              fillOpacity={0.22}
               stroke={m.color}
-              strokeWidth={2}
+              strokeWidth={2.5}
+              strokeLinejoin="round"
+              filter="url(#map-shadow)"
             />
           </a>
         ))}
@@ -36,11 +47,12 @@ export default function MahallaMap({ mahallas: allMahallas }: { mahallas: Mahall
           const { cx, cy } = centerOf(m.mapPoints);
           return (
             <a key={m.id} href={`/mahallalar/${m.id}`}>
-              <text x={cx} y={cy - 4} fontSize={12} fontWeight={800} fill={m.color} textAnchor="middle">
+              <circle cx={cx} cy={cy - 15} r={4} fill={m.color} stroke="#fff" strokeWidth={1.4} />
+              <text x={cx} y={cy - 1} fontSize={13} fontWeight={800} fill={m.color} textAnchor="middle">
                 {m.nomi}
               </text>
-              <text x={cx} y={cy + 11} fontSize={10} fill="#5B6270" textAnchor="middle">
-                {fmt(m.aholi)} aholi
+              <text x={cx} y={cy + 15} fontSize={10.5} fill="#5B6270" textAnchor="middle">
+                {fmt(m.aholi)} aholi{m.status === "FAOL_EMAS" ? " · faol emas" : ""}
               </text>
             </a>
           );

@@ -4,9 +4,11 @@ import { useState } from "react";
 
 export default function OldindanForm() {
   const [turi, setTuri] = useState("Jismoniy shaxs");
-  const [daromad, setDaromad] = useState(5_000_000);
-  const [summa, setSumma] = useState(10_000_000);
+  const [daromadStr, setDaromadStr] = useState("5000000");
+  const [summaStr, setSummaStr] = useState("10000000");
 
+  const daromad = Number(daromadStr) || 0;
+  const summa = Number(summaStr) || 0;
   const nisbat = summa / (daromad * 12 || 1);
   const approved = nisbat <= 3;
 
@@ -23,16 +25,16 @@ export default function OldindanForm() {
         <label>Oylik daromadingiz (so&apos;m)</label>
         <input
           type="number"
-          value={daromad}
-          onChange={(e) => setDaromad(Number(e.target.value) || 0)}
+          value={daromadStr}
+          onChange={(e) => setDaromadStr(e.target.value)}
         />
       </div>
       <div className="field">
         <label>Xohlagan kredit summasi (so&apos;m)</label>
         <input
           type="number"
-          value={summa}
-          onChange={(e) => setSumma(Number(e.target.value) || 0)}
+          value={summaStr}
+          onChange={(e) => setSummaStr(e.target.value)}
         />
       </div>
       <hr className="soft" />

@@ -83,12 +83,12 @@ export default async function MahallaDetailPage({
           <div className="pill">
             <div className="ic" style={{ background: "var(--green-soft)" }}>🧑‍🔧</div>
             <b>{fmt(mahalla.yatt)}</b>
-            <span>YATT (yakka tartibdagi tadbirkorlar)</span>
+            <span>YATT</span>
           </div>
           <div className="pill">
             <div className="ic" style={{ background: "var(--blue-soft)" }}>🏢</div>
             <b>{fmt(mahalla.mchj)}</b>
-            <span>MChJ (kichik korxonalar)</span>
+            <span>MChJ</span>
           </div>
           <div className="pill">
             <div className="ic" style={{ background: "var(--gold-soft)" }}>📋</div>

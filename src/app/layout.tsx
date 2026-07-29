@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import LogoMark from "@/components/Logo";
 import { getSession } from "@/lib/auth";
 
 const manrope = Manrope({
@@ -27,14 +28,20 @@ export default async function RootLayout({
     <html lang="uz" className={`${manrope.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <div id="splash" aria-hidden="true">
-          <div className="splash-glow" />
-          <div className="splash-ring">
-            <div className="splash-mark">AM</div>
+          <div className="splash-corner tl" />
+          <div className="splash-corner tr" />
+          <div className="splash-corner bl" />
+          <div className="splash-corner br" />
+          <div className="splash-inner">
+            <div className="splash-glow" />
+            <div className="splash-mark">
+              <LogoMark size={92} onDark />
+            </div>
+            <div className="splash-title">
+              Asaka<span>Mahalla</span> AI
+            </div>
+            <div className="splash-sub">Mahalla bankiri uchun aqlli raqamli yordamchi</div>
           </div>
-          <div className="splash-title">
-            Asaka<span>Mahalla</span> AI
-          </div>
-          <div className="splash-sub">Mahalla bankiri uchun aqlli raqamli yordamchi</div>
         </div>
         <Header session={session} />
         {children}

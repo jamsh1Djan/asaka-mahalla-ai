@@ -8,6 +8,7 @@ import { fmt } from "@/lib/format";
 export default function Calculator() {
   const [productIdx, setProductIdx] = useState(0);
   const [amount, setAmount] = useState(10_000_000);
+  const [amountStr, setAmountStr] = useState("10000000");
   const [months, setMonths] = useState(12);
 
   const p = CREDIT_PRODUCTS[productIdx];
@@ -41,14 +42,20 @@ export default function Calculator() {
           max={300_000_000}
           step={500_000}
           value={amount}
-          onChange={(e) => setAmount(Number(e.target.value))}
+          onChange={(e) => {
+            setAmount(Number(e.target.value));
+            setAmountStr(e.target.value);
+          }}
         />
         <input
           type="number"
           className="mini-input"
           style={{ width: "100%", marginTop: 8 }}
-          value={amount}
-          onChange={(e) => setAmount(Number(e.target.value) || 0)}
+          value={amountStr}
+          onChange={(e) => {
+            setAmountStr(e.target.value);
+            setAmount(Number(e.target.value) || 0);
+          }}
         />
       </div>
       <div className="field">

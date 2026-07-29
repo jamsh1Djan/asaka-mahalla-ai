@@ -1,12 +1,17 @@
 import Link from "next/link";
+import LogoMark from "@/components/Logo";
+import HoshiyaBand from "@/components/HoshiyaBand";
 
 export default function Footer() {
   return (
     <footer className="site">
-      <div className="girih-band dark" />
+      <HoshiyaBand variant="dark" />
       <div className="wrap foot-grid">
         <div>
-          <h5>Asaka Mahalla AI</h5>
+          <h5 style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <LogoMark size={22} />
+            Asaka Mahalla AI
+          </h5>
           <p style={{ maxWidth: 280 }}>
             Mahalla bankiri uchun aqlli raqamli yordamchi. Yunusobod tumani Asakabank BXM uchun
             ishlab chiqilgan.
