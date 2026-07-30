@@ -27,9 +27,9 @@ export default async function HomePage() {
             </Reveal>
             <Reveal delay={80}>
               <h1 className="hero-title">
-                Mahallangiz endi
+                Mahallangiz uchun
                 <br />
-                <span className="accent">raqamli mahalla bankingiz</span>
+                <span className="accent">kreditdan maslahatgacha — hammasi AI bilan</span>
               </h1>
             </Reveal>
             <Reveal delay={160}>

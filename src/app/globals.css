@@ -250,11 +250,12 @@ header.site {
   background: var(--red);
 }
 h1.hero-title {
-  font-size: 56px;
-  line-height: 1.06;
+  font-size: clamp(32px, 6vw, 56px);
+  line-height: 1.08;
   font-weight: 900;
   letter-spacing: -1.2px;
   margin: 0 0 24px;
+  overflow-wrap: break-word;
 }
 h1.hero-title .accent {
   color: var(--red);
