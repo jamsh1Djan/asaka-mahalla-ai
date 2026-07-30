@@ -25,7 +25,7 @@ export default function MahallaMap({ mahallas: allMahallas }: { mahallas: Mahall
             <circle cx="1.2" cy="1.2" r="1.2" fill="var(--navy)" opacity="0.05" />
           </pattern>
           <filter id="map-shadow" x="-30%" y="-30%" width="160%" height="160%">
-            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#0b2545" floodOpacity="0.16" />
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#0f2b6c" floodOpacity="0.16" />
           </filter>
         </defs>
         <rect x="0" y="0" width="520" height="400" fill="url(#map-texture)" rx="18" />

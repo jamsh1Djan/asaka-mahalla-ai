@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { submitArizaAction, type ArizaState } from "@/actions/applications";
 import { CREDIT_PRODUCTS } from "@/lib/data";
 
@@ -20,12 +21,15 @@ export default function ArizaForm({
 
   if (state?.success) {
     return (
-      <div className="ok-box">
-        ✅ Arizangiz qabul qilindi.
-        <br />
-        <br />
-        Mahalla bankiri ko&apos;rib chiqadi va siz bilan bog&apos;lanadi. Javobni qo&apos;ng&apos;iroq
-        yoki SMS orqali bildiradi.
+      <div className="ok-box" style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <CheckCircle2 size={18} style={{ flexShrink: 0, marginTop: 1 }} />
+        <span>
+          Arizangiz qabul qilindi.
+          <br />
+          <br />
+          Mahalla bankiri ko&apos;rib chiqadi va siz bilan bog&apos;lanadi. Javobni qo&apos;ng&apos;iroq
+          yoki SMS orqali bildiradi.
+        </span>
       </div>
     );
   }

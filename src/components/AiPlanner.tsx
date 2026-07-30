@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Bot } from "lucide-react";
 import { getBusinessIdeasAction, type BusinessIdea } from "@/actions/ai";
 import { SOHALAR } from "@/lib/businessIdeas";
 
@@ -37,7 +38,7 @@ export default function AiPlanner({ mahallaId, drayver, nomi }: { mahallaId: str
 
   return (
     <div className="ai-box">
-      <h3>🤖 AI biznes-reja tavsiyachisi</h3>
+      <h3 style={{ display: "flex", alignItems: "center", gap: 8 }}><Bot size={19} /> AI biznes-reja tavsiyachisi</h3>
       <p>
         {nomi} mahallasining ixtisoslashuvi ({drayver}) asosida, sizga mos biznes g&apos;oyalarini
         va ularga mos kredit turini taklif qilamiz.

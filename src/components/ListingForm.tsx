@@ -5,9 +5,9 @@ import { createListingAction, updateListingAction, type ListingState } from "@/a
 import type { Listing, Mahalla } from "@prisma/client";
 
 const TYPE_LABELS: Record<string, string> = {
-  IJARA: "🏠 Ijaraga beriladigan joy",
-  ISH: "💼 Bo'sh ish o'rni",
-  BOSHQA: "📢 Boshqa",
+  IJARA: "Ijaraga beriladigan joy",
+  ISH: "Bo'sh ish o'rni",
+  BOSHQA: "Boshqa",
 };
 
 function toDateInputValue(d: Date | null | undefined) {

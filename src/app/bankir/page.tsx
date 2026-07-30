@@ -7,6 +7,7 @@ import ProfileForm from "@/components/ProfileForm";
 import MahallaCard from "@/components/MahallaCard";
 import ListingsManager from "@/components/ListingsManager";
 import TwoFactorSection from "@/components/TwoFactorSection";
+import Reveal from "@/components/Reveal";
 
 export const metadata = { title: "Bankir kabineti — Asaka Mahalla AI" };
 
@@ -61,13 +62,15 @@ export default async function BankirPage({
   return (
     <section>
       <div className="wrap">
-        <div className="section-head">
-          <div className="section-eyebrow">Bankir kabineti</div>
-          <h2 className="section-title">Assalomu alaykum, {banker.ism}</h2>
-          <p className="section-desc">
-            Sizga biriktirilgan mahallalar: {myMahallas.map((m) => m.nomi).join(", ") || "— (admin biriktiradi)"}
-          </p>
-        </div>
+        <Reveal>
+          <div className="section-head">
+            <div className="section-eyebrow">Bankir kabineti</div>
+            <h2 className="section-title">Assalomu alaykum, {banker.ism}</h2>
+            <p className="section-desc">
+              Sizga biriktirilgan mahallalar: {myMahallas.map((m) => m.nomi).join(", ") || "— (admin biriktiradi)"}
+            </p>
+          </div>
+        </Reveal>
         <div className="dash-tabs">
           {TABS.map(([key, label]) => (
             <Link key={key} href={`/bankir?tab=${key}`} className={tab === key ? "active" : ""}>

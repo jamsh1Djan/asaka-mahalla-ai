@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 import { fmt } from "@/lib/format";
 import type { Mahalla } from "@prisma/client";
 
@@ -28,7 +29,7 @@ export default function MahallaCard({ m }: { m: Mahalla }) {
           </div>
         </div>
         <span className="btn btn-primary btn-sm" style={{ width: "100%", justifyContent: "center" }}>
-          Batafsil →
+          Batafsil <ArrowRight size={14} />
         </span>
       </div>
     </Link>

@@ -1,15 +1,21 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Plus, Home, Briefcase, Megaphone } from "lucide-react";
 import { deleteListingAction } from "@/actions/listings";
 import { fmt, fmtDate } from "@/lib/format";
 import ListingForm from "@/components/ListingForm";
 import type { Listing, Mahalla } from "@prisma/client";
 
+const TYPE_ICONS: Record<string, typeof Home> = {
+  IJARA: Home,
+  ISH: Briefcase,
+  BOSHQA: Megaphone,
+};
 const TYPE_LABELS: Record<string, string> = {
-  IJARA: "🏠 Ijara",
-  ISH: "💼 Ish o'rni",
-  BOSHQA: "📢 Boshqa",
+  IJARA: "Ijara",
+  ISH: "Ish o'rni",
+  BOSHQA: "Boshqa",
 };
 
 type ListingWithMahalla = Listing & { mahalla: Pick<Mahalla, "nomi"> };
@@ -30,7 +36,7 @@ export default function ListingsManager({
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <h4 style={{ margin: 0 }}>E&apos;lonlarim</h4>
         <button className="btn btn-primary btn-sm" onClick={() => setShowAdd((v) => !v)}>
-          {showAdd ? "Bekor qilish" : "+ Yangi e'lon"}
+          {showAdd ? "Bekor qilish" : <><Plus size={14} /> Yangi e&apos;lon</>}
         </button>
       </div>
 
@@ -53,7 +59,8 @@ export default function ListingsManager({
               </div>
             ) : (
               <div key={l.id} className="card">
-                <span className="tag" style={{ background: "var(--navy)" }}>
+                <span className="tag" style={{ background: "var(--navy)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  {(() => { const Icon = TYPE_ICONS[l.turi]; return <Icon size={12} />; })()}
                   {TYPE_LABELS[l.turi]}
                 </span>
                 <h4 style={{ margin: "10px 0 4px" }}>{l.sarlavha}</h4>

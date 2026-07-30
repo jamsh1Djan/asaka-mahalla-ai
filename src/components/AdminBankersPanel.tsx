@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
+import { AlertTriangle } from "lucide-react";
 import {
   addBankerAction,
   toggleBankerMahallaAction,
@@ -50,11 +51,14 @@ export default function AdminBankersPanel({
 
   return (
     <div className="card">
-      <div className="warn-box" style={{ marginBottom: 18 }}>
-        ⚠️ <b>Diqqat:</b> quyidagi demo login/parollar faqat namoyish uchun —
-        <code> admin/admin2026</code>, <code>jamshidkarimov/123</code> va boshqa test
-        bankirlari. Platformani productionga chiqarishdan oldin ularning barchasini
-        albatta almashtiring.
+      <div className="warn-box" style={{ marginBottom: 18, display: "flex", gap: 10, alignItems: "flex-start" }}>
+        <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 1 }} />
+        <span>
+          <b>Diqqat:</b> quyidagi demo login/parollar faqat namoyish uchun —
+          <code> admin/admin2026</code>, <code>jamshidkarimov/123</code> va boshqa test
+          bankirlari. Platformani productionga chiqarishdan oldin ularning barchasini
+          albatta almashtiring.
+        </span>
       </div>
 
       <h4 style={{ margin: "0 0 14px" }}>Bankirlar ro&apos;yxati</h4>

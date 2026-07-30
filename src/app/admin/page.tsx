@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AlertTriangle, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getSession, isAdmin } from "@/lib/auth";
 import { getSystemSettings } from "@/lib/settings";
@@ -13,6 +14,7 @@ import AdminLoginHistoryPanel from "@/components/AdminLoginHistoryPanel";
 import AdminStatsPanel from "@/components/AdminStatsPanel";
 import AdminSettingsPanel from "@/components/AdminSettingsPanel";
 import ProfileForm from "@/components/ProfileForm";
+import Reveal from "@/components/Reveal";
 import TwoFactorSection from "@/components/TwoFactorSection";
 import type { ApplicationStatus, Prisma } from "@prisma/client";
 
@@ -84,21 +86,26 @@ export default async function AdminPage({
   return (
     <section>
       <div className="wrap">
-        <div className="section-head">
-          <div className="section-eyebrow">Admin panel</div>
-          <h2 className="section-title">Boshqaruv paneli</h2>
-          <p className="section-desc">
-            Barcha mahallalar, foydalanuvchilar va arizalarni to&apos;liq boshqarish
-          </p>
-        </div>
+        <Reveal>
+          <div className="section-head">
+            <div className="section-eyebrow">Admin panel</div>
+            <h2 className="section-title">Boshqaruv paneli</h2>
+            <p className="section-desc">
+              Barcha mahallalar, foydalanuvchilar va arizalarni to&apos;liq boshqarish
+            </p>
+          </div>
+        </Reveal>
 
         {settings.enforce2faForAdmins && !me.totpEnabled && (
-          <div className="warn-box" style={{ marginBottom: 18 }}>
-            ⚠️ Tizim siyosatiga ko&apos;ra Super Admin hisoblari uchun 2FA majburiy qilingan,
-            lekin sizning hisobingizda hali yoqilmagan.{" "}
-            <Link href="/admin?tab=profil" style={{ textDecoration: "underline" }}>
-              Hozir sozlash →
-            </Link>
+          <div className="warn-box" style={{ marginBottom: 18, display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 1 }} />
+            <span>
+              Tizim siyosatiga ko&apos;ra Super Admin hisoblari uchun 2FA majburiy qilingan,
+              lekin sizning hisobingizda hali yoqilmagan.{" "}
+              <Link href="/admin?tab=profil" style={{ textDecoration: "underline", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                Hozir sozlash <ArrowRight size={13} />
+              </Link>
+            </span>
           </div>
         )}
 

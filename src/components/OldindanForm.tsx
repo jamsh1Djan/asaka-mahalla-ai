@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CheckCircle2, AlertTriangle } from "lucide-react";
 
 export default function OldindanForm() {
   const [turi, setTuri] = useState("Jismoniy shaxs");
@@ -38,10 +39,13 @@ export default function OldindanForm() {
         />
       </div>
       <hr className="soft" />
-      <div className={approved ? "ok-box" : "warn-box"}>
-        {approved
-          ? `✅ Oldindan tasdiqlangan. Xohlagan summangiz yillik daromadingizga mos keladi. Mahalla bankiringiz bilan bog'lanib, arizani rasmiylashtirishingiz mumkin.`
-          : `⚠️ Ushbu summa joriy daromadingiz uchun biroz yuqori. Kichikroq summa yoki uzunroq muddat bilan qayta urinib ko'ring.`}
+      <div className={approved ? "ok-box" : "warn-box"} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+        {approved ? <CheckCircle2 size={18} style={{ flexShrink: 0, marginTop: 1 }} /> : <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: 1 }} />}
+        <span>
+          {approved
+            ? `Oldindan tasdiqlangan. Xohlagan summangiz yillik daromadingizga mos keladi. Mahalla bankiringiz bilan bog'lanib, arizani rasmiylashtirishingiz mumkin.`
+            : `Ushbu summa joriy daromadingiz uchun biroz yuqori. Kichikroq summa yoki uzunroq muddat bilan qayta urinib ko'ring.`}
+        </span>
       </div>
     </div>
   );

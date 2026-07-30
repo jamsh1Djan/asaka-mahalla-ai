@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>Asaka Mahalla AI — Premium Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#D71920;
+    --primary-2:#A81015;
+    --secondary:#0F2B6C;
+    --accent:#C99A2E;
+    --radius:24px;
+    --s1:8px;--s2:16px;--s3:24px;--s4:32px;--s5:48px;--s6:64px;
+    --glass-bg:rgba(255,255,255,0.55);
+    --glass-border:rgba(255,255,255,0.55);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(215,25,32,.08), transparent 40%),
+      radial-gradient(circle at 88% 18%, rgba(15,43,108,.08), transparent 42%),
+      radial-gradient(circle at 50% 90%, rgba(201,154,46,.10), transparent 45%),
+      #FFFFFF;
+    color:var(--secondary);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:0 var(--s4);}
+
+  /* ---------- animations ---------- */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes scaleIn{from{opacity:0;transform:scale(.94);}to{opacity:1;transform:scale(1);}}
+  @keyframes glowPulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(215,25,32,.35),0 20px 40px -12px rgba(215,25,32,.45);}
+    50%{box-shadow:0 0 0 8px rgba(215,25,32,0),0 24px 48px -12px rgba(215,25,32,.55);}
+  }
+  .fade-up{animation:fadeUp .7s cubic-bezier(.16,1,.3,1) both;}
+  .fade-up.d1{animation-delay:.08s;} .fade-up.d2{animation-delay:.16s;}
+  .fade-up.d3{animation-delay:.24s;} .fade-up.d4{animation-delay:.32s;}
+  .scale-in{animation:scaleIn .6s cubic-bezier(.16,1,.3,1) both;animation-delay:.2s;}
+
+  /* ---------- navbar ---------- */
+  nav.top{
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(18px) saturate(160%);
+    -webkit-backdrop-filter:blur(18px) saturate(160%);
+    background:rgba(255,255,255,0.68);
+    border-bottom:1px solid rgba(15,43,108,0.08);
+  }
+  nav.top .inner{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:var(--s2) var(--s4);max-width:1280px;margin:0 auto;
+  }
+  .brand{display:flex;align-items:center;gap:var(--s1);}
+  .brand .mark{
+    width:38px;height:38px;border-radius:12px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 18px -6px rgba(215,25,32,.5);
+  }
+  .brand-name{font-weight:800;font-size:18px;letter-spacing:-.2px;color:var(--secondary);}
+  .brand-name span{color:var(--primary);}
+  .links{display:flex;gap:var(--s4);}
+  .links a{
+    text-decoration:none;color:#3A4A6B;font-size:14px;font-weight:600;
+    display:flex;align-items:center;gap:6px;
+  }
+  .links a.active{color:var(--primary);}
+  .nav-actions{display:flex;gap:var(--s2);align-items:center;}
+  .btn{
+    border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:14px;
+    border-radius:var(--radius);
+    display:inline-flex;align-items:center;gap:8px;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .btn-ghost{
+    background:rgba(15,43,108,0.06);color:var(--secondary);
+    padding:11px 20px;
+  }
+  .btn-ghost:hover{background:rgba(15,43,108,0.1);}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--primary) 0%, var(--primary-2) 100%);
+    color:#fff;padding:12px 22px;
+    box-shadow:0 14px 28px -10px rgba(215,25,32,.55), inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 34px -8px rgba(215,25,32,.6);}
+
+  /* ---------- hero ---------- */
+  .hero{
+    display:grid;grid-template-columns:1.05fr .95fr;gap:var(--s6);
+    padding:var(--s6) 0 var(--s5);align-items:center;
+    position:relative;
+  }
+  .ornament{
+    position:absolute;top:-40px;right:-60px;width:420px;opacity:.14;
+    pointer-events:none;filter:saturate(120%);
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 16px;border-radius:999px;
+    background:rgba(201,154,46,.14);border:1px solid rgba(201,154,46,.35);
+    font-size:12.5px;font-weight:700;color:#8A6A1E;margin-bottom:var(--s3);
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--primary);}
+  h1{
+    font-size:56px;line-height:1.06;font-weight:900;letter-spacing:-1.4px;
+    color:var(--secondary);
+  }
+  h1 em{font-style:normal;color:var(--primary);}
+  .sub{margin-top:var(--s3);font-size:16.5px;line-height:1.65;color:#5B6785;max-width:460px;font-weight:500;}
+  .cta-row{display:flex;gap:var(--s2);margin-top:var(--s4);}
+  .cta-row .btn-primary{padding:16px 28px;font-size:15.5px;animation:glowPulse 3.4s ease-in-out infinite;}
+  .cta-row .btn-ghost{padding:16px 24px;font-size:15.5px;background:rgba(15,43,108,0.05);border:1px solid rgba(15,43,108,.12);}
+
+  .stats{display:flex;gap:var(--s2);margin-top:var(--s5);}
+  .stat-card{
+    background:var(--glass-bg);backdrop-filter:blur(14px);
+    border:1px solid var(--glass-border);border-radius:16px;
+    padding:14px 18px;box-shadow:0 8px 24px -12px rgba(15,43,108,.18);
+  }
+  .stat-card b{display:block;font-size:22px;font-weight:800;color:var(--secondary);}
+  .stat-card span{font-size:11.5px;color:#7A88A8;font-weight:600;}
+
+  /* ---------- glass chat card ---------- */
+  .card{
+    background:var(--glass-bg);
+    backdrop-filter:blur(24px) saturate(180%);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid var(--glass-border);
+    border-radius:var(--radius);
+    padding:var(--s3);
+    box-shadow:0 30px 70px -24px rgba(15,43,108,.35), inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .card-head{display:flex;align-items:center;gap:10px;margin-bottom:var(--s3);padding-bottom:var(--s2);border-bottom:1px solid rgba(15,43,108,.08);}
+  .card-head .ai-avatar{
+    width:34px;height:34px;border-radius:11px;
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    display:flex;align-items:center;justify-content:center;color:#fff;
+  }
+  .card-head .meta b{display:block;font-size:13.5px;font-weight:700;color:var(--secondary);}
+  .card-head .meta span{font-size:11.5px;color:#7A88A8;display:flex;align-items:center;gap:4px;}
+  .card-head .meta .live{width:6px;height:6px;border-radius:50%;background:#2ECC71;}
+
+  .msg{display:flex;gap:10px;margin-bottom:12px;}
+  .msg.me{flex-direction:row-reverse;}
+  .bubble{
+    background:rgba(15,43,108,0.05);border-radius:14px;padding:12px 14px;
+    font-size:13.5px;line-height:1.5;color:#26314D;max-width:80%;font-weight:500;
+  }
+  .msg.me .bubble{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;}
+  .bubble b{color:var(--primary);}
+  .msg.me .bubble b{color:#FFE3E4;}
+
+  /* ---------- 3D map section ---------- */
+  .map-section{padding:var(--s6) 0;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:var(--s4);}
+  .section-head h2{font-size:30px;font-weight:800;color:var(--secondary);letter-spacing:-.6px;}
+  .section-head p{color:#7A88A8;font-size:14.5px;margin-top:6px;font-weight:500;}
+  .map-stage{perspective:1400px;}
+  .map-card{
+    background:var(--glass-bg);backdrop-filter:blur(20px);
+    border:1px solid var(--glass-border);border-radius:var(--radius);
+    padding:var(--s2);box-shadow:0 40px 80px -30px rgba(15,43,108,.4);
+    transform:rotateX(8deg) rotateY(-6deg);
+    transition:transform .5s cubic-bezier(.16,1,.3,1);
+  }
+  .map-stage:hover .map-card{transform:rotateX(0deg) rotateY(0deg) translateY(-6px);}
+  .map-canvas{
+    height:340px;border-radius:16px;position:relative;overflow:hidden;
+    background:linear-gradient(160deg,#EAF0FB 0%, #F7F1E0 100%);
+  }
+  .blob{position:absolute;border-radius:50%;filter:blur(0px);opacity:.85;}
+  .blob.a{width:220px;height:200px;background:linear-gradient(135deg,#D71920,#A81015);top:40px;left:60px;clip-path:polygon(50% 0%,90% 20%,100% 60%,70% 100%,20% 90%,0% 40%);box-shadow:0 20px 40px -14px rgba(215,25,32,.5);}
+  .blob.b{width:200px;height:180px;background:linear-gradient(135deg,#0F2B6C,#1E3E85);top:60px;right:80px;clip-path:polygon(30% 0%,80% 10%,100% 50%,80% 95%,20% 100%,0% 55%);box-shadow:0 20px 40px -14px rgba(15,43,108,.5);}
+  .blob.c{width:180px;height:160px;background:linear-gradient(135deg,#C99A2E,#A87D1F);bottom:20px;left:180px;clip-path:polygon(50% 0%,95% 30%,90% 80%,45% 100%,5% 65%,10% 20%);box-shadow:0 20px 40px -14px rgba(201,154,46,.5);}
+  .pin{position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;box-shadow:0 0 0 4px rgba(255,255,255,.5), 0 6px 14px rgba(0,0,0,.25);}
+
+  /* ---------- footer ---------- */
+  footer{
+    margin-top:var(--s6);
+    background:linear-gradient(180deg,var(--secondary) 0%, #081940 100%);
+    border-radius:32px 32px 0 0;color:#DCE3F5;padding:var(--s6) var(--s4) var(--s4);
+    position:relative;overflow:hidden;
+  }
+  footer::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  }
+  .footer-grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:var(--s4);}
+  .footer-grid h4{color:#fff;font-size:14px;margin-bottom:var(--s2);font-weight:700;}
+  .footer-grid a{display:block;color:#AFC0E8;text-decoration:none;font-size:13.5px;margin-bottom:10px;font-weight:500;}
+  .footer-bottom{max-width:1280px;margin:var(--s5) auto 0;padding-top:var(--s3);border-top:1px solid rgba(255,255,255,.08);
+    display:flex;justify-content:space-between;font-size:12.5px;color:#8FA0C9;}
+  .social{display:flex;gap:10px;}
+  .social a{
+    width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.08);
+    display:flex;align-items:center;justify-content:center;color:#fff;
+  }
+
+  svg.ic{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="inner">
+    <div class="brand">
+      <div class="mark">
+        <svg class="ic" style="width:20px;height:20px;stroke:#fff" viewBox="0 0 24 24"><path d="M12 3l7 6v11a1 1 0 0 1-1 1h-4v-6H10v6H6a1 1 0 0 1-1-1V9l7-6z"/></svg>
+      </div>
+      <div class="brand-name">Asaka <span>Mahalla</span> AI</div>
+    </div>
+    <div class="links">
+      <a href="#" class="active">Bosh sahifa</a>
+      <a href="#">Kreditlar</a>
+      <a href="#">Kalkulyator</a>
+      <a href="#">Oldindan tasdiq</a>
+      <a href="#">Mahallam</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost">Kirish</button>
+      <button class="btn btn-primary">
+        <svg class="ic" style="stroke:#fff" viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.5L12 3z"/></svg>
+        AI bilan suhbat
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <section class="hero">
+    <img class="ornament" src="premium-assets/ornament-source.png" alt=""/>
+    <div>
+      <div class="eyebrow fade-up"><span class="dot"></span> Asaka Digital · Yunusobod BXM</div>
+      <h1 class="fade-up d1">Bankka bormasdan <em>barcha bank ishlarini</em> bajaring</h1>
+      <p class="sub fade-up d2">Kredit tanlash, ariza berish, mahalla bankiri bilan bog'lanish, imtiyozlarni ko'rish — hammasi bir platformada, sun'iy intellekt yordamida.</p>
+      <div class="cta-row fade-up d3">
+        <button class="btn btn-primary">
+          <svg class="ic" style="stroke:#fff" viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.5L12 3z"/></svg>
+          AI yordamchi bilan boshlash
+        </button>
+        <button class="btn btn-ghost">
+          Oldindan tasdiqni tekshirish
+          <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+      <div class="stats fade-up d4">
+        <div class="stat-card"><b>7</b><span>Ulangan mahallalar</span></div>
+        <div class="stat-card"><b>45 362</b><span>Jami aholi</span></div>
+        <div class="stat-card"><b>588</b><span>Tadbirkorlik subyektlari</span></div>
+        <div class="stat-card"><b>65</b><span>Bo'sh ish o'rinlari</span></div>
+      </div>
+    </div>
+
+    <div class="card scale-in">
+      <div class="card-head">
+        <div class="ai-avatar">
+          <svg class="ic" style="stroke:#fff" viewBox="0 0 24 24"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.5L12 3z"/></svg>
+        </div>
+        <div class="meta">
+          <b>Asaka AI</b>
+          <span><span class="live"></span> Onlayn · Sizga yordam berishga tayyor</span>
+        </div>
+      </div>
+      <div class="msg">
+        <div class="bubble">Assalomu alaykum! Kredit yoki biznes reja bo'yicha yordam beraymi?</div>
+      </div>
+      <div class="msg me">
+        <div class="bubble">Menga 20 million kredit kerak, o'zimni o'zim band qilganman</div>
+      </div>
+      <div class="msg">
+        <div class="bubble">Sizga <b>Biznesga birinchi qadam 2.0</b> (17 mln, 27%) mos keladi. Batafsil ko'raymi?</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="map-section">
+    <div class="section-head">
+      <div>
+        <h2>Yunusobod tumani — mahallalar xaritasi</h2>
+        <p>Mahallani tanlang va batafsil ma'lumotni ko'ring</p>
+      </div>
+      <button class="btn btn-ghost">
+        Barchasini ko'rish
+        <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="map-stage">
+      <div class="map-card">
+        <div class="map-canvas">
+          <div class="blob a"></div>
+          <div class="blob b"></div>
+          <div class="blob c"></div>
+          <div class="pin" style="top:110px;left:150px;"></div>
+          <div class="pin" style="top:130px;right:160px;"></div>
+          <div class="pin" style="bottom:70px;left:250px;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="brand" style="margin-bottom:14px;">
+        <div class="mark"><svg class="ic" style="width:20px;height:20px;stroke:#fff" viewBox="0 0 24 24"><path d="M12 3l7 6v11a1 1 0 0 1-1 1h-4v-6H10v6H6a1 1 0 0 1-1-1V9l7-6z"/></svg></div>
+        <div class="brand-name" style="color:#fff;">Asaka <span style="color:var(--accent);">Mahalla</span> AI</div>
+      </div>
+      <p style="color:#8FA0C9;font-size:13px;line-height:1.6;max-width:260px;">Mahallangizdan turib barcha bank xizmatlariga oson va tezkor kirish imkoniyati.</p>
+    </div>
+    <div>
+      <h4>Tezkor havolalar</h4>
+      <a href="#">Kreditlar</a><a href="#">Kalkulyator</a><a href="#">Mahalla bankiri</a><a href="#">Oldindan tasdiq</a>
+    </div>
+    <div>
+      <h4>Yordam</h4>
+      <a href="#">Savol-javoblar</a><a href="#">Qo'llanma</a><a href="#">Aloqa</a><a href="#">Yangiliklar</a>
+    </div>
+    <div>
+      <h4>Biz bilan bog'laning</h4>
+      <a href="#">+998 71 200 44 46</a><a href="#">info@asakabank.uz</a>
+      <div class="social">
+        <a href="#">in</a><a href="#">tg</a><a href="#">yt</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Asaka Mahalla AI. Barcha huquqlar himoyalangan.</span>
+    <span>Premium dizayn tizimi v1.0</span>
+  </div>
+</footer>
+
+</body>
+</html>

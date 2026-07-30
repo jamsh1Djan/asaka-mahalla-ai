@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
+import { CheckCircle2 } from "lucide-react";
 import {
   startTotpEnrollmentAction,
   confirmTotpAction,
@@ -22,7 +23,9 @@ export default function TwoFactorSection({ totpEnabled }: { totpEnabled: boolean
     return (
       <div className="card" style={{ maxWidth: 480, marginTop: 18 }}>
         <h4 style={{ margin: "0 0 8px" }}>Ikki bosqichli tasdiqlash (2FA)</h4>
-        <p className="ok-box" style={{ marginBottom: 14 }}>✅ 2FA yoqilgan — hisobingiz qo&apos;shimcha himoyalangan.</p>
+        <p className="ok-box" style={{ marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
+          <CheckCircle2 size={16} /> 2FA yoqilgan — hisobingiz qo&apos;shimcha himoyalangan.
+        </p>
         <button
           className="btn btn-outline"
           disabled={disablePending}
@@ -41,7 +44,9 @@ export default function TwoFactorSection({ totpEnabled }: { totpEnabled: boolean
     return (
       <div className="card" style={{ maxWidth: 480, marginTop: 18 }}>
         <h4 style={{ margin: "0 0 8px" }}>Ikki bosqichli tasdiqlash (2FA)</h4>
-        <p className="ok-box">✅ 2FA muvaffaqiyatli yoqildi.</p>
+        <p className="ok-box" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <CheckCircle2 size={16} /> 2FA muvaffaqiyatli yoqildi.
+        </p>
       </div>
     );
   }

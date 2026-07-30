@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Sparkles } from "lucide-react";
 import type { Session } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
 import LogoMark from "@/components/Logo";
-import HoshiyaBand from "@/components/HoshiyaBand";
 
 const PUBLIC_LINKS: [string, string][] = [
   ["/", "Bosh sahifa"],
@@ -40,7 +40,7 @@ export default function Header({ session }: { session: Session | null }) {
     <header className="site">
       <div className="nav">
         <Link href="/" className="brand">
-          <span className="mark"><LogoMark size={36} /></span>
+          <span className="mark"><LogoMark size={20} /></span>
           Asaka<span className="red">Mahalla</span>&nbsp;AI
         </Link>
         <nav className="navlinks">
@@ -83,11 +83,11 @@ export default function Header({ session }: { session: Session | null }) {
             </Link>
           )}
           <Link href="/mahallalar" className="btn btn-primary btn-sm hidden-mobile">
-            ✨ AI bilan suhbat
+            <Sparkles size={15} />
+            AI bilan suhbat
           </Link>
         </div>
       </div>
-      <HoshiyaBand />
     </header>
   );
 }

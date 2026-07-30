@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { CREDIT_PRODUCTS } from "@/lib/data";
 import { fmt } from "@/lib/format";
 
@@ -87,7 +88,7 @@ export default function Calculator() {
         className="btn btn-primary"
         style={{ width: "100%", justifyContent: "center", marginTop: 10 }}
       >
-        Oldindan tasdiqni tekshirish →
+        Oldindan tasdiqni tekshirish <ArrowRight size={16} />
       </Link>
     </div>
   );

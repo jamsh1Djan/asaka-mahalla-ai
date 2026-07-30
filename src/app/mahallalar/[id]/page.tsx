@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Users, Home, Briefcase, Wrench, Building2, ClipboardList } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { fmt, initials } from "@/lib/format";
 import { getSession } from "@/lib/auth";
@@ -10,6 +11,7 @@ import AiPlanner from "@/components/AiPlanner";
 import MahallaEditPanel from "@/components/MahallaEditPanel";
 import ArizalarTable from "@/components/ArizalarTable";
 import PublicListings from "@/components/PublicListings";
+import Reveal from "@/components/Reveal";
 
 export default async function MahallaDetailPage({
   params,
@@ -47,51 +49,53 @@ export default async function MahallaDetailPage({
   return (
     <section style={{ paddingBottom: 0 }}>
       <div className="wrap">
-        <div className="section-eyebrow">Yunusobod tumani · {mahalla.sector}</div>
-        <h2 className="section-title" style={{ fontSize: 32 }}>
-          {mahalla.nomi} MFY
-        </h2>
-        <p className="section-desc">
-          Mahalla {mahalla.tashkil}-yilda tashkil etilgan. Asosiy yo&apos;nalish:{" "}
-          <b>{mahalla.drayver}</b>
-        </p>
+        <Reveal>
+          <div className="section-eyebrow">Yunusobod tumani · {mahalla.sector}</div>
+          <h2 className="section-title" style={{ fontSize: 32 }}>
+            {mahalla.nomi} MFY
+          </h2>
+          <p className="section-desc">
+            Mahalla {mahalla.tashkil}-yilda tashkil etilgan. Asosiy yo&apos;nalish:{" "}
+            <b>{mahalla.drayver}</b>
+          </p>
+        </Reveal>
 
         {mahalla.image && (
-          <div style={{ position: "relative", width: "100%", height: 280, borderRadius: 18, overflow: "hidden", margin: "18px 0" }}>
+          <div style={{ position: "relative", width: "100%", height: 280, borderRadius: 24, overflow: "hidden", margin: "18px 0" }}>
             <Image src={mahalla.image} alt={mahalla.nomi} fill style={{ objectFit: "cover" }} />
           </div>
         )}
 
         <div className="pill-row">
           <div className="pill">
-            <div className="ic" style={{ background: "var(--rose-soft)" }}>👥</div>
+            <div className="ic" style={{ background: "var(--rose-soft)" }}><Users size={17} color="var(--red)" /></div>
             <b>{fmt(mahalla.aholi)}</b>
             <span>
               Jami aholi ({fmt(mahalla.erkak)} erkak, {fmt(mahalla.ayol)} ayol)
             </span>
           </div>
           <div className="pill">
-            <div className="ic" style={{ background: "var(--blue-soft)" }}>🏠</div>
+            <div className="ic" style={{ background: "var(--blue-soft)" }}><Home size={17} color="var(--navy)" /></div>
             <b>{fmt(mahalla.xonadon)}</b>
             <span>Xonadonlar soni</span>
           </div>
           <div className="pill">
-            <div className="ic" style={{ background: "var(--green-soft)" }}>💼</div>
+            <div className="ic" style={{ background: "var(--green-soft)" }}><Briefcase size={17} color="#2b7a43" /></div>
             <b>{fmt(mahalla.tadbirkorlik)}</b>
             <span>Jami tadbirkorlik subyektlari</span>
           </div>
           <div className="pill">
-            <div className="ic" style={{ background: "var(--green-soft)" }}>🧑‍🔧</div>
+            <div className="ic" style={{ background: "var(--green-soft)" }}><Wrench size={17} color="#2b7a43" /></div>
             <b>{fmt(mahalla.yatt)}</b>
             <span>YATT</span>
           </div>
           <div className="pill">
-            <div className="ic" style={{ background: "var(--blue-soft)" }}>🏢</div>
+            <div className="ic" style={{ background: "var(--blue-soft)" }}><Building2 size={17} color="var(--navy)" /></div>
             <b>{fmt(mahalla.mchj)}</b>
             <span>MChJ</span>
           </div>
           <div className="pill">
-            <div className="ic" style={{ background: "var(--gold-soft)" }}>📋</div>
+            <div className="ic" style={{ background: "var(--gold-soft)" }}><ClipboardList size={17} color="#8a6a1e" /></div>
             <b>{fmt(mahalla.vakansiya)}</b>
             <span>Bo&apos;sh ish o&apos;rinlari</span>
           </div>

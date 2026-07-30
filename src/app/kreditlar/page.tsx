@@ -1,5 +1,6 @@
 import { CREDIT_PRODUCTS, IMTIYOZLAR } from "@/lib/data";
 import CreditCard from "@/components/CreditCard";
+import Reveal from "@/components/Reveal";
 
 export const metadata = { title: "Kreditlar — Asaka Mahalla AI" };
 
@@ -16,8 +17,10 @@ export default function KreditlarPage() {
           </p>
         </div>
         <div className="grid grid-3">
-          {CREDIT_PRODUCTS.map((c) => (
-            <CreditCard key={c.id} c={c} />
+          {CREDIT_PRODUCTS.map((c, i) => (
+            <Reveal key={c.id} variant="scale" onView delay={i * 80}>
+              <CreditCard c={c} />
+            </Reveal>
           ))}
         </div>
 
@@ -33,10 +36,12 @@ export default function KreditlarPage() {
         </div>
         <div className="grid grid-2">
           {IMTIYOZLAR.map((i, idx) => (
-            <div key={idx} className="card imtiyoz-card">
-              <div className="num">{i.num}</div>
-              <div className="txt">{i.txt}</div>
-            </div>
+            <Reveal key={idx} onView delay={idx * 70}>
+              <div className="card imtiyoz-card">
+                <div className="num">{i.num}</div>
+                <div className="txt">{i.txt}</div>
+              </div>
+            </Reveal>
           ))}
         </div>
       </div>
