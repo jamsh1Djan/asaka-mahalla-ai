@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession, isBanker } from "@/lib/auth";
@@ -8,6 +7,7 @@ import MahallaCard from "@/components/MahallaCard";
 import ListingsManager from "@/components/ListingsManager";
 import TwoFactorSection from "@/components/TwoFactorSection";
 import Reveal from "@/components/Reveal";
+import DashSubNav from "@/components/DashSubNav";
 
 export const metadata = { title: "Bankir kabineti — Asaka Mahalla AI" };
 
@@ -60,46 +60,42 @@ export default async function BankirPage({
       : [];
 
   return (
-    <section>
-      <div className="wrap">
-        <Reveal>
-          <div className="section-head">
-            <div className="section-eyebrow">Bankir kabineti</div>
-            <h2 className="section-title">Assalomu alaykum, {banker.ism}</h2>
-            <p className="section-desc">
-              Sizga biriktirilgan mahallalar: {myMahallas.map((m) => m.nomi).join(", ") || "— (admin biriktiradi)"}
-            </p>
-          </div>
-        </Reveal>
-        <div className="dash-tabs">
-          {TABS.map(([key, label]) => (
-            <Link key={key} href={`/bankir?tab=${key}`} className={tab === key ? "active" : ""}>
-              {label}
-            </Link>
-          ))}
+    <>
+      <DashSubNav tabs={TABS} activeKey={tab} basePath="/bankir" />
+      <section>
+        <div className="wrap">
+          <Reveal>
+            <div className="section-head">
+              <div className="section-eyebrow">Bankir kabineti</div>
+              <h2 className="section-title">Assalomu alaykum, {banker.ism}</h2>
+              <p className="section-desc">
+                Sizga biriktirilgan mahallalar: {myMahallas.map((m) => m.nomi).join(", ") || "— (admin biriktiradi)"}
+              </p>
+            </div>
+          </Reveal>
+
+          {tab === "arizalar" && (
+            <ArizalarTable applications={applications} title="Sizga biriktirilgan mahallalardan arizalar" />
+          )}
+
+          {tab === "mahallalar" && (
+            <div className="grid grid-2">
+              {myMahallas.map((m) => (
+                <MahallaCard key={m.id} m={m} />
+              ))}
+            </div>
+          )}
+
+          {tab === "elonlar" && <ListingsManager listings={listings} mahallas={myMahallas} />}
+
+          {tab === "profil" && (
+            <>
+              <ProfileForm banker={banker} />
+              <TwoFactorSection totpEnabled={banker.totpEnabled} />
+            </>
+          )}
         </div>
-
-        {tab === "arizalar" && (
-          <ArizalarTable applications={applications} title="Sizga biriktirilgan mahallalardan arizalar" />
-        )}
-
-        {tab === "mahallalar" && (
-          <div className="grid grid-2">
-            {myMahallas.map((m) => (
-              <MahallaCard key={m.id} m={m} />
-            ))}
-          </div>
-        )}
-
-        {tab === "elonlar" && <ListingsManager listings={listings} mahallas={myMahallas} />}
-
-        {tab === "profil" && (
-          <>
-            <ProfileForm banker={banker} />
-            <TwoFactorSection totpEnabled={banker.totpEnabled} />
-          </>
-        )}
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

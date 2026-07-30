@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ArrowRight, Users, Briefcase, ClipboardList, UserRound } from "lucide-react";
 import { fmt } from "@/lib/format";
-import { heatSteps } from "@/lib/voronoiMap";
+import type { PopulationBucket } from "@/lib/voronoiMap";
 
 export type MapCell = {
   id: string;
@@ -11,6 +12,7 @@ export type MapCell = {
   aholi: number;
   tadbirkorlik: number;
   vakansiya: number;
+  bankerName: string | null;
   inactive: boolean;
   path: string;
   labelCx: number;
@@ -21,12 +23,13 @@ export type MapCell = {
 const VIEW_W = 520;
 const VIEW_H = 400;
 
-export default function MapCanvas({ cells }: { cells: MapCell[] }) {
+export default function MapCanvas({ cells, buckets }: { cells: MapCell[]; buckets: PopulationBucket[] }) {
   const [hovered, setHovered] = useState<string | null>(null);
-  const hoveredCell = cells.find((c) => c.id === hovered) ?? null;
+  const [selected, setSelected] = useState<string | null>(null);
+  const selectedCell = cells.find((c) => c.id === selected) ?? null;
 
   return (
-    <div style={{ position: "relative" }}>
+    <div>
       <svg
         className="map-svg-v2"
         viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
@@ -41,87 +44,101 @@ export default function MapCanvas({ cells }: { cells: MapCell[] }) {
 
         {cells.map((c) => {
           const isHovered = hovered === c.id;
-          const dimmed = hovered !== null && !isHovered;
+          const isSelected = selected === c.id;
+          const isDimmed = selected !== null && !isSelected;
           return (
-            <Link key={c.id} href={`/mahallalar/${c.id}`}>
-              <g
-                className={`mv-cell ${isHovered ? "is-hovered" : ""} ${dimmed ? "is-dimmed" : ""}`}
-                onMouseEnter={() => setHovered(c.id)}
-                onMouseLeave={() => setHovered(null)}
+            <g
+              key={c.id}
+              className={`mv-cell ${isHovered ? "is-hovered" : ""} ${isDimmed ? "is-dimmed" : ""}`}
+              onMouseEnter={() => setHovered(c.id)}
+              onMouseLeave={() => setHovered(null)}
+              onClick={() => setSelected(isSelected ? null : c.id)}
+            >
+              <path
+                className={`mv-plot ${c.inactive ? "inactive" : ""}`}
+                d={c.path}
+                fill={c.inactive ? "#c7ccd6" : c.color}
+                stroke={c.inactive ? "#9aa2b1" : "#8a1120"}
+                strokeWidth={isSelected ? 2.5 : 1.4}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                strokeDasharray={c.inactive ? "5 4" : undefined}
+              />
+              <circle cx={c.labelCx} cy={c.labelCy - 9} r={2.6} fill="#fff" stroke="#0A1F44" strokeWidth={1.1} />
+              <text
+                x={c.labelCx}
+                y={c.labelCy + 4}
+                fontSize={13}
+                fontWeight={700}
+                fill="#0A1F44"
+                textAnchor="middle"
+                style={{ fontFamily: "var(--font-inter), sans-serif" }}
               >
-                <path
-                  className={`mv-plot ${c.inactive ? "inactive" : ""}`}
-                  d={c.path}
-                  fill={c.inactive ? "#c7ccd6" : c.color}
-                  stroke={c.inactive ? "#9aa2b1" : "#8a1120"}
-                  strokeWidth={isHovered ? 2.5 : 1.4}
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  strokeDasharray={c.inactive ? "5 4" : undefined}
-                />
-                <circle cx={c.labelCx} cy={c.labelCy - 15} r={3} fill="#fff" stroke="#0A1F44" strokeWidth={1.2} />
-                <text
-                  x={c.labelCx}
-                  y={c.labelCy - 1}
-                  fontSize={13}
-                  fontWeight={700}
-                  fill="#0A1F44"
-                  textAnchor="middle"
-                  style={{ fontFamily: "var(--font-inter), sans-serif" }}
-                >
-                  {c.nomi}
-                </text>
-                <text
-                  x={c.labelCx}
-                  y={c.labelCy + 15}
-                  fontSize={10.5}
-                  fontWeight={500}
-                  fill="#5B6785"
-                  textAnchor="middle"
-                  style={{ fontFamily: "var(--font-inter), sans-serif" }}
-                >
-                  {fmt(c.aholi)} aholi{c.inactive ? " · faol emas" : ""}
-                </text>
-              </g>
-            </Link>
+                {c.nomi}
+              </text>
+              <text
+                x={c.labelCx}
+                y={c.labelCy + 16}
+                fontSize={10}
+                fontWeight={500}
+                fill="#5B6785"
+                textAnchor="middle"
+                style={{ fontFamily: "var(--font-inter), sans-serif" }}
+              >
+                {fmt(c.aholi)} aholi{c.inactive ? " · faol emas" : ""}
+              </text>
+            </g>
           );
         })}
       </svg>
 
-      {hoveredCell && (
-        <div
-          className="mv-tooltip"
-          style={{
-            left: `${(hoveredCell.labelCx / VIEW_W) * 100}%`,
-            top: `${(hoveredCell.labelCy / VIEW_H) * 100}%`,
-          }}
-        >
-          <b>{hoveredCell.nomi} MFY</b>
-          <div className="mv-tooltip-row">
-            <span>Aholi soni</span>
-            <b>{fmt(hoveredCell.aholi)}</b>
+      <div className="mv-legend">
+        {buckets.map((b, i) => (
+          <div key={i} className="mv-legend-item">
+            <i style={{ background: b.color }} />
+            <span>
+              {fmt(b.min)}–{fmt(b.max)}
+            </span>
           </div>
-          <div className="mv-tooltip-row">
-            <span>Tadbirkorlik subyektlari</span>
-            <b>{fmt(hoveredCell.tadbirkorlik)}</b>
+        ))}
+        <span className="mv-legend-caption">aholi soni bo&apos;yicha</span>
+      </div>
+
+      {selectedCell && (
+        <div className="mv-detail">
+          <div className="mv-detail-head">
+            <h5>{selectedCell.nomi} MFY</h5>
+            <button className="link-btn" onClick={() => setSelected(null)}>
+              Yopish
+            </button>
           </div>
-          <div className="mv-tooltip-row">
-            <span>Bo&apos;sh ish o&apos;rinlari</span>
-            <b>{fmt(hoveredCell.vakansiya)}</b>
+          <div className="mv-detail-stats">
+            <div>
+              <Users size={15} />
+              <b>{fmt(selectedCell.aholi)}</b>
+              <span>aholi</span>
+            </div>
+            <div>
+              <Briefcase size={15} />
+              <b>{fmt(selectedCell.tadbirkorlik)}</b>
+              <span>tadbirkor</span>
+            </div>
+            <div>
+              <ClipboardList size={15} />
+              <b>{fmt(selectedCell.vakansiya)}</b>
+              <span>vakansiya</span>
+            </div>
+            <div>
+              <UserRound size={15} />
+              <b style={{ fontSize: 12.5 }}>{selectedCell.bankerName ?? "Biriktirilmagan"}</b>
+              <span>bankir</span>
+            </div>
           </div>
+          <Link href={`/mahallalar/${selectedCell.id}`} className="btn btn-primary btn-sm">
+            Batafsil <ArrowRight size={14} />
+          </Link>
         </div>
       )}
-
-      <div className="mv-legend">
-        <span>Kam</span>
-        <div className="mv-legend-scale">
-          {heatSteps().map((color, i) => (
-            <i key={i} style={{ background: color }} />
-          ))}
-        </div>
-        <span>Ko&apos;p</span>
-        <span className="mv-legend-caption">— aholi soni bo&apos;yicha</span>
-      </div>
     </div>
   );
 }

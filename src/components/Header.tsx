@@ -6,7 +6,6 @@ import { Sparkles } from "lucide-react";
 import type { Session } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
 import LogoMark from "@/components/Logo";
-import NationalOrnament from "@/components/NationalOrnament";
 
 const PUBLIC_LINKS: [string, string][] = [
   ["/", "Bosh sahifa"],
@@ -16,14 +15,16 @@ const PUBLIC_LINKS: [string, string][] = [
   ["/mahallalar", "Mahallam"],
 ];
 
-/** Role → extra nav entries, on top of PUBLIC_LINKS every visitor sees.
- * This is purely a display convenience — the actual authorization for every
- * page/action behind these links is re-checked server-side (see getSession()
- * + isBanker()/isAdmin() in each page and server action), so a link showing
- * up here is never itself a security boundary. */
-function roleNavLinks(session: Session | null): [string, string][] {
-  if (session?.kind !== "banker") return [];
-  return session.role === "ADMIN" ? [["/admin", "Admin panel"]] : [["/bankir", "Bankir kabineti"]];
+/** Bankers/admins get a single "back to their panel" link instead of the
+ * client-facing nav — appending it to PUBLIC_LINKS is what used to overflow
+ * the header onto a second line. This is purely a display convenience; the
+ * actual authorization for every page/action is re-checked server-side (see
+ * getSession() + isBanker()/isAdmin()), so this is never a security boundary. */
+function navLinksFor(session: Session | null): [string, string][] {
+  if (session?.kind === "banker") {
+    return session.role === "ADMIN" ? [["/admin", "Boshqaruv paneli"]] : [["/bankir", "Bankir kabineti"]];
+  }
+  return PUBLIC_LINKS;
 }
 
 function roleLabel(session: Session | null): string | null {
@@ -34,8 +35,9 @@ function roleLabel(session: Session | null): string | null {
 
 export default function Header({ session }: { session: Session | null }) {
   const pathname = usePathname();
-  const extraLinks = roleNavLinks(session);
+  const links = navLinksFor(session);
   const label = roleLabel(session);
+  const isStaff = session?.kind === "banker";
 
   return (
     <header className="site">
@@ -45,13 +47,8 @@ export default function Header({ session }: { session: Session | null }) {
           Asaka<span className="red">Mahalla</span>&nbsp;AI
         </Link>
         <nav className="navlinks">
-          {PUBLIC_LINKS.map(([href, text]) => (
-            <Link key={href} href={href} className={pathname === href ? "active" : ""}>
-              {text}
-            </Link>
-          ))}
-          {extraLinks.map(([href, text]) => (
-            <Link key={href} href={href} className={pathname.startsWith(href) ? "active" : ""}>
+          {links.map(([href, text]) => (
+            <Link key={href} href={href} className={pathname === href || (isStaff && pathname.startsWith(href)) ? "active" : ""}>
               {text}
             </Link>
           ))}
@@ -61,16 +58,12 @@ export default function Header({ session }: { session: Session | null }) {
             <>
               <span
                 className="small-muted hidden-mobile"
-                style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3, maxWidth: 150 }}
+                style={{ display: "flex", alignItems: "center", gap: 8, maxWidth: 190 }}
               >
-                <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>
+                <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {session.kind === "banker" ? session.ism : session.name}
                 </span>
-                {label && (
-                  <span className="badge-role" style={{ whiteSpace: "nowrap" }}>
-                    {label}
-                  </span>
-                )}
+                {label && <span className="badge-role">{label}</span>}
               </span>
               <form action={logoutAction}>
                 <button className="btn btn-outline btn-sm" type="submit">
@@ -83,13 +76,14 @@ export default function Header({ session }: { session: Session | null }) {
               Kirish
             </Link>
           )}
-          <Link href="/mahallalar" className="btn btn-primary btn-sm hidden-mobile">
-            <Sparkles size={15} />
-            AI bilan suhbat
-          </Link>
+          {!isStaff && (
+            <Link href="/mahallalar" className="btn btn-primary btn-sm hidden-mobile">
+              <Sparkles size={15} />
+              AI bilan suhbat
+            </Link>
+          )}
         </div>
       </div>
-      <NationalOrnament />
     </header>
   );
 }

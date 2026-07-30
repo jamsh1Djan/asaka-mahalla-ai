@@ -40,8 +40,8 @@ export function parsePoints(raw: string): Point[] {
 
 /** Voronoi tessellation of the given site points, clipped to `bounds`
  * ([xmin, ymin, xmax, ymax]). Returns one closed ring per site, in the same
- * order as the input — a mathematically consistent partition of the map
- * area instead of hand-drawn shapes. */
+ * order as the input — a mathematically consistent, gapless partition of
+ * the map area instead of hand-drawn shapes. */
 export function computeVoronoiCells(
   sites: Point[],
   bounds: [number, number, number, number]
@@ -60,74 +60,72 @@ export function pointsToPath(points: Point[]): string {
   return `M ${first[0]},${first[1]} ` + rest.map(([x, y]) => `L ${x},${y}`).join(" ") + " Z";
 }
 
-/** Chaikin corner-cutting: replaces each vertex with two points at 25%/75%
- * along its edges. A couple of passes turns a hard-edged polygon into a
- * softly rounded outline without changing its footprint much. */
-function chaikinSmooth(points: Point[], iterations: number): Point[] {
-  let pts = points;
-  for (let pass = 0; pass < iterations; pass++) {
-    const next: Point[] = [];
-    const n = pts.length;
-    for (let i = 0; i < n; i++) {
-      const [x0, y0] = pts[i];
-      const [x1, y1] = pts[(i + 1) % n];
-      next.push([x0 + (x1 - x0) * 0.25, y0 + (y1 - y0) * 0.25]);
-      next.push([x0 + (x1 - x0) * 0.75, y0 + (y1 - y0) * 0.75]);
-    }
-    pts = next;
-  }
-  return pts;
+function dist(a: Point, b: Point): number {
+  return Math.hypot(b[0] - a[0], b[1] - a[1]);
 }
 
-/** Renders a closed ring of points as a continuously smooth (tangent-
- * continuous) curve — a chain of quadratic Beziers through edge midpoints,
- * the standard "smooth freehand blob from a polygon" construction. */
-function smoothPathFromPoints(points: Point[]): string {
-  const n = points.length;
-  if (n < 3) return pointsToPath(points);
-  const [lx, ly] = points[n - 1];
-  const [fx, fy] = points[0];
-  let d = `M ${(fx + lx) / 2},${(fy + ly) / 2} `;
-  for (let i = 0; i < n; i++) {
-    const [cx, cy] = points[i];
-    const [nx, ny] = points[(i + 1) % n];
-    d += `Q ${cx},${cy} ${(cx + nx) / 2},${(cy + ny) / 2} `;
-  }
-  return d + "Z";
+function moveToward(from: Point, to: Point, d: number): Point {
+  const len = dist(from, to);
+  if (len < 1e-6) return from;
+  const t = d / len;
+  return [from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t];
 }
 
-/** Turns a Voronoi cell (straight-edged, often just 4-5 sides for a handful
- * of sites — reads as plain geometric blocks) into an organic rounded blob
- * outline, so the map doesn't look like a grid of quadrilaterals. */
-export function organicCellPath(ring: Point[], iterations = 2): string {
-  if (ring.length === 0) return "";
+/** Renders the polygon as straight edges with each corner replaced by a
+ * small quadratic-curve fillet (~`radius` px, clamped to half the shorter
+ * adjacent edge) — a controlled "soft-cornered polygon", not a freeform
+ * blob: edges stay straight, only the corners round off. */
+export function roundedPolygonPath(ring: Point[], radius = 8): string {
   let pts = ring;
   const first = pts[0];
   const last = pts[pts.length - 1];
   if (pts.length > 1 && first[0] === last[0] && first[1] === last[1]) {
     pts = pts.slice(0, -1);
   }
-  return smoothPathFromPoints(chaikinSmooth(pts, iterations));
-}
+  const n = pts.length;
+  if (n < 3) return pointsToPath(pts);
 
-const HEAT_LIGHT: [number, number, number] = [0xf7, 0xd9, 0xde]; // faint red tint
-const HEAT_DARK: [number, number, number] = [0xc4, 0x1e, 0x3a]; // brand red #C41E3A
-const HEAT_STEPS = 5;
-
-/** Quantized 5-step heatmap: population -> shade of the brand red, so color
- * directly encodes "aholi soni" instead of an arbitrary per-mahalla hue. */
-export function heatColor(value: number, min: number, max: number): string {
-  const t = max > min ? (value - min) / (max - min) : 0.5;
-  const step = Math.min(HEAT_STEPS - 1, Math.floor(t * HEAT_STEPS));
-  const stepT = HEAT_STEPS > 1 ? step / (HEAT_STEPS - 1) : 1;
-  const [r, g, b] = HEAT_LIGHT.map((c, i) => c + (HEAT_DARK[i] - c) * stepT);
-  return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
-}
-
-export function heatSteps(): string[] {
-  return Array.from({ length: HEAT_STEPS }, (_, step) => {
-    const stepT = HEAT_STEPS > 1 ? step / (HEAT_STEPS - 1) : 1;
-    const [r, g, b] = HEAT_LIGHT.map((c, i) => c + (HEAT_DARK[i] - c) * stepT);
-    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+  const corners = pts.map((curr, i) => {
+    const prev = pts[(i - 1 + n) % n];
+    const next = pts[(i + 1) % n];
+    const r1 = Math.min(radius, dist(curr, prev) / 2);
+    const r2 = Math.min(radius, dist(curr, next) / 2);
+    return { p1: moveToward(curr, prev, r1), p2: moveToward(curr, next, r2) };
   });
+
+  let d = `M ${corners[0].p1[0]},${corners[0].p1[1]} `;
+  for (let i = 0; i < n; i++) {
+    const p2 = corners[i].p2;
+    d += `Q ${pts[i][0]},${pts[i][1]} ${p2[0]},${p2[1]} `;
+    const nextCorner = corners[(i + 1) % n];
+    d += `L ${nextCorner.p1[0]},${nextCorner.p1[1]} `;
+  }
+  return d + "Z";
+}
+
+/** Fixed 5-step red scale (light -> brand red), used as discrete buckets
+ * rather than a continuous gradient — easier to read at a glance. */
+const BUCKET_COLORS = ["#FBE4E8", "#F3B4BE", "#E8798B", "#D6455E", "#B01E3A"];
+
+export type PopulationBucket = { color: string; min: number; max: number };
+
+/** Splits [min(values), max(values)] into BUCKET_COLORS.length equal-width
+ * ranges and returns each bucket's color + numeric range, for the legend. */
+export function computeBuckets(values: number[]): PopulationBucket[] {
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
+  const span = (hi - lo) / BUCKET_COLORS.length || 1;
+  return BUCKET_COLORS.map((color, i) => ({
+    color,
+    min: Math.round(lo + span * i),
+    max: i === BUCKET_COLORS.length - 1 ? hi : Math.round(lo + span * (i + 1)),
+  }));
+}
+
+export function bucketColorFor(value: number, values: number[]): string {
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
+  const span = (hi - lo) / BUCKET_COLORS.length || 1;
+  const idx = Math.min(BUCKET_COLORS.length - 1, Math.max(0, Math.floor((value - lo) / span)));
+  return BUCKET_COLORS[idx];
 }

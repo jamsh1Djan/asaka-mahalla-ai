@@ -1,35 +1,37 @@
 import { useId } from "react";
 
-/** A restrained girih/hoshiya-style ornament band — the one deliberately
- * "milliy" (national) accent in an otherwise modern interface, used
- * sparingly: under the navbar and along the footer's top edge. Rendered in
- * the site's own navy/gold pair rather than a stock pattern. */
+/** Girih — the interlocking square/diamond lattice behind classical Islamic
+ * geometric screens (mashrabiya/panjara) and the basis of most Uzbek
+ * architectural ornament. This is the site's one deliberately "milliy"
+ * touch, used in exactly one place (the footer's top edge) at a very low
+ * opacity — a background texture, not a colored, competing element. */
 export default function NationalOrnament({
   variant = "light",
+  height = 40,
 }: {
   variant?: "light" | "dark";
+  height?: number;
 }) {
   const uid = useId().replace(/[:]/g, "");
-  const gold = "#C99A2E";
-  const line = variant === "dark" ? "rgba(201, 154, 46, 0.55)" : "rgba(10, 31, 68, 0.16)";
+  const line = variant === "dark" ? "#E0BF5C" : "#0A1F44";
+  const opacity = variant === "dark" ? 0.16 : 0.06;
+  const tile = 24;
 
   return (
-    <div className={`ornament-band ${variant === "dark" ? "dark" : ""}`} aria-hidden="true">
-      <svg width="100%" height="10" preserveAspectRatio="none" viewBox="0 0 64 10">
+    <div className="ornament-band" style={{ height }} aria-hidden="true">
+      <svg width="100%" height="100%" preserveAspectRatio="none" viewBox={`0 0 ${tile * 4} ${tile}`}>
         <defs>
-          <pattern id={`girih-${uid}`} width="32" height="10" patternUnits="userSpaceOnUse">
+          <pattern id={`girih-${uid}`} width={tile} height={tile} patternUnits="userSpaceOnUse">
+            <rect x="0.5" y="0.5" width={tile - 1} height={tile - 1} fill="none" stroke={line} strokeWidth="1" />
             <path
-              d="M0 5 L6 5 L9 1.5 L12 5 L16 5 L19 8.5 L22 5 L26 5 L29 1.5 L32 5"
+              d={`M ${tile / 2} 0 L ${tile} ${tile / 2} L ${tile / 2} ${tile} L 0 ${tile / 2} Z`}
               fill="none"
               stroke={line}
-              strokeWidth="1.1"
+              strokeWidth="1"
             />
-            <circle cx="9" cy="1.5" r="1.1" fill={gold} opacity="0.85" />
-            <circle cx="19" cy="8.5" r="1.1" fill={gold} opacity="0.85" />
-            <circle cx="29" cy="1.5" r="1.1" fill={gold} opacity="0.85" />
           </pattern>
         </defs>
-        <rect width="64" height="10" fill={`url(#girih-${uid})`} />
+        <rect width="100%" height="100%" fill={`url(#girih-${uid})`} opacity={opacity} />
       </svg>
     </div>
   );
