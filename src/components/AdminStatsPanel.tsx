@@ -8,14 +8,25 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default async function AdminStatsPanel() {
-  const [mahallas, applicationsByStatus, applicationsByMahalla, bankerCount, listingCount] =
-    await Promise.all([
-      prisma.mahalla.findMany(),
-      prisma.application.groupBy({ by: ["status"], _count: { status: true } }),
-      prisma.application.groupBy({ by: ["mahallaId"], _count: { mahallaId: true } }),
-      prisma.banker.count({ where: { role: "BANKER" } }),
-      prisma.listing.count(),
-    ]);
+  const [
+    mahallas,
+    applicationsByStatus,
+    applicationsByMahalla,
+    bankerCount,
+    listingCount,
+    businessPlanBySoha,
+    businessPlanTotal,
+    businessPlanMatched,
+  ] = await Promise.all([
+    prisma.mahalla.findMany(),
+    prisma.application.groupBy({ by: ["status"], _count: { status: true } }),
+    prisma.application.groupBy({ by: ["mahallaId"], _count: { mahallaId: true } }),
+    prisma.banker.count({ where: { role: "BANKER" } }),
+    prisma.listing.count(),
+    prisma.businessPlanRequest.groupBy({ by: ["soha"], _count: { soha: true } }),
+    prisma.businessPlanRequest.count(),
+    prisma.businessPlanRequest.count({ where: { matched: true } }),
+  ]);
 
   const totalAholi = mahallas.reduce((s, m) => s + m.aholi, 0);
   const totalTadbirkor = mahallas.reduce((s, m) => s + m.tadbirkorlik, 0);
@@ -53,6 +64,10 @@ export default async function AdminStatsPanel() {
         <div className="pill">
           <span>Jami e&apos;lonlar</span>
           <b>{listingCount}</b>
+        </div>
+        <div className="pill">
+          <span>Biznes reja so&apos;rovlari</span>
+          <b>{businessPlanTotal}</b>
         </div>
       </div>
 
@@ -92,6 +107,37 @@ export default async function AdminStatsPanel() {
             </table>
           )}
         </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <h4 style={{ margin: "0 0 4px" }}>
+          Biznes reja yordamchisi so&apos;rovlari (jami: {businessPlanTotal})
+        </h4>
+        <p className="small-muted" style={{ marginBottom: 14 }}>
+          Mahallaga maxsus tavsiya olganlar: {businessPlanTotal ? Math.round((businessPlanMatched / businessPlanTotal) * 100) : 0}%
+        </p>
+        {businessPlanBySoha.length === 0 ? (
+          <div className="empty">Hozircha so&apos;rovlar yo&apos;q</div>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Soha</th>
+                <th style={{ textAlign: "right" }}>So&apos;rovlar soni</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...businessPlanBySoha]
+                .sort((a, b) => b._count.soha - a._count.soha)
+                .map((g) => (
+                  <tr key={g.soha}>
+                    <td>{g.soha}</td>
+                    <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.soha}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

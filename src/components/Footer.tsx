@@ -24,7 +24,7 @@ export default function Footer() {
           <Link href="/kreditlar">Kreditlar</Link>
           <Link href="/kalkulyator">Kalkulyator</Link>
           <Link href="/kirish?rol=banker">Mahalla bankiri</Link>
-          <Link href="/oldindan">Oldindan tasdiq</Link>
+          <Link href="/biznes-reja">Biznes reja yordamchisi</Link>
         </div>
         <div>
           <h5>Yordam</h5>

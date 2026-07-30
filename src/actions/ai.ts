@@ -6,6 +6,7 @@ import { pickCreditProduct } from "@/lib/data";
 import { BUSINESS_IDEAS } from "@/lib/businessIdeas";
 import { fmt } from "@/lib/format";
 import { getSystemSettings } from "@/lib/settings";
+import { getSession } from "@/lib/auth";
 
 export type BusinessIdea = {
   nomi: string;
@@ -15,7 +16,11 @@ export type BusinessIdea = {
   mos_kredit: string;
 };
 
-export type AiPlannerResult = { ideas: BusinessIdea[] } | { error: string };
+/** `matched` — whether the selected ideas actually have a real tie to this
+ * mahalla's PQ-49 specialization (soha match or drayver keyword overlap),
+ * vs. a generic catalogue pick shown because nothing local fit well. Drives
+ * whether the UI labels the results "mahallangizga maxsus" or "standart". */
+export type AiPlannerResult = { ideas: BusinessIdea[]; matched: boolean } | { error: string };
 
 const BUDGET_RANGES: Record<string, [number, number]> = {
   "5 mln gacha": [0, 5_000_000],
@@ -41,7 +46,8 @@ function candidateIdeas(drayver: string, budgetLabel: string, soha: string) {
   });
 
   scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, 12).map((s) => s.idea);
+  const scoreById = Object.fromEntries(scored.map((s) => [s.idea.id, s.score]));
+  return { pool: scored.slice(0, 12).map((s) => s.idea), scoreById };
 }
 
 function buildIdeaTool(candidateIds: string[]) {
@@ -75,11 +81,37 @@ function buildIdeaTool(candidateIds: string[]) {
   };
 }
 
+/** Best-effort survey log for the admin Statistika tab — never blocks or
+ * fails the actual recommendation flow. */
+async function logBusinessPlanRequest(data: {
+  mahallaId: string;
+  soha: string;
+  budget: string;
+  tajriba: string;
+  jamoaHajmi: string;
+  matched: boolean;
+}) {
+  try {
+    const session = await getSession();
+    const citizen = session?.kind === "fuqaro" ? session : null;
+    await prisma.businessPlanRequest.create({
+      data: {
+        ...data,
+        citizenName: citizen?.name ?? null,
+        citizenPhone: citizen?.phone ?? null,
+      },
+    });
+  } catch {
+    // logging is not allowed to break the user-facing recommendation flow
+  }
+}
+
 export async function getBusinessIdeasAction(
   mahallaId: string,
   budget: string,
   tajriba: string,
-  soha: string = "avtomatik"
+  soha: string = "avtomatik",
+  jamoaHajmi: string = "Yolg'iz o'zim"
 ): Promise<AiPlannerResult> {
   const settings = await getSystemSettings();
   if (!settings.aiPlannerYoqilgan) {
@@ -96,7 +128,7 @@ export async function getBusinessIdeasAction(
   const mahalla = await prisma.mahalla.findUnique({ where: { id: mahallaId } });
   if (!mahalla) return { error: "Mahalla topilmadi" };
 
-  const candidates = candidateIdeas(mahalla.drayver, budget, soha);
+  const { pool: candidates, scoreById } = candidateIdeas(mahalla.drayver, budget, soha);
   if (candidates.length === 0) {
     return { error: "Bu byudjet uchun mos g'oya topilmadi. Boshqa byudjet tanlab ko'ring." };
   }
@@ -118,7 +150,7 @@ Senga QUYIDAGI tayyor va tekshirilgan biznes-g'oyalar katalogi berilgan — xara
 Katalog:
 ${catalogText}`;
 
-  const userPrompt = `Mahalla: ${mahalla.nomi}. Ixtisoslashuv/drayver: ${mahalla.drayver}. Mahalladagi tadbirkorlik subyektlari: ${mahalla.tadbirkorlik} (shundan YATT: ${mahalla.yatt}, MChJ: ${mahalla.mchj}). Mahallada mavjud faoliyat turlari: ${mahalla.faoliyatTurlari || "ma'lumot yo'q"}. Foydalanuvchi byudjeti: ${budget}. Tajribasi: ${tajriba}. Qiziqqan sohasi: ${soha === "avtomatik" ? "aniq belgilamagan, o'zing eng mosini tanla" : soha}.`;
+  const userPrompt = `Mahalla: ${mahalla.nomi}. Ixtisoslashuv/drayver: ${mahalla.drayver}. Mahalladagi tadbirkorlik subyektlari: ${mahalla.tadbirkorlik} (shundan YATT: ${mahalla.yatt}, MChJ: ${mahalla.mchj}). Mahallada mavjud faoliyat turlari: ${mahalla.faoliyatTurlari || "ma'lumot yo'q"}. Foydalanuvchi byudjeti: ${budget}. Tajribasi: ${tajriba}. Jamoa hajmi: ${jamoaHajmi}. Qiziqqan sohasi: ${soha === "avtomatik" ? "aniq belgilamagan, o'zing eng mosini tanla" : soha}.`;
 
   try {
     const response = await client.messages.create({
@@ -156,7 +188,10 @@ ${catalogText}`;
       return { error: "AI tavsiyasini olishda xatolik yuz berdi. Birozdan so'ng qayta urinib ko'ring." };
     }
 
-    return { ideas };
+    const matched = input.tanlanganlar.some(({ id }) => (scoreById[id] ?? 0) >= 1);
+    await logBusinessPlanRequest({ mahallaId, soha, budget, tajriba, jamoaHajmi, matched });
+
+    return { ideas, matched };
   } catch {
     return { error: "AI tavsiyasini olishda xatolik yuz berdi. Birozdan so'ng qayta urinib ko'ring." };
   }

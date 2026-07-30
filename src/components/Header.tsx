@@ -11,7 +11,7 @@ const PUBLIC_LINKS: [string, string][] = [
   ["/", "Bosh sahifa"],
   ["/kreditlar", "Kreditlar"],
   ["/kalkulyator", "Kalkulyator"],
-  ["/oldindan", "Oldindan tasdiq"],
+  ["/biznes-reja", "Biznes yordamchi"],
   ["/mahallalar", "Mahallam"],
 ];
 

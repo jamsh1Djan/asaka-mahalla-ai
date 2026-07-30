@@ -27,7 +27,9 @@ export default async function HomePage() {
             </Reveal>
             <Reveal delay={80}>
               <h1 className="hero-title">
-                Bankka bormasdan <span className="accent">barcha bank ishlarini</span> bajaring
+                Mahallangiz endi
+                <br />
+                <span className="accent">raqamli mahalla bankingiz</span>
               </h1>
             </Reveal>
             <Reveal delay={160}>
@@ -42,8 +44,8 @@ export default async function HomePage() {
                   <Sparkles size={16} />
                   AI yordamchi bilan boshlash
                 </MotionLink>
-                <MotionLink href="/oldindan" className="btn btn-outline">
-                  Oldindan tasdiqni tekshirish
+                <MotionLink href="/biznes-reja" className="btn btn-outline">
+                  Biznes reja yordamchisi
                   <ArrowRight size={16} />
                 </MotionLink>
               </div>
@@ -70,7 +72,7 @@ export default async function HomePage() {
             </Reveal>
           </div>
           <Reveal variant="scale" delay={200} className="hero-visual">
-            <div className="chatbox">
+            <Link href="/mahallalar" className="chatbox chatbox-link">
               <div className="card-head" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, paddingBottom: 14, borderBottom: "1px solid rgba(15,43,108,.08)" }}>
                 <div className="chat-avatar">
                   <Sparkles size={15} />
@@ -99,7 +101,10 @@ export default async function HomePage() {
                   ko&apos;raymi?
                 </div>
               </div>
-            </div>
+              <div className="chatbox-cta">
+                Suhbatni boshlash <ArrowRight size={14} />
+              </div>
+            </Link>
           </Reveal>
         </div>
       </section>

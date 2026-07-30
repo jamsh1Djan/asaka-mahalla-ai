@@ -66,9 +66,10 @@ model Mahalla {
   /// (they simply don't render on the map, only in the list).
   mapPoints       String?
 
-  bankers      BankerMahalla[]
-  applications Application[]
-  listings     Listing[]
+  bankers              BankerMahalla[]
+  applications         Application[]
+  listings             Listing[]
+  businessPlanRequests BusinessPlanRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -164,6 +165,22 @@ model Listing {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/// One row per "Biznes reja yordamchisi" survey submission — kept for the
+/// admin Statistika tab, independent of whether the AI call succeeded.
+model BusinessPlanRequest {
+  id           String   @id @default(cuid())
+  mahallaId    String
+  mahalla      Mahalla  @relation(fields: [mahallaId], references: [id], onDelete: Cascade)
+  soha         String
+  budget       String
+  tajriba      String
+  jamoaHajmi   String
+  matched      Boolean  @default(false)
+  citizenName  String?
+  citizenPhone String?
+  createdAt    DateTime @default(now())
 }
 
 // Singleton row (id is always 1) holding platform-wide, admin-editable settings.
