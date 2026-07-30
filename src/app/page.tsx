@@ -133,9 +133,7 @@ export default async function HomePage() {
                 <ArrowRight size={16} />
               </Link>
             </div>
-            <div className="map-stage">
-              <MahallaMap mahallas={mahallas} />
-            </div>
+            <MahallaMap mahallas={mahallas} />
           </Reveal>
         </div>
       </section>

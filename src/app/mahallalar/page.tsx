@@ -21,7 +21,7 @@ export default async function MahallalarPage() {
             </p>
           </div>
         </Reveal>
-        <Reveal variant="scale" delay={100} className="map-stage">
+        <Reveal variant="scale" delay={100}>
           <MahallaMap mahallas={mahallas} />
         </Reveal>
         <div style={{ height: 26 }} />
