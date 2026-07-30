@@ -9,6 +9,7 @@ const ACTION_LABELS: Record<string, string> = {
   ariza_korildi: "Ariza holati o'zgartirildi",
   banker_qoshildi: "Bankir qo'shildi",
   banker_ozgartirildi: "Bankir o'zgartirildi",
+  banker_ochirildi: "Bankir o'chirildi",
   profil_yangilandi: "Profil yangilandi",
   mahalla_qoshildi: "Mahalla qo'shildi",
   mahalla_ochirildi: "Mahalla o'chirildi",

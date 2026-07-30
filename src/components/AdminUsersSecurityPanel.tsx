@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Trash2 } from "lucide-react";
 import {
   toggleBankerStatusAction,
   resetBankerPasswordAction,
   updateBankerCredentialsAction,
+  deleteBankerAction,
 } from "@/actions/bankers";
 import { fmtDateTime } from "@/lib/format";
 import type { Banker, Role } from "@prisma/client";
@@ -24,6 +26,7 @@ export default function AdminUsersSecurityPanel({
   const [tempPasswordFor, setTempPasswordFor] = useState<{ bankerId: string; password: string } | null>(
     null
   );
+  const [deleteError, setDeleteError] = useState<{ bankerId: string; message: string } | null>(null);
 
   return (
     <div className="card">
@@ -107,7 +110,25 @@ export default function AdminUsersSecurityPanel({
                     >
                       Parolni reset qilish
                     </button>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      disabled={isPending || isSelf}
+                      title={isSelf ? "O'zingizni o'chira olmaysiz" : undefined}
+                      style={{ color: "var(--red)" }}
+                      onClick={() => {
+                        if (!confirm(`"${u.ism}" hisobini butunlay o'chirishni tasdiqlaysizmi? Bu amalni orqaga qaytarib bo'lmaydi.`)) return;
+                        startTransition(async () => {
+                          const res = await deleteBankerAction(u.id);
+                          if (res.error) setDeleteError({ bankerId: u.id, message: res.error });
+                        });
+                      }}
+                    >
+                      <Trash2 size={13} /> O&apos;chirish
+                    </button>
                   </div>
+                  {deleteError?.bankerId === u.id && (
+                    <div className="err" style={{ marginTop: 8 }}>{deleteError.message}</div>
+                  )}
                   {tempPasswordFor?.bankerId === u.id && (
                     <div className="ok-box" style={{ marginTop: 8, fontSize: 12.5 }}>
                       Vaqtinchalik parol: <code>{tempPasswordFor.password}</code>

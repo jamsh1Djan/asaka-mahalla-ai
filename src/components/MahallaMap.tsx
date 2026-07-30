@@ -1,5 +1,5 @@
 import type { Mahalla } from "@prisma/client";
-import { computeVoronoiCells, heatColor, parsePoints, pointsToPath, polygonCentroid } from "@/lib/voronoiMap";
+import { computeVoronoiCells, heatColor, organicCellPath, parsePoints, polygonCentroid } from "@/lib/voronoiMap";
 import MapCanvas, { type MapCell } from "@/components/MapCanvas";
 
 const BOUNDS: [number, number, number, number] = [15, 15, 505, 385];
@@ -34,7 +34,7 @@ export default function MahallaMap({ mahallas: allMahallas }: { mahallas: Mahall
       tadbirkorlik: m.tadbirkorlik,
       vakansiya: m.vakansiya,
       inactive: m.status === "FAOL_EMAS",
-      path: pointsToPath(cellPoints),
+      path: organicCellPath(cellPoints),
       labelCx,
       labelCy,
       color: heatColor(m.aholi, minPop, maxPop),

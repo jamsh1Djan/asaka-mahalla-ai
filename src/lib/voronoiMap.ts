@@ -60,6 +60,56 @@ export function pointsToPath(points: Point[]): string {
   return `M ${first[0]},${first[1]} ` + rest.map(([x, y]) => `L ${x},${y}`).join(" ") + " Z";
 }
 
+/** Chaikin corner-cutting: replaces each vertex with two points at 25%/75%
+ * along its edges. A couple of passes turns a hard-edged polygon into a
+ * softly rounded outline without changing its footprint much. */
+function chaikinSmooth(points: Point[], iterations: number): Point[] {
+  let pts = points;
+  for (let pass = 0; pass < iterations; pass++) {
+    const next: Point[] = [];
+    const n = pts.length;
+    for (let i = 0; i < n; i++) {
+      const [x0, y0] = pts[i];
+      const [x1, y1] = pts[(i + 1) % n];
+      next.push([x0 + (x1 - x0) * 0.25, y0 + (y1 - y0) * 0.25]);
+      next.push([x0 + (x1 - x0) * 0.75, y0 + (y1 - y0) * 0.75]);
+    }
+    pts = next;
+  }
+  return pts;
+}
+
+/** Renders a closed ring of points as a continuously smooth (tangent-
+ * continuous) curve — a chain of quadratic Beziers through edge midpoints,
+ * the standard "smooth freehand blob from a polygon" construction. */
+function smoothPathFromPoints(points: Point[]): string {
+  const n = points.length;
+  if (n < 3) return pointsToPath(points);
+  const [lx, ly] = points[n - 1];
+  const [fx, fy] = points[0];
+  let d = `M ${(fx + lx) / 2},${(fy + ly) / 2} `;
+  for (let i = 0; i < n; i++) {
+    const [cx, cy] = points[i];
+    const [nx, ny] = points[(i + 1) % n];
+    d += `Q ${cx},${cy} ${(cx + nx) / 2},${(cy + ny) / 2} `;
+  }
+  return d + "Z";
+}
+
+/** Turns a Voronoi cell (straight-edged, often just 4-5 sides for a handful
+ * of sites — reads as plain geometric blocks) into an organic rounded blob
+ * outline, so the map doesn't look like a grid of quadrilaterals. */
+export function organicCellPath(ring: Point[], iterations = 2): string {
+  if (ring.length === 0) return "";
+  let pts = ring;
+  const first = pts[0];
+  const last = pts[pts.length - 1];
+  if (pts.length > 1 && first[0] === last[0] && first[1] === last[1]) {
+    pts = pts.slice(0, -1);
+  }
+  return smoothPathFromPoints(chaikinSmooth(pts, iterations));
+}
+
 const HEAT_LIGHT: [number, number, number] = [0xf7, 0xd9, 0xde]; // faint red tint
 const HEAT_DARK: [number, number, number] = [0xc4, 0x1e, 0x3a]; // brand red #C41E3A
 const HEAT_STEPS = 5;

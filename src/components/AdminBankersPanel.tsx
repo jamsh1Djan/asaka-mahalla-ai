@@ -1,13 +1,14 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Trash2 } from "lucide-react";
 import {
   addBankerAction,
   toggleBankerMahallaAction,
   toggleBankerStatusAction,
   resetBankerPasswordAction,
   updateBankerCredentialsAction,
+  deleteBankerAction,
   type AddBankerState,
 } from "@/actions/bankers";
 import { validatePassword } from "@/lib/password";
@@ -38,6 +39,7 @@ export default function AdminBankersPanel({
   const [newPassword, setNewPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
   const [tempPasswordFor, setTempPasswordFor] = useState<{ bankerId: string; password: string } | null>(null);
+  const [deleteError, setDeleteError] = useState<{ bankerId: string; message: string } | null>(null);
 
   function handleAddSubmit(e: React.FormEvent<HTMLFormElement>) {
     const issue = validatePassword(newPassword);
@@ -144,7 +146,25 @@ export default function AdminBankersPanel({
                     >
                       Parolni reset qilish
                     </button>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      disabled={isPending || isSelf}
+                      title={isSelf ? "O'zingizni o'chira olmaysiz" : undefined}
+                      style={{ color: "var(--red)" }}
+                      onClick={() => {
+                        if (!confirm(`"${b.ism}" hisobini butunlay o'chirishni tasdiqlaysizmi? Bu amalni orqaga qaytarib bo'lmaydi.`)) return;
+                        startTransition(async () => {
+                          const res = await deleteBankerAction(b.id);
+                          if (res.error) setDeleteError({ bankerId: b.id, message: res.error });
+                        });
+                      }}
+                    >
+                      <Trash2 size={13} /> O&apos;chirish
+                    </button>
                   </div>
+                  {deleteError?.bankerId === b.id && (
+                    <div className="err" style={{ marginTop: 8 }}>{deleteError.message}</div>
+                  )}
                   {tempPasswordFor?.bankerId === b.id && (
                     <div className="ok-box" style={{ marginTop: 8, fontSize: 12.5 }}>
                       Vaqtinchalik parol: <code>{tempPasswordFor.password}</code>

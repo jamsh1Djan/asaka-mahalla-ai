@@ -6,6 +6,7 @@ import { Sparkles } from "lucide-react";
 import type { Session } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
 import LogoMark from "@/components/Logo";
+import NationalOrnament from "@/components/NationalOrnament";
 
 const PUBLIC_LINKS: [string, string][] = [
   ["/", "Bosh sahifa"],
@@ -88,6 +89,7 @@ export default function Header({ session }: { session: Session | null }) {
           </Link>
         </div>
       </div>
+      <NationalOrnament />
     </header>
   );
 }

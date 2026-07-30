@@ -129,6 +129,36 @@ export async function toggleBankerStatusAction(bankerId: string, status: BankerS
   revalidatePath("/admin");
 }
 
+/** Permanently removes a banker/admin account (not just blocking it).
+ * Their mahalla assignments, listings, and login history cascade-delete with
+ * them (see schema); past ActivityLog rows are kept with bankerId set to
+ * null so the audit trail survives the deletion. */
+export async function deleteBankerAction(bankerId: string): Promise<{ error?: string }> {
+  const session = await getSession();
+  if (!isAdmin(session)) return { error: "Ruxsat yo'q" };
+  if (bankerId === session.bankerId) return { error: "O'zingizni o'chira olmaysiz" };
+
+  const target = await prisma.banker.findUnique({ where: { id: bankerId } });
+  if (!target) return { error: "Bankir topilmadi" };
+
+  if (target.role === "ADMIN") {
+    const adminCount = await prisma.banker.count({ where: { role: "ADMIN" } });
+    if (adminCount <= 1) {
+      return { error: "Tizimda kamida bitta Super Admin qolishi kerak" };
+    }
+  }
+
+  await prisma.banker.delete({ where: { id: bankerId } });
+
+  await logActivity(
+    session.bankerId,
+    "banker_ochirildi",
+    `o'chirildi: ${target.ism} (${target.login})`
+  );
+  revalidatePath("/admin");
+  return {};
+}
+
 export type ResetPasswordResult = { error: string } | { tempPassword: string };
 
 /** Generates a random temporary password, stores only its hash, and returns the
