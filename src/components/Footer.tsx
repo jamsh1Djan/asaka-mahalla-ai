@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { Phone, Mail, Send, Globe } from "lucide-react";
 import LogoMark from "@/components/Logo";
-import NationalOrnament from "@/components/NationalOrnament";
 
 export default function Footer() {
   return (
     <footer className="site">
-      <NationalOrnament variant="dark" />
       <div className="wrap foot-grid">
         <div>
           <h5 style={{ display: "flex", alignItems: "center", gap: 10 }}>
