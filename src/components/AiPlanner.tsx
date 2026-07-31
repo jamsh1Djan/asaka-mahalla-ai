@@ -100,6 +100,14 @@ export default function AiPlanner({ mahallaId, drayver, nomi }: { mahallaId: str
               <span>Mos kredit turi</span>
               <b>{idea.mos_kredit}</b>
             </div>
+            <div className="row">
+              <span>Taxminiy oylik to&apos;lov</span>
+              <b>{idea.oylik_tolov}</b>
+            </div>
+            <div className="row">
+              <span>Qarzdan qutulish muddati</span>
+              <b>{idea.qaytarish_muddati}</b>
+            </div>
           </div>
         ))}
       </div>

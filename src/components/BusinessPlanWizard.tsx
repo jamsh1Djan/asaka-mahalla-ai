@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { Bot, ArrowRight, ArrowLeft, Sparkles, CheckCircle2 } from "lucide-react";
 import { getBusinessIdeasAction, type BusinessIdea } from "@/actions/ai";
@@ -26,6 +26,15 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
   const [matched, setMatched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Each step swaps in content of a very different height. Without this, a
+  // user who scrolled down to reach a mahalla card further down the grid
+  // stays scrolled to that position after the step changes — the new,
+  // shorter content's top then sits behind the sticky header instead of
+  // in view.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
 
   function chooseMahalla(m: Mahalla) {
     setMahalla(m);
@@ -180,6 +189,14 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
                   <div className="row">
                     <span>Mos kredit turi</span>
                     <b>{idea.mos_kredit}</b>
+                  </div>
+                  <div className="row">
+                    <span>Taxminiy oylik to&apos;lov</span>
+                    <b>{idea.oylik_tolov}</b>
+                  </div>
+                  <div className="row">
+                    <span>Qarzdan qutulish muddati</span>
+                    <b>{idea.qaytarish_muddati}</b>
                   </div>
                 </div>
                 <Link href={`/mahallalar/${mahalla.id}`} className="btn btn-outline btn-sm" style={{ width: "100%", justifyContent: "center", marginTop: 12 }}>

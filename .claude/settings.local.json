@@ -11,7 +11,13 @@
       "PowerShell(Get-Command chromium-cli -ErrorAction SilentlyContinue)",
       "PowerShell(Get-Process node -ErrorAction SilentlyContinue)",
       "Bash(git commit -m ' *)",
-      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue)",
+      "Read(//c//**)",
+      "Bash(ls -la ~/Downloads 2>/dev/null | grep -i -E \"dizayn|yangilanish|v4\"; ls -la ~/Desktop 2>/dev/null | grep -i -E \"dizayn|yangilanish|v4\"; ls -la \"c:/Users/HP/Desktop\" 2>/dev/null | grep -i -E \"dizayn|yangilanish|v4\"; ls -la \"c:/Users/HP/Downloads\" 2>/dev/null | grep -i -E \"dizayn|yangilanish|v4\")",
+      "Read(//c/Users/HP/Downloads/**)",
+      "Read(//c/Users/HP/Desktop/**)",
+      "Bash(echo $HOME; realpath ~; ls -la ~ | grep -i desktop; find \"$HOME\" -maxdepth 3 -iname \"*dizayn*\" 2>/dev/null)",
+      "Read(//c/Users/HP/**)"
     ]
   }
 }

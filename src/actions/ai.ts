@@ -14,7 +14,30 @@ export type BusinessIdea = {
   boshlangich_xarajat: string;
   kutilayotgan_oylik_daromad: string;
   mos_kredit: string;
+  /** Estimated monthly installment for the matched credit product, at its own
+   * rate/term — computed with the same amortization formula as the loan
+   * calculator (never left to the model), so the wizard can actually answer
+   * "qancha to'lov, qancha vaqtda qutuladi" instead of just naming a product. */
+  oylik_tolov: string;
+  qaytarish_muddati: string;
 };
+
+/** Standard amortizing-loan monthly payment, at the credit product's own
+ * rate and term, using the idea's max startup cost as the borrowed amount —
+ * same formula Calculator.tsx uses, so figures shown here and on the
+ * calculator page never disagree. */
+function estimateRepayment(amount: number, foizLabel: string, muddatiLabel: string) {
+  const rateMatches = foizLabel.match(/\d+/g);
+  const rate = rateMatches ? Number(rateMatches[rateMatches.length - 1]) : 25;
+  const monthMatches = muddatiLabel.match(/\d+/g);
+  const months = monthMatches ? Number(monthMatches[0]) : 24;
+  const monthlyRate = rate / 100 / 12;
+  const payment =
+    monthlyRate > 0
+      ? (amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months))
+      : amount / months;
+  return { oylikTolov: Math.round(payment), oylar: months };
+}
 
 /** `matched` — whether the selected ideas actually have a real tie to this
  * mahalla's PQ-49 specialization (soha match or drayver keyword overlap),
@@ -173,12 +196,15 @@ ${catalogText}`;
         const template = BUSINESS_IDEAS.find((b) => b.id === id);
         if (!template) return null;
         const credit = pickCreditProduct(template.costMax);
+        const { oylikTolov, oylar } = estimateRepayment(template.costMax, credit.foiz, credit.muddati);
         const idea: BusinessIdea = {
           nomi: template.nomi,
           tavsif: izoh || template.tavsif,
           boshlangich_xarajat: `${fmt(template.costMin)}–${fmt(template.costMax)} so'm`,
           kutilayotgan_oylik_daromad: `${fmt(template.incomeMin)}–${fmt(template.incomeMax)} so'm/oy`,
           mos_kredit: `${credit.nomi} (${credit.miqdori}, ${credit.foiz})`,
+          oylik_tolov: `≈ ${fmt(oylikTolov)} so'm/oy`,
+          qaytarish_muddati: `${oylar} oyda to'liq qaytariladi`,
         };
         return idea;
       })
