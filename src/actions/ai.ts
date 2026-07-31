@@ -1,12 +1,12 @@
 "use server";
 
-import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
 import { pickCreditProduct } from "@/lib/data";
-import { BUSINESS_IDEAS } from "@/lib/businessIdeas";
+import { BUSINESS_IDEAS, type BusinessIdeaTemplate } from "@/lib/businessIdeas";
 import { fmt } from "@/lib/format";
 import { getSystemSettings } from "@/lib/settings";
 import { getSession } from "@/lib/auth";
+import type { Mahalla } from "@prisma/client";
 
 export type BusinessIdea = {
   nomi: string;
@@ -16,8 +16,8 @@ export type BusinessIdea = {
   mos_kredit: string;
   /** Estimated monthly installment for the matched credit product, at its own
    * rate/term — computed with the same amortization formula as the loan
-   * calculator (never left to the model), so the wizard can actually answer
-   * "qancha to'lov, qancha vaqtda qutuladi" instead of just naming a product. */
+   * calculator, so the wizard can actually answer "qancha to'lov, qancha
+   * vaqtda qutuladi" instead of just naming a product. */
   oylik_tolov: string;
   qaytarish_muddati: string;
 };
@@ -52,7 +52,13 @@ const BUDGET_RANGES: Record<string, [number, number]> = {
   "50 mln dan ko'p": [50_000_000, 300_000_000],
 };
 
-function candidateIdeas(drayver: string, budgetLabel: string, soha: string) {
+/** Rule-based matching against the fixed BUSINESS_IDEAS catalogue — no
+ * external API call, so this has no per-request cost and nothing to
+ * misconfigure. Scores every candidate on soha match, mahalla-drayver
+ * keyword overlap, and stated experience level, then returns the top picks
+ * sorted best-first alongside each one's score (used for the "matched"
+ * label). */
+function candidateIdeas(drayver: string, budgetLabel: string, soha: string, tajriba: string) {
   const range = BUDGET_RANGES[budgetLabel] ?? BUDGET_RANGES["5-20 mln"];
   const drayverLower = drayver.toLowerCase();
 
@@ -65,43 +71,34 @@ function candidateIdeas(drayver: string, budgetLabel: string, soha: string) {
     let score = 0;
     if (soha !== "avtomatik" && idea.soha === soha) score += 2;
     if (idea.drayverKalitlari.some((k) => drayverLower.includes(k))) score += 1;
+    if (idea.tajriba === "Ikkalasi" || idea.tajriba === tajriba) score += 1;
     return { idea, score };
   });
 
   scored.sort((a, b) => b.score - a.score);
-  const scoreById = Object.fromEntries(scored.map((s) => [s.idea.id, s.score]));
-  return { pool: scored.slice(0, 12).map((s) => s.idea), scoreById };
+  return scored;
 }
 
-function buildIdeaTool(candidateIds: string[]) {
-  return {
-    name: "tavsiya_tanlash",
-    description:
-      "Berilgan biznes-g'oyalar katalogidan foydalanuvchiga eng mos 2-3 tasini tanlash",
-    input_schema: {
-      type: "object" as const,
-      properties: {
-        tanlanganlar: {
-          type: "array" as const,
-          items: {
-            type: "object" as const,
-            properties: {
-              id: { type: "string" as const, enum: candidateIds },
-              izoh: {
-                type: "string" as const,
-                description:
-                  "Ushbu g'oya nega aynan shu mahalla va foydalanuvchi uchun mos ekanligi haqida O'zbek tilida 1-2 gapli tushuntirish",
-              },
-            },
-            required: ["id", "izoh"],
-          },
-          minItems: 2,
-          maxItems: 3,
-        },
-      },
-      required: ["tanlanganlar"],
-    },
-  };
+/** Builds a short, grounded explanation from the same signals used to score
+ * the idea — no free-text generation, just a template filled from real
+ * fields, so it can never say something the data doesn't support. */
+function explainIdea(idea: BusinessIdeaTemplate, mahalla: Mahalla, soha: string, tajriba: string): string {
+  const reasons: string[] = [];
+  if (soha !== "avtomatik" && idea.soha === soha) {
+    reasons.push(`siz tanlagan "${soha}" sohasiga to'g'ridan-to'g'ri mos keladi`);
+  }
+  const drayverLower = mahalla.drayver.toLowerCase();
+  if (idea.drayverKalitlari.some((k) => drayverLower.includes(k))) {
+    reasons.push(`${mahalla.nomi} mahallasining asosiy yo'nalishi (${mahalla.drayver}) bilan bog'liq`);
+  }
+  if (idea.tajriba === tajriba) {
+    reasons.push(`tajriba darajangizga (${tajriba.toLowerCase()}) mos keladi`);
+  }
+  const reasonText =
+    reasons.length > 0
+      ? `Bu g'oya ${reasons.join(" va ")}.`
+      : `Kichik boshlang'ich kapital bilan boshlash mumkin bo'lgan ishonchli variant.`;
+  return `${idea.tavsif} ${reasonText}`;
 }
 
 /** Best-effort survey log for the admin Statistika tab — never blocks or
@@ -138,87 +135,34 @@ export async function getBusinessIdeasAction(
 ): Promise<AiPlannerResult> {
   const settings = await getSystemSettings();
   if (!settings.aiPlannerYoqilgan) {
-    return { error: "AI biznes-reja tavsiyachisi hozircha administrator tomonidan o'chirilgan." };
-  }
-
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return {
-      error: "AI xizmati sozlanmagan (ANTHROPIC_API_KEY yo'q). Administratorga murojaat qiling.",
-    };
+    return { error: "Biznes-reja tavsiyachisi hozircha administrator tomonidan o'chirilgan." };
   }
 
   const mahalla = await prisma.mahalla.findUnique({ where: { id: mahallaId } });
   if (!mahalla) return { error: "Mahalla topilmadi" };
 
-  const { pool: candidates, scoreById } = candidateIdeas(mahalla.drayver, budget, soha);
-  if (candidates.length === 0) {
+  const scored = candidateIdeas(mahalla.drayver, budget, soha, tajriba);
+  if (scored.length === 0) {
     return { error: "Bu byudjet uchun mos g'oya topilmadi. Boshqa byudjet tanlab ko'ring." };
   }
 
-  const client = new Anthropic({ apiKey });
-  const tool = buildIdeaTool(candidates.map((c) => c.id));
+  const picked = scored.slice(0, 3);
+  const ideas: BusinessIdea[] = picked.map(({ idea: template }) => {
+    const credit = pickCreditProduct(template.costMax);
+    const { oylikTolov, oylar } = estimateRepayment(template.costMax, credit.foiz, credit.muddati);
+    return {
+      nomi: template.nomi,
+      tavsif: explainIdea(template, mahalla, soha, tajriba),
+      boshlangich_xarajat: `${fmt(template.costMin)}–${fmt(template.costMax)} so'm`,
+      kutilayotgan_oylik_daromad: `${fmt(template.incomeMin)}–${fmt(template.incomeMax)} so'm/oy`,
+      mos_kredit: `${credit.nomi} (${credit.miqdori}, ${credit.foiz})`,
+      oylik_tolov: `≈ ${fmt(oylikTolov)} so'm/oy`,
+      qaytarish_muddati: `${oylar} oyda to'liq qaytariladi`,
+    };
+  });
 
-  const catalogText = candidates
-    .map(
-      (c) =>
-        `- id="${c.id}" | ${c.nomi} (${c.soha}) | boshlang'ich xarajat: ${fmt(c.costMin)}-${fmt(c.costMax)} so'm | oylik daromad: ${fmt(c.incomeMin)}-${fmt(c.incomeMax)} so'm | ${c.tavsif}`
-    )
-    .join("\n");
+  const matched = picked.some(({ score }) => score >= 1);
+  await logBusinessPlanRequest({ mahallaId, soha, budget, tajriba, jamoaHajmi, matched });
 
-  const systemPrompt = `Sen Asaka Mahalla AI platformasining biznes-reja maslahatchisisan. Faqat O'zbek tilida javob ber.
-
-Senga QUYIDAGI tayyor va tekshirilgan biznes-g'oyalar katalogi berilgan — xarajat va daromad raqamlari allaqachon real bozor sharoitiga mos hisoblangan. SEN YANGI G'OYA O'YLAB TOPMAYSAN va raqamlarni o'zgartirmaysan — faqat shu katalogdan foydalanuvchiga ENG MOS 2-3 tasini tanlaysan va har biri uchun nega aynan shu mahalla va foydalanuvchi uchun mos ekanligini qisqa tushuntirasan.
-
-Katalog:
-${catalogText}`;
-
-  const userPrompt = `Mahalla: ${mahalla.nomi}. Ixtisoslashuv/drayver: ${mahalla.drayver}. Mahalladagi tadbirkorlik subyektlari: ${mahalla.tadbirkorlik} (shundan YATT: ${mahalla.yatt}, MChJ: ${mahalla.mchj}). Mahallada mavjud faoliyat turlari: ${mahalla.faoliyatTurlari || "ma'lumot yo'q"}. Foydalanuvchi byudjeti: ${budget}. Tajribasi: ${tajriba}. Jamoa hajmi: ${jamoaHajmi}. Qiziqqan sohasi: ${soha === "avtomatik" ? "aniq belgilamagan, o'zing eng mosini tanla" : soha}.`;
-
-  try {
-    const response = await client.messages.create({
-      model: "claude-sonnet-5",
-      max_tokens: 1200,
-      system: systemPrompt,
-      tools: [tool],
-      tool_choice: { type: "tool", name: "tavsiya_tanlash" },
-      messages: [{ role: "user", content: userPrompt }],
-    });
-
-    const toolUse = response.content.find((b) => b.type === "tool_use");
-    if (!toolUse || toolUse.type !== "tool_use") {
-      return { error: "AI tavsiyasini olishda xatolik yuz berdi. Birozdan so'ng qayta urinib ko'ring." };
-    }
-
-    const input = toolUse.input as { tanlanganlar: { id: string; izoh: string }[] };
-    const ideas: BusinessIdea[] = input.tanlanganlar
-      .map(({ id, izoh }) => {
-        const template = BUSINESS_IDEAS.find((b) => b.id === id);
-        if (!template) return null;
-        const credit = pickCreditProduct(template.costMax);
-        const { oylikTolov, oylar } = estimateRepayment(template.costMax, credit.foiz, credit.muddati);
-        const idea: BusinessIdea = {
-          nomi: template.nomi,
-          tavsif: izoh || template.tavsif,
-          boshlangich_xarajat: `${fmt(template.costMin)}–${fmt(template.costMax)} so'm`,
-          kutilayotgan_oylik_daromad: `${fmt(template.incomeMin)}–${fmt(template.incomeMax)} so'm/oy`,
-          mos_kredit: `${credit.nomi} (${credit.miqdori}, ${credit.foiz})`,
-          oylik_tolov: `≈ ${fmt(oylikTolov)} so'm/oy`,
-          qaytarish_muddati: `${oylar} oyda to'liq qaytariladi`,
-        };
-        return idea;
-      })
-      .filter((x): x is BusinessIdea => x !== null);
-
-    if (ideas.length === 0) {
-      return { error: "AI tavsiyasini olishda xatolik yuz berdi. Birozdan so'ng qayta urinib ko'ring." };
-    }
-
-    const matched = input.tanlanganlar.some(({ id }) => (scoreById[id] ?? 0) >= 1);
-    await logBusinessPlanRequest({ mahallaId, soha, budget, tajriba, jamoaHajmi, matched });
-
-    return { ideas, matched };
-  } catch {
-    return { error: "AI tavsiyasini olishda xatolik yuz berdi. Birozdan so'ng qayta urinib ko'ring." };
-  }
+  return { ideas, matched };
 }

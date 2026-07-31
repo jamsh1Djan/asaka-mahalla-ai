@@ -13,7 +13,9 @@ bu loyiha uni haqiqiy backend, baza va autentifikatsiya bilan production-ready h
   `postgresql`ga o'zgartirib, `DATABASE_URL`ni Postgres ulanish satriga almashtirish orqali
   productionga o'tkaziladi
 - **Autentifikatsiya:** bcrypt (parol xeshlash) + imzolangan JWT sessiya cookie (`jose`)
-- **AI:** Anthropic Claude API (`@anthropic-ai/sdk`), server-side chaqiriladi
+- **Biznes-reja tavsiyachisi:** qoida asosidagi (rule-based) moslashtirish — tayyor
+  g'oyalar katalogi (`src/lib/businessIdeas.ts`) ustida soha/drayver/tajriba bo'yicha ball
+  hisoblanadi; tashqi pullik AI API'ga bog'liq emas
 
 ## Ishga tushirish
 
@@ -27,8 +29,6 @@ npm run dev
 `.env` faylida:
 
 - `DATABASE_URL` — SQLite fayl yo'li (standart holatda tayyor)
-- `ANTHROPIC_API_KEY` — AI biznes-reja tavsiyachisi ishlashi uchun shart
-  ([console.anthropic.com](https://console.anthropic.com/settings/keys))
 - `AUTH_SECRET` — sessiya cookie imzolash uchun tasodifiy maxfiy kalit (productionda albatta
   o'zgartiring)
 
