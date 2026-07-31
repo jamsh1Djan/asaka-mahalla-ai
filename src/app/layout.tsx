@@ -35,7 +35,7 @@ export default async function RootLayout({
           <div className="splash-inner">
             <div className="splash-glow" />
             <div className="splash-mark">
-              <LogoMark size={42} />
+              <LogoMark size={110} variant="icon" />
             </div>
             <div className="splash-title">
               Asaka<span>Mahalla</span> AI

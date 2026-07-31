@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { fmt } from "@/lib/format";
@@ -72,7 +73,17 @@ export default async function HomePage() {
             </Reveal>
           </div>
           <Reveal variant="scale" delay={200} className="hero-visual">
-            <Link href="/mahallalar" className="chatbox chatbox-link">
+            <div className="hero-photo">
+              <Image
+                src="/images/hero-photo.jpg"
+                alt="Mahalla bankiri mijozga bank ilovasi orqali yordam bermoqda"
+                fill
+                sizes="(max-width: 920px) 100vw, 45vw"
+                style={{ objectFit: "cover" }}
+                priority
+              />
+            </div>
+            <Link href="/mahallalar" className="chatbox chatbox-link chatbox-hero">
               <div className="card-head" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, paddingBottom: 14, borderBottom: "1px solid rgba(15,43,108,.08)" }}>
                 <div className="chat-avatar">
                   <Sparkles size={15} />

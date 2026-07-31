@@ -43,7 +43,7 @@ export default function Header({ session }: { session: Session | null }) {
     <header className="site">
       <div className="nav">
         <Link href="/" className="brand">
-          <span className="mark"><LogoMark size={20} /></span>
+          <span className="mark"><LogoMark size={40} /></span>
           Asaka<span className="red">Mahalla</span>&nbsp;AI
         </Link>
         <nav className="navlinks">

@@ -8,8 +8,8 @@ export default function Footer() {
       <div className="wrap foot-grid">
         <div>
           <h5 style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span className="mark" style={{ width: 30, height: 30 }}>
-              <LogoMark size={16} />
+            <span className="mark">
+              <LogoMark size={26} />
             </span>
             Asaka Mahalla AI
           </h5>

@@ -112,11 +112,6 @@ header.site {
   letter-spacing: -0.2px;
 }
 .brand .mark {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--red), var(--red-dark));
-  box-shadow: 0 8px 18px -6px rgba(215, 25, 32, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -321,6 +316,40 @@ h1.hero-title .accent {
 
 .hero-visual {
   position: relative;
+  min-height: 420px;
+}
+.hero-photo {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.chatbox-hero {
+  position: absolute;
+  right: 0;
+  bottom: -20px;
+  width: min(320px, 62%);
+  /* Sits over a busy photo, not the page background — the usual glass
+     opacity isn't legible here, so this needs to be nearly solid. */
+  background: rgba(255, 255, 255, 0.97);
+}
+@media (max-width: 920px) {
+  .hero-visual {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .hero-photo {
+    position: relative;
+    inset: auto;
+    height: 240px;
+  }
+  .chatbox-hero {
+    position: static;
+    width: 100%;
+  }
 }
 .chatbox {
   position: relative;
@@ -1289,11 +1318,6 @@ footer.site {
 }
 .splash-mark {
   position: relative;
-  width: 92px;
-  height: 92px;
-  border-radius: 26px;
-  background: linear-gradient(135deg, var(--red), var(--red-dark));
-  box-shadow: 0 20px 44px -12px rgba(215, 25, 32, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
