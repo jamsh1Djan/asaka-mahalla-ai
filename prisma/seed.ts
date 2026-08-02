@@ -23,6 +23,7 @@ const MAHALLAS = [
     drayver: "Xizmat ko'rsatish",
     agent: "Usmonova Malika Islomovna",
     color: "#C8102E",
+    image: "/assets/mahallalar/otchopar1.jpg",
   },
   {
     id: "otchopar2",
@@ -42,6 +43,7 @@ const MAHALLAS = [
     drayver: "Ishlab chiqarish, xizmat ko'rsatish, savdo-sanoat",
     agent: "Ortiqov Ziyoviddin Faxriddin o'g'li",
     color: "#0B2545",
+    image: "/assets/mahallalar/otchopar2.jpg",
   },
   {
     id: "yurtobod",
@@ -61,6 +63,7 @@ const MAHALLAS = [
     drayver: "Aholiga savdo va maishiy xizmat ko'rsatish",
     agent: "Xabibullayeva Yunona Lovar qizi",
     color: "#C69C4E",
+    image: "/assets/mahallalar/yurtobod.jpg",
   },
   {
     id: "yangiariq",
@@ -80,6 +83,7 @@ const MAHALLAS = [
     drayver: "Oziq-ovqat va xizmat ko'rsatish",
     agent: "Rustamova Mehrigiyo Vali qizi",
     color: "#2b7a43",
+    image: "/assets/mahallalar/yangiariq.jpg",
   },
   {
     id: "oqtepa",
@@ -99,6 +103,7 @@ const MAHALLAS = [
     drayver: "Aholiga savdo va maishiy xizmat ko'rsatish",
     agent: "Karimova Shahzoda Ahrorovna",
     color: "#1a3a68",
+    image: "/assets/mahallalar/oqtepa.jpg",
   },
   {
     id: "posira",
@@ -118,6 +123,7 @@ const MAHALLAS = [
     drayver: "Aholiga savdo va maishiy xizmat ko'rsatish",
     agent: "—",
     color: "#8a6a1f",
+    image: "/assets/mahallalar/posira.jpg",
   },
   {
     id: "muruvvat",
@@ -137,6 +143,7 @@ const MAHALLAS = [
     drayver: "Aholiga savdo va maishiy xizmat ko'rsatish",
     agent: "Zaitova Kamola Xamidullayevna",
     color: "#9C0C24",
+    image: "/assets/mahallalar/muruvvat.jpg",
   },
 ];
 

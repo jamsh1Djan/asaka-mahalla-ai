@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import MahallaMap from "@/components/MahallaMap";
+import MahallaMapDashboard from "@/components/MahallaMapDashboard";
 import MahallaCard from "@/components/MahallaCard";
 import Reveal from "@/components/Reveal";
 
@@ -22,7 +22,7 @@ export default async function MahallalarPage() {
           </div>
         </Reveal>
         <Reveal variant="scale" delay={100}>
-          <MahallaMap mahallas={mahallas} />
+          <MahallaMapDashboard mahallas={mahallas} />
         </Reveal>
         <div style={{ height: 26 }} />
         <div className="grid grid-3">

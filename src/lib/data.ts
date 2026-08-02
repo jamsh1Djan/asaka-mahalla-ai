@@ -190,6 +190,25 @@ export const IMTIYOZLAR = [
   },
 ];
 
+// Real Yandex Maps location links for each mahalla's fuqarolar yig'ini
+// building, opened from the "Xaritada ko'rish" pill on its photo/card.
+export const MAHALLA_YANDEX_LINKS: Record<string, string> = {
+  otchopar1:
+    "https://yandex.uz/maps/10335/tashkent/geo/1_otchopar_mahalla_fuqarolar_yig_ini/1946535121/?azimuth=0.8843134611974633&ll=69.297867%2C41.356365&tilt=0.8726646259971648&z=15.22",
+  otchopar2:
+    "https://yandex.uz/maps/10335/tashkent/geo/2_otchopar_mahalla_fuqarolar_yig_ini/1946531781/?azimuth=0.8843134611974633&ll=69.312098%2C41.353189&tilt=0.8726646259971648&z=13.75",
+  oqtepa:
+    "https://yandex.uz/maps/10335/tashkent/geo/oqtepa_mahalla_fuqarolar_yig_ini/1508577550/?azimuth=0.8843134611974633&ll=69.318023%2C41.362688&tilt=0.8726646259971648&z=13.71",
+  muruvvat:
+    "https://yandex.uz/maps/10335/tashkent/geo/muruvvat_mahalla_fuqarolar_yig_ini/1946553721/?azimuth=0.8843134611974633&ll=69.298979%2C41.378466&tilt=0.8726646259971648&z=15.59",
+  posira:
+    "https://yandex.uz/maps/10335/tashkent/geo/posira_mahalla_fuqarolar_yig_ini/1946494791/?azimuth=0.8843134611974633&ll=69.334817%2C41.356157&tilt=0.8726646259971648&z=14.21",
+  yangiariq:
+    "https://yandex.uz/maps/10335/tashkent/geo/yangi_ariq_mahalla_fuqarolar_yig_ini/1946475711/?l=sat&ll=69.272299%2C41.347239&source=serp_navig&z=16",
+  yurtobod:
+    "https://yandex.uz/maps/10335/tashkent/geo/yurtobod_mahalla_fuqarolar_yig_ini/1946549871/?l=sat&ll=69.317322%2C41.378131&source=serp_navig&z=17",
+};
+
 // SVG polygon point lists (viewBox 0 0 520 400), illustrative district segmentation.
 export const MAP_LAYOUT: Record<string, string> = {
   otchopar1: "180,40 300,20 340,110 260,150 160,130",
