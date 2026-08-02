@@ -17,7 +17,13 @@
       "Read(//c/Users/HP/Downloads/**)",
       "Read(//c/Users/HP/Desktop/**)",
       "Bash(echo $HOME; realpath ~; ls -la ~ | grep -i desktop; find \"$HOME\" -maxdepth 3 -iname \"*dizayn*\" 2>/dev/null)",
-      "Read(//c/Users/HP/**)"
+      "Read(//c/Users/HP/**)",
+      "Bash(powershell -Command 'Get-CimInstance Win32_Process -Filter \"name='\\\\''node.exe'\\\\''\" | Where-Object { $_.CommandLine -like '\\\\''*asaka-mahalla-AI*'\\\\'' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }')",
+      "Bash(rm -rf \"c:/Users/HP/Desktop/asaka-mahalla-AI/scripts\")",
+      "Bash(rm -rf \"c:/Users/HP/Desktop/asaka-mahalla-AI/.next\")",
+      "Bash(npx next *)",
+      "Bash(rm -rf \"c:/Users/HP/Desktop/asaka-mahalla-AI/.next\" *)",
+      "Bash(git add *)"
     ]
   }
 }

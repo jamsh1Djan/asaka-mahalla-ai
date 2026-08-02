@@ -1215,7 +1215,13 @@ footer.site {
 #splash {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 50% 55%, var(--navy2) 0%, var(--navy-deep) 75%);
+  /* Matches the logo asset's own white backdrop instead of fighting it —
+     the previous navy background made the logo's white card look like a
+     pasted-on sticker. Warm light radiates up from the bottom per request. */
+  background:
+    radial-gradient(ellipse 900px 520px at 50% 115%, rgba(201, 154, 46, 0.28), transparent 65%),
+    radial-gradient(ellipse 700px 420px at 50% 105%, rgba(215, 25, 32, 0.1), transparent 60%),
+    #ffffff;
   z-index: 999;
   display: flex;
   align-items: center;
@@ -1233,7 +1239,7 @@ footer.site {
   position: absolute;
   width: 64px;
   height: 64px;
-  border: 2px solid rgba(201, 154, 46, 0.45);
+  border: 2px solid rgba(15, 43, 108, 0.2);
   opacity: 0;
   animation: cornerIn 0.6s ease 0.8s forwards;
 }
@@ -1287,7 +1293,7 @@ footer.site {
   position: absolute;
   inset: -30px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(201, 154, 46, 0.35), transparent 70%);
+  background: radial-gradient(circle, rgba(201, 154, 46, 0.28), transparent 70%);
   animation:
     logoIn 0.5s ease forwards,
     pulse 1.6s ease-in-out 0.5s infinite;
@@ -1322,7 +1328,7 @@ footer.site {
 }
 .splash-title {
   margin-top: 22px;
-  color: #fff;
+  color: #0a1f44;
   font-weight: 800;
   font-size: 20px;
   opacity: 0;
@@ -1338,7 +1344,7 @@ footer.site {
   color: var(--gold);
 }
 .splash-sub {
-  color: #8fa0c9;
+  color: #5b6785;
   font-size: 12.5px;
   font-weight: 500;
   margin-top: 6px;

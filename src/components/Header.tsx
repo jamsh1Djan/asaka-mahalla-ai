@@ -44,7 +44,7 @@ export default function Header({ session }: { session: Session | null }) {
       <div className="nav">
         <Link href="/" className="brand">
           <span className="mark"><LogoMark size={40} /></span>
-          Asaka<span className="red">Mahalla</span>&nbsp;AI
+          Asaka <span className="red">Mahalla</span>&nbsp;AI
         </Link>
         <nav className="navlinks">
           {links.map(([href, text]) => (

@@ -38,7 +38,7 @@ export default async function RootLayout({
               <LogoMark size={110} variant="icon" />
             </div>
             <div className="splash-title">
-              Asaka<span>Mahalla</span> AI
+              Asaka <span>Mahalla</span> AI
             </div>
             <div className="splash-sub">Mahalla bankiri uchun aqlli raqamli yordamchi</div>
           </div>
