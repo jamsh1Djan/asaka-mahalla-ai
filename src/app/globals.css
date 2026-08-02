@@ -513,6 +513,8 @@ h2.section-title {
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: 0 4px 24px rgba(10, 31, 68, 0.06);
+  max-width: 480px;
+  margin: 0 auto;
 }
 .map-card h4 {
   margin: 0 0 4px;
