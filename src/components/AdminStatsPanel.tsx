@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { fmt } from "@/lib/format";
+import { CREDIT_PRODUCTS } from "@/lib/data";
 
 const STATUS_LABELS: Record<string, string> = {
   YANGI: "Yangi",
@@ -17,6 +18,8 @@ export default async function AdminStatsPanel() {
     businessPlanBySoha,
     businessPlanTotal,
     businessPlanMatched,
+    creditChatTotal,
+    creditChatByProduct,
   ] = await Promise.all([
     prisma.mahalla.findMany(),
     prisma.application.groupBy({ by: ["status"], _count: { status: true } }),
@@ -26,6 +29,8 @@ export default async function AdminStatsPanel() {
     prisma.businessPlanRequest.groupBy({ by: ["soha"], _count: { soha: true } }),
     prisma.businessPlanRequest.count(),
     prisma.businessPlanRequest.count({ where: { matched: true } }),
+    prisma.creditChatRequest.count(),
+    prisma.creditChatRequest.groupBy({ by: ["matchedCreditId"], _count: { matchedCreditId: true } }),
   ]);
 
   const totalAholi = mahallas.reduce((s, m) => s + m.aholi, 0);
@@ -68,6 +73,10 @@ export default async function AdminStatsPanel() {
         <div className="pill">
           <span>Biznes reja so&apos;rovlari</span>
           <b>{businessPlanTotal}</b>
+        </div>
+        <div className="pill">
+          <span>Kredit suhbatlari (AI widget)</span>
+          <b>{creditChatTotal}</b>
         </div>
       </div>
 
@@ -133,6 +142,34 @@ export default async function AdminStatsPanel() {
                   <tr key={g.soha}>
                     <td>{g.soha}</td>
                     <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.soha}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="card" style={{ marginTop: 18 }}>
+        <h4 style={{ margin: "0 0 14px" }}>
+          AI chat — kredit so&apos;rovlari (jami: {creditChatTotal})
+        </h4>
+        {creditChatByProduct.length === 0 ? (
+          <div className="empty">Hozircha so&apos;rovlar yo&apos;q</div>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Mos kelgan kredit</th>
+                <th style={{ textAlign: "right" }}>So&apos;rovlar soni</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...creditChatByProduct]
+                .sort((a, b) => b._count.matchedCreditId - a._count.matchedCreditId)
+                .map((g) => (
+                  <tr key={g.matchedCreditId}>
+                    <td>{CREDIT_PRODUCTS.find((c) => c.id === g.matchedCreditId)?.nomi ?? g.matchedCreditId}</td>
+                    <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.matchedCreditId}</td>
                   </tr>
                 ))}
             </tbody>

@@ -70,6 +70,7 @@ model Mahalla {
   applications         Application[]
   listings             Listing[]
   businessPlanRequests BusinessPlanRequest[]
+  creditChatRequests   CreditChatRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -181,6 +182,21 @@ model BusinessPlanRequest {
   citizenName  String?
   citizenPhone String?
   createdAt    DateTime @default(now())
+}
+
+/// One row per credit-matching request from the button-driven "AI bilan
+/// suhbat" widget — logged the same way as BusinessPlanRequest, for the
+/// admin Statistika tab.
+model CreditChatRequest {
+  id               String   @id @default(cuid())
+  mahallaId        String
+  mahalla          Mahalla  @relation(fields: [mahallaId], references: [id], onDelete: Cascade)
+  requestedAmount  Int
+  employmentStatus String
+  matchedCreditId  String
+  citizenName      String?
+  citizenPhone     String?
+  createdAt        DateTime @default(now())
 }
 
 // Singleton row (id is always 1) holding platform-wide, admin-editable settings.

@@ -3,6 +3,8 @@
 // rather than the database — same as mahalla map polygon layout (illustrative,
 // not to geo-scale, ported from the prototype).
 
+export type EmploymentStatus = "self_employed" | "employed" | "business_owner";
+
 export type CreditProduct = {
   id: string;
   tag: "Jismoniy shaxslar" | "Yuridik shaxslar";
@@ -17,6 +19,13 @@ export type CreditProduct = {
   foiz: string;
   taminot: string;
   maqsad: string;
+  /** Which employment/business situations this product actually targets — grounds the
+   * chat widget's credit matching in the same real eligibility text as `maqsad`,
+   * instead of guessing. */
+  employmentTags: EmploymentStatus[];
+  /** Real document checklist shown in the chat widget's "action card" — never invented
+   * per-request, always this fixed list. */
+  requiredDocuments: string[];
 };
 
 export const CREDIT_PRODUCTS: CreditProduct[] = [
@@ -31,6 +40,12 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     taminot: "Talab qilinmaydi",
     maqsad:
       "Ijtimoiy soliq to'lovchi, o'zini o'zi band qilgan jismoniy shaxslarni qo'llab-quvvatlash",
+    employmentTags: ["self_employed"],
+    requiredDocuments: [
+      "Pasport",
+      "Doimiy/vaqtinchalik ro'yxatdan o'tish (propiska) nusxasi",
+      "Ijtimoiy soliq to'lovchi sifatida ro'yxatdan o'tganlik ma'lumotnomasi",
+    ],
   },
   {
     id: "birinchi-qadam-2",
@@ -42,6 +57,13 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     foiz: "27%",
     taminot: "3-shaxs kafilligi yoki sug'urta polis",
     maqsad: "Asakabank biriktirilgan MFYlarda ro'yxatdagi ijtimoiy soliq to'lovchi shaxslar",
+    employmentTags: ["self_employed"],
+    requiredDocuments: [
+      "Pasport",
+      "Ijtimoiy soliq to'lovchi ma'lumotnomasi",
+      "Kafil pasporti va roziligi (yoki sug'urta polis)",
+      "Yashash manzilini tasdiqlovchi hujjat",
+    ],
   },
   {
     id: "tadbirkorga-komak",
@@ -53,6 +75,13 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     foiz: "25%",
     taminot: "3-shaxs kafilligi yoki sug'urta polis",
     maqsad: "Bank kartasidan muntazam foydalanuvchi, band shaxslarni qo'llab-quvvatlash",
+    employmentTags: ["employed"],
+    requiredDocuments: [
+      "Pasport",
+      "Ish joyidan maosh haqida ma'lumotnoma",
+      "Bank kartasi bo'yicha so'nggi 3-6 oylik hisobot",
+      "Kafil pasporti va roziligi (yoki sug'urta polis)",
+    ],
   },
   {
     id: "mahalla-loyihasi",
@@ -64,6 +93,13 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     foiz: "25%",
     taminot: "3-shaxs kafilligi yoki sug'urta polis",
     maqsad: "O'z biznes loyihasini muvaffaqiyatli amalga oshirgan tadbirkorlik subyektlari",
+    employmentTags: ["business_owner"],
+    requiredDocuments: [
+      "Yuridik shaxs/YATT guvohnomasi",
+      "Soliq organidan ma'lumotnoma",
+      "Tayyor biznes-reja",
+      "Kafil pasporti va roziligi (yoki sug'urta polis)",
+    ],
   },
   {
     id: "biznesga-ishonch-2",
@@ -75,6 +111,13 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     foiz: "19%–23%",
     taminot: "100 mln gacha garovsiz",
     maqsad: "Kamida 1 yil faoliyat yuritayotgan kichik tadbirkorlik subyektlari",
+    employmentTags: ["business_owner"],
+    requiredDocuments: [
+      "Yuridik shaxs/YATT guvohnomasi",
+      "Kamida 1 yillik faoliyat statistikasi/moliyaviy hisobot",
+      "Soliq organidan ma'lumotnoma",
+      "100 mln so'mdan yuqori summalar uchun garov hujjatlari",
+    ],
   },
   {
     id: "tomorqadan-eksportgacha",
@@ -86,15 +129,38 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
     foiz: "5%",
     taminot: "3-shaxs kafilligi yoki sug'urta polis",
     maqsad: "Eksport qiluvchi tadbirkorlik subyektlari",
+    employmentTags: ["business_owner"],
+    requiredDocuments: [
+      "Yuridik shaxs guvohnomasi",
+      "Eksport shartnomasi (kontrakt)",
+      "Soliq organidan ma'lumotnoma",
+      "Bojxona deklaratsiyasi namunasi",
+    ],
   },
 ];
 
 /** Deterministically picks the smallest credit product whose limit covers the given
- * startup cost — grounds the AI planner's "mos kredit" answer in real numeric logic
- * instead of leaving loan selection to free-text model output. */
+ * startup cost — grounds the business-plan wizard's "mos kredit" answer in real numeric
+ * logic instead of leaving loan selection to free-text model output. */
 export function pickCreditProduct(costSom: number): CreditProduct {
   const sorted = [...CREDIT_PRODUCTS].sort((a, b) => a.miqdoriSom - b.miqdoriSom);
   return sorted.find((p) => p.miqdoriSom >= costSom) ?? sorted[sorted.length - 1];
+}
+
+/** Same deterministic "smallest product that covers the amount" logic as
+ * pickCreditProduct, but also prefers a product whose employmentTags include the
+ * requester's stated situation — used by the button-driven chat widget's credit
+ * matching (see AiChatWidget.tsx). Falls back to the plain amount-based pick if no
+ * product tagged for that employment status covers the requested amount. */
+export function pickCreditProductForRequest(
+  amountSom: number,
+  employment: EmploymentStatus
+): CreditProduct {
+  const sorted = [...CREDIT_PRODUCTS].sort((a, b) => a.miqdoriSom - b.miqdoriSom);
+  const eligible = sorted.filter((p) => p.employmentTags.includes(employment));
+  const fromEligible = eligible.find((p) => p.miqdoriSom >= amountSom);
+  if (fromEligible) return fromEligible;
+  return sorted.find((p) => p.miqdoriSom >= amountSom) ?? sorted[sorted.length - 1];
 }
 
 export const IMTIYOZLAR = [

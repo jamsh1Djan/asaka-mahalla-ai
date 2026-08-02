@@ -146,7 +146,10 @@ export async function getBusinessIdeasAction(
     return { error: "Bu byudjet uchun mos g'oya topilmadi. Boshqa byudjet tanlab ko'ring." };
   }
 
-  const picked = scored.slice(0, 3);
+  // Up to 9 ranked ideas so the results screen can show a grid with a
+  // "Yana ko'rsat" (show more) button instead of always just 3 near-
+  // identical picks for every mahalla.
+  const picked = scored.slice(0, 9);
   const ideas: BusinessIdea[] = picked.map(({ idea: template }) => {
     const credit = pickCreditProduct(template.costMax);
     const { oylikTolov, oylar } = estimateRepayment(template.costMax, credit.foiz, credit.muddati);
@@ -161,7 +164,7 @@ export async function getBusinessIdeasAction(
     };
   });
 
-  const matched = picked.some(({ score }) => score >= 1);
+  const matched = (picked[0]?.score ?? 0) >= 1;
   await logBusinessPlanRequest({ mahallaId, soha, budget, tajriba, jamoaHajmi, matched });
 
   return { ideas, matched };

@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles } from "lucide-react";
 import type { Session } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
 import LogoMark from "@/components/Logo";
+import AiChatWidget from "@/components/AiChatWidget";
 
 const PUBLIC_LINKS: [string, string][] = [
   ["/", "Bosh sahifa"],
@@ -76,12 +76,7 @@ export default function Header({ session }: { session: Session | null }) {
               Kirish
             </Link>
           )}
-          {!isStaff && (
-            <Link href="/mahallalar" className="btn btn-primary btn-sm hidden-mobile">
-              <Sparkles size={15} />
-              AI bilan suhbat
-            </Link>
-          )}
+          {!isStaff && <AiChatWidget />}
         </div>
       </div>
     </header>

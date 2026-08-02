@@ -24,6 +24,7 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
   const [jamoaHajmi, setJamoaHajmi] = useState(JAMOA_HAJMLARI[0]);
   const [ideas, setIdeas] = useState<BusinessIdea[] | null>(null);
   const [matched, setMatched] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(3);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -57,6 +58,7 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
       } else {
         setIdeas(result.ideas);
         setMatched(result.matched);
+        setVisibleCount(3);
         setStep("natija");
       }
     });
@@ -173,7 +175,7 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
             </span>
           </div>
           <div className="grid grid-3">
-            {ideas.map((idea, i) => (
+            {ideas.slice(0, visibleCount).map((idea, i) => (
               <div key={i} className="card">
                 <h5 style={{ margin: "0 0 8px", fontSize: 15, fontWeight: 800, color: "var(--navy)" }}>{idea.nomi}</h5>
                 <p style={{ fontSize: 13, marginBottom: 10 }}>{idea.tavsif}</p>
@@ -205,10 +207,15 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 20 }}>
+          <div style={{ marginTop: 20, display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button type="button" className="btn btn-outline" onClick={restart}>
               <ArrowLeft size={15} /> Boshqa mahalla / qaytadan urinish
             </button>
+            {visibleCount < ideas.length && (
+              <button type="button" className="btn btn-primary" onClick={() => setVisibleCount((c) => c + 3)}>
+                Yana ko&apos;rsat ({ideas.length - visibleCount} ta)
+              </button>
+            )}
           </div>
         </div>
       )}

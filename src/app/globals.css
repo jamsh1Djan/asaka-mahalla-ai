@@ -367,6 +367,121 @@ h1.hero-title .accent {
   font-size: 13.5px;
   color: var(--red);
 }
+
+/* ---------- AI chat widget (button-driven, no external API) ---------- */
+.ai-widget-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 31, 68, 0.25);
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 24px;
+}
+.ai-widget-panel {
+  width: 380px;
+  max-width: 100%;
+  height: min(640px, 85vh);
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 30px 70px -20px rgba(15, 43, 108, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ai-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, var(--red), var(--red-dark));
+  color: #fff;
+  flex-shrink: 0;
+}
+.ai-widget-close {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.ai-widget-close:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+.ai-widget-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ai-widget-quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 18px 18px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.ai-widget-quick-replies button {
+  border: 1.5px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ai-widget-quick-replies button:hover:not(:disabled) {
+  border-color: var(--red);
+  color: var(--red);
+}
+.ai-widget-quick-replies button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ai-widget-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.ai-widget-card-full {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 220px;
+}
+.ai-widget-card-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.ai-widget-card-row svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+@media (max-width: 480px) {
+  .ai-widget-overlay {
+    padding: 0;
+  }
+  .ai-widget-panel {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+}
 .chat-row {
   display: flex;
   gap: 10px;
