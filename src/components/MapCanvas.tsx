@@ -23,7 +23,15 @@ export type MapCell = {
 const VIEW_W = 520;
 const VIEW_H = 400;
 
-export default function MapCanvas({ cells, buckets }: { cells: MapCell[]; buckets: PopulationBucket[] }) {
+export default function MapCanvas({
+  cells,
+  buckets,
+  outline,
+}: {
+  cells: MapCell[];
+  buckets: PopulationBucket[];
+  outline: string;
+}) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const selectedCell = cells.find((c) => c.id === selected) ?? null;
@@ -39,9 +47,13 @@ export default function MapCanvas({ cells, buckets }: { cells: MapCell[]; bucket
           <pattern id="map-texture-v2" width="32" height="32" patternUnits="userSpaceOnUse">
             <circle cx="1.2" cy="1.2" r="1.1" fill="#0A1F44" opacity="0.035" />
           </pattern>
+          <clipPath id="map-outline-v2">
+            <path d={outline} />
+          </clipPath>
         </defs>
-        <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="url(#map-texture-v2)" rx="18" />
+        <path d={outline} fill="url(#map-texture-v2)" />
 
+        <g clipPath="url(#map-outline-v2)">
         {cells.map((c) => {
           const isHovered = hovered === c.id;
           const isSelected = selected === c.id;
@@ -90,6 +102,7 @@ export default function MapCanvas({ cells, buckets }: { cells: MapCell[]; bucket
             </g>
           );
         })}
+        </g>
       </svg>
 
       <div className="mv-legend">

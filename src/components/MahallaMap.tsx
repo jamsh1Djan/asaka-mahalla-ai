@@ -1,9 +1,22 @@
 import type { Mahalla } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { bucketColorFor, computeBuckets, computeVoronoiCells, parsePoints, polygonCentroid, roundedPolygonPath } from "@/lib/voronoiMap";
+import {
+  bucketColorFor,
+  computeBuckets,
+  computeVoronoiCells,
+  districtOutlinePath,
+  parsePoints,
+  polygonCentroid,
+  roundedPolygonPath,
+} from "@/lib/voronoiMap";
 import MapCanvas, { type MapCell } from "@/components/MapCanvas";
 
-const BOUNDS: [number, number, number, number] = [15, 15, 505, 385];
+// Modestly oversized relative to the 520x400 viewBox so cells extend past
+// the organic outline clip's edges (the visible shape comes from the
+// clipPath, not this rectangle) — but not so oversized that an outer
+// cell's true unclipped extent balloons and drags its centroid (used for
+// the label position) into an area the clip removes.
+const BOUNDS: [number, number, number, number] = [-30, -30, 550, 430];
 
 export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: Mahalla[] }) {
   // Admin-added mahallas have no hand-drawn reference point yet — they simply
@@ -26,6 +39,7 @@ export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: 
     return [cx, cy] as [number, number];
   });
   const cellPolygons = computeVoronoiCells(sites, BOUNDS);
+  const outline = districtOutlinePath(mahallas.flatMap((m) => parsePoints(m.mapPoints)));
 
   const populations = mahallas.map((m) => m.aholi);
   const buckets = computeBuckets(populations);
@@ -52,7 +66,7 @@ export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: 
     <div className="map-card">
       <h4>Yunusobod tumani — mahallalar xaritasi</h4>
       <p>Mahallani tanlang va batafsil ma&apos;lumotni ko&apos;ring</p>
-      <MapCanvas cells={cells} buckets={buckets} />
+      <MapCanvas cells={cells} buckets={buckets} outline={outline} />
     </div>
   );
 }

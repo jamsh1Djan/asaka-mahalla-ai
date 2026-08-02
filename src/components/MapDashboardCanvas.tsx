@@ -15,9 +15,6 @@ import {
   ArrowRight,
   Briefcase,
   Layers,
-  Plus,
-  Minus,
-  Locate,
   Maximize,
   Minimize,
   Sparkles,
@@ -55,9 +52,6 @@ type Metric = "aholi" | "tadbirkorlik";
 
 const VIEW_W = 520;
 const VIEW_H = 400;
-const ZOOM_MIN = 1;
-const ZOOM_MAX = 2;
-const ZOOM_STEP = 0.25;
 
 const METRIC_LABEL: Record<Metric, string> = {
   aholi: "Aholi soni",
@@ -72,16 +66,17 @@ export default function MapDashboardCanvas({
   cells,
   stats,
   typicalCredit,
+  outline,
 }: {
   cells: DashboardCell[];
   stats: DashboardStats;
   typicalCredit: TypicalCredit;
+  outline: string;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [metric, setMetric] = useState<Metric>("aholi");
-  const [zoom, setZoom] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapWrapRef = useRef<HTMLDivElement>(null);
 
@@ -132,8 +127,6 @@ export default function MapDashboardCanvas({
   function select(id: string) {
     setSelected((prev) => (prev === id ? null : id));
   }
-
-  const zoomTransform = `translate(${((1 - zoom) * VIEW_W) / 2}, ${((1 - zoom) * VIEW_H) / 2}) scale(${zoom})`;
 
   return (
     <div className="mdash">
@@ -248,10 +241,13 @@ export default function MapDashboardCanvas({
             <pattern id="mdash-texture" width="32" height="32" patternUnits="userSpaceOnUse">
               <circle cx="1.2" cy="1.2" r="1.1" fill="#0A1F44" opacity="0.035" />
             </pattern>
+            <clipPath id="mdash-outline">
+              <path d={outline} />
+            </clipPath>
           </defs>
-          <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="url(#mdash-texture)" rx="18" />
+          <path d={outline} fill="url(#mdash-texture)" />
 
-          <g transform={zoomTransform} style={{ transition: "transform 200ms ease" }}>
+          <g clipPath="url(#mdash-outline)">
             {cells.map((c) => {
               const isHovered = hovered === c.id;
               const isSelected = selected === c.id;
@@ -310,36 +306,8 @@ export default function MapDashboardCanvas({
                 </g>
               );
             })}
-
-            <circle cx={VIEW_W / 2} cy={VIEW_H / 2} r={5} fill="#fff" stroke="#0A1F44" strokeWidth={2} />
           </g>
         </svg>
-
-        <div className="mdash-center-badge">
-          <span className="dot" /> Yunusobod tumani markazi
-        </div>
-
-        <div className="mdash-zoom-controls">
-          <button
-            type="button"
-            aria-label="Kattalashtirish"
-            disabled={zoom >= ZOOM_MAX}
-            onClick={() => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)))}
-          >
-            <Plus size={15} />
-          </button>
-          <button
-            type="button"
-            aria-label="Kichiklashtirish"
-            disabled={zoom <= ZOOM_MIN}
-            onClick={() => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)))}
-          >
-            <Minus size={15} />
-          </button>
-          <button type="button" aria-label="Markazga qaytarish" onClick={() => setZoom(1)}>
-            <Locate size={15} />
-          </button>
-        </div>
 
         <div className="mdash-legend">
           <span className="mdash-legend-caption">{METRIC_LABEL[metric]} bo&apos;yicha ko&apos;rsatkich:</span>

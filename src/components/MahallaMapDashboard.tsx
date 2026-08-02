@@ -1,11 +1,22 @@
 import type { Mahalla } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { computeVoronoiCells, parsePoints, polygonCentroid, roundedPolygonPath } from "@/lib/voronoiMap";
+import {
+  computeVoronoiCells,
+  districtOutlinePath,
+  parsePoints,
+  polygonCentroid,
+  roundedPolygonPath,
+} from "@/lib/voronoiMap";
 import { CREDIT_PRODUCTS, MAHALLA_YANDEX_LINKS, pickCreditProduct } from "@/lib/data";
 import { BUSINESS_IDEAS } from "@/lib/businessIdeas";
 import MapDashboardCanvas, { type DashboardCell, type DashboardStats } from "@/components/MapDashboardCanvas";
 
-const BOUNDS: [number, number, number, number] = [15, 15, 505, 385];
+// Modestly oversized relative to the 520x400 viewBox so cells extend past
+// the organic outline clip's edges (the visible shape comes from the
+// clipPath, not this rectangle) — but not so oversized that an outer
+// cell's true unclipped extent balloons and drags its centroid (used for
+// the label position) into an area the clip removes.
+const BOUNDS: [number, number, number, number] = [-30, -30, 550, 430];
 
 // Representative small-business startup cost, used to ground the panel's
 // "Mos kreditlar" figure in a real CREDIT_PRODUCTS lookup (same deterministic
@@ -30,6 +41,7 @@ export default async function MahallaMapDashboard({ mahallas: allMahallas }: { m
     return [cx, cy] as [number, number];
   });
   const cellPolygons = computeVoronoiCells(sites, BOUNDS);
+  const outline = districtOutlinePath(mahallas.flatMap((m) => parsePoints(m.mapPoints)));
   const typicalCredit = pickCreditProduct(TYPICAL_STARTUP_COST);
 
   // No `color` baked in here — the dashboard lets the visitor switch which
@@ -71,6 +83,7 @@ export default async function MahallaMapDashboard({ mahallas: allMahallas }: { m
     <MapDashboardCanvas
       cells={cells}
       stats={stats}
+      outline={outline}
       typicalCredit={{
         nomi: typicalCredit.nomi,
         miqdori: typicalCredit.miqdori,

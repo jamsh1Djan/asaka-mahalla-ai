@@ -103,6 +103,59 @@ export function roundedPolygonPath(ring: Point[], radius = 8): string {
   return d + "Z";
 }
 
+/** Convex hull via the monotone-chain (Andrew's) algorithm — used to build
+ * a soft organic outline around the mahalla site points instead of clipping
+ * the Voronoi tessellation to a plain rectangle, which reads as a blunt
+ * "box" rather than a district shape. */
+export function convexHull(points: Point[]): Point[] {
+  const pts = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  if (pts.length < 3) return pts;
+  const cross = (o: Point, a: Point, b: Point) =>
+    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+
+  const lower: Point[] = [];
+  for (const p of pts) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
+      lower.pop();
+    }
+    lower.push(p);
+  }
+  const upper: Point[] = [];
+  for (let i = pts.length - 1; i >= 0; i--) {
+    const p = pts[i];
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
+      upper.pop();
+    }
+    upper.push(p);
+  }
+  upper.pop();
+  lower.pop();
+  return lower.concat(upper);
+}
+
+/** Pushes each hull vertex outward from the hull's own centroid by roughly
+ * `padding` px — not a true geometric offset, but close enough at this
+ * vertex count to give the outline some breathing room around the
+ * outermost mahalla shapes before rounding its corners. */
+export function expandHull(hull: Point[], padding: number): Point[] {
+  const { cx, cy } = polygonCentroid(hull);
+  return hull.map(([x, y]) => {
+    const dx = x - cx;
+    const dy = y - cy;
+    const len = Math.hypot(dx, dy) || 1;
+    return [x + (dx / len) * padding, y + (dy / len) * padding] as Point;
+  });
+}
+
+/** Builds the map's overall outer silhouette from the real mahalla shape
+ * points (convex hull, padded, then corner-rounded) — an organic outline
+ * instead of the rectangular clip the raw Voronoi tessellation would
+ * otherwise be bounded by. */
+export function districtOutlinePath(allPoints: Point[], padding = 34, radius = 55): string {
+  const hull = convexHull(allPoints);
+  return roundedPolygonPath(expandHull(hull, padding), radius);
+}
+
 /** Fixed 5-step brand-red scale (pale -> deep red), used as discrete buckets
  * rather than a continuous gradient — easier to read at a glance, and
  * matches the site's actual brand color (var(--red)) instead of an
