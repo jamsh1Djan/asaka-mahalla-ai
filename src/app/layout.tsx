@@ -43,8 +43,14 @@ export default async function RootLayout({
             <div className="splash-sub">Mahalla bankiri uchun aqlli raqamli yordamchi</div>
           </div>
         </div>
-        <Header session={session} />
-        {children}
+        {/* Header's sticky positioning is scoped to this wrapper (not body)
+            so it un-sticks once this region's bottom — i.e. the footer's
+            top — scrolls past the viewport, instead of floating over the
+            footer for the rest of the page. */}
+        <div className="page-shell">
+          <Header session={session} />
+          {children}
+        </div>
         <Footer />
       </body>
     </html>
