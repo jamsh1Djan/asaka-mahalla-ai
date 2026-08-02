@@ -26,6 +26,21 @@ export type CreditProduct = {
   /** Real document checklist shown in the chat widget's "action card" — never invented
    * per-request, always this fixed list. */
   requiredDocuments: string[];
+  /** Slider bounds for the /kalkulyator calculator — only set on the 5 so'm-
+   * denominated products (the export product's real terms are $-denominated
+   * and its so'm figure is a large matching sentinel, not a real slider
+   * range, so it's left undefined and filtered out of the calculator). */
+  calc?: {
+    minMiqdoriSom: number;
+    muddatOyMin: number;
+    muddatOyMax: number;
+    /** Annual rate range this product actually quotes — equal min/max for a
+     * single fixed rate. The calculator interpolates within it by loan
+     * amount (larger loan closer to the low end) rather than inventing a
+     * rate the product sheet doesn't state. */
+    foizMin: number;
+    foizMax: number;
+  };
 };
 
 export const CREDIT_PRODUCTS: CreditProduct[] = [
@@ -46,6 +61,7 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
       "Doimiy/vaqtinchalik ro'yxatdan o'tish (propiska) nusxasi",
       "Ijtimoiy soliq to'lovchi sifatida ro'yxatdan o'tganlik ma'lumotnomasi",
     ],
+    calc: { minMiqdoriSom: 500_000, muddatOyMin: 3, muddatOyMax: 12, foizMin: 24, foizMax: 28 },
   },
   {
     id: "birinchi-qadam-2",
@@ -64,6 +80,7 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
       "Kafil pasporti va roziligi (yoki sug'urta polis)",
       "Yashash manzilini tasdiqlovchi hujjat",
     ],
+    calc: { minMiqdoriSom: 1_000_000, muddatOyMin: 3, muddatOyMax: 36, foizMin: 27, foizMax: 27 },
   },
   {
     id: "tadbirkorga-komak",
@@ -82,6 +99,7 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
       "Bank kartasi bo'yicha so'nggi 3-6 oylik hisobot",
       "Kafil pasporti va roziligi (yoki sug'urta polis)",
     ],
+    calc: { minMiqdoriSom: 2_000_000, muddatOyMin: 3, muddatOyMax: 36, foizMin: 25, foizMax: 25 },
   },
   {
     id: "mahalla-loyihasi",
@@ -100,6 +118,7 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
       "Tayyor biznes-reja",
       "Kafil pasporti va roziligi (yoki sug'urta polis)",
     ],
+    calc: { minMiqdoriSom: 5_000_000, muddatOyMin: 6, muddatOyMax: 36, foizMin: 25, foizMax: 25 },
   },
   {
     id: "biznesga-ishonch-2",
@@ -118,6 +137,7 @@ export const CREDIT_PRODUCTS: CreditProduct[] = [
       "Soliq organidan ma'lumotnoma",
       "100 mln so'mdan yuqori summalar uchun garov hujjatlari",
     ],
+    calc: { minMiqdoriSom: 10_000_000, muddatOyMin: 6, muddatOyMax: 84, foizMin: 19, foizMax: 23 },
   },
   {
     id: "tomorqadan-eksportgacha",
