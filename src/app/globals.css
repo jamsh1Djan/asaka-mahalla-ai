@@ -314,42 +314,27 @@ h1.hero-title .accent {
   color: var(--sub2);
 }
 
+/* Photo and card are stacked in normal document flow (no absolute
+   positioning, no percentage-width overlap math) — at every viewport
+   width, not just mobile. An earlier version overlapped them with
+   position:absolute, which broke at wider viewports because
+   object-fit:cover repositions the photo's content unpredictably as the
+   container's aspect ratio changes, and the card ended up colliding with a
+   person's face. Plain stacking can't collide, by construction. */
 .hero-visual {
-  position: relative;
-  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 .hero-photo {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  height: 280px;
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
 }
 .chatbox-hero {
-  position: absolute;
-  right: 0;
-  bottom: -20px;
-  width: min(320px, 62%);
-  /* Sits over a busy photo, not the page background — the usual glass
-     opacity isn't legible here, so this needs to be nearly solid. */
-  background: rgba(255, 255, 255, 0.97);
-}
-@media (max-width: 920px) {
-  .hero-visual {
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .hero-photo {
-    position: relative;
-    inset: auto;
-    height: 240px;
-  }
-  .chatbox-hero {
-    position: static;
-    width: 100%;
-  }
+  width: 100%;
 }
 .chatbox {
   position: relative;
