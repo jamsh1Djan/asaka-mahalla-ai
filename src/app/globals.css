@@ -758,6 +758,7 @@ h2.section-title {
   display: grid;
   grid-template-columns: 220px 1fr 300px;
   grid-template-areas:
+    "pills pills pills"
     "left center right"
     "list list list";
   gap: 20px;
@@ -775,6 +776,7 @@ h2.section-title {
        the container's width and let its content wrap/shrink into it. */
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
+      "pills"
       "left"
       "center"
       "right"
@@ -793,6 +795,52 @@ h2.section-title {
     padding: 16px;
     border-radius: 22px;
   }
+  .mdash-map-badge,
+  .mdash-map-controls {
+    top: 12px;
+  }
+  .mdash-map-badge {
+    left: 12px;
+    padding: 6px 9px;
+  }
+  .mdash-map-controls {
+    right: 12px;
+  }
+  .mdash-zoom-controls {
+    right: 12px;
+    bottom: 54px;
+  }
+}
+
+.mdash-pills {
+  grid-area: pills;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.mdash-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(215, 25, 32, 0.06);
+  border: 1px solid rgba(215, 25, 32, 0.14);
+  border-radius: 999px;
+  padding: 7px 13px;
+  color: var(--red);
+  font-size: 12px;
+}
+.mdash-pill b {
+  color: var(--navy);
+  font-weight: 800;
+}
+.mdash-pill span {
+  color: #6b7690;
+  font-weight: 600;
+}
+.mdash-pill-gold {
+  background: rgba(201, 154, 46, 0.1);
+  border-color: rgba(201, 154, 46, 0.3);
+  color: var(--gold);
 }
 
 .mdash-left {
@@ -828,36 +876,34 @@ h2.section-title {
 .mdash-stat-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(10, 31, 68, 0.04);
+  gap: 12px;
+  background: rgba(215, 25, 32, 0.045);
+  border: 1px solid transparent;
   border-radius: 16px;
   padding: 12px 14px;
 }
 .mdash-stat-ic {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--red);
+  background: rgba(215, 25, 32, 0.12);
   flex-shrink: 0;
 }
-.mdash-ic-navy {
-  background: var(--navy);
+.mdash-stat-ai {
+  background: rgba(201, 154, 46, 0.08);
+  border-color: rgba(201, 154, 46, 0.35);
 }
-.mdash-ic-green {
-  background: #2b7a43;
-}
-.mdash-ic-gold {
-  background: var(--gold);
-}
-.mdash-ic-red {
-  background: var(--red);
+.mdash-stat-ai .mdash-stat-ic {
+  color: var(--gold);
+  background: rgba(201, 154, 46, 0.16);
 }
 .mdash-stat-card b {
   display: block;
-  font-size: 16px;
+  font-size: 17px;
   color: var(--navy);
   line-height: 1.3;
 }
@@ -865,6 +911,36 @@ h2.section-title {
   font-size: 10.5px;
   font-weight: 600;
   color: #6b7690;
+}
+.mdash-promo {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: repeating-linear-gradient(135deg, rgba(201, 154, 46, 0.07), rgba(201, 154, 46, 0.07) 8px, rgba(201, 154, 46, 0.03) 8px, rgba(201, 154, 46, 0.03) 16px);
+  border: 1.5px dashed rgba(201, 154, 46, 0.45);
+  border-radius: 16px;
+  padding: 14px;
+  color: inherit;
+  text-decoration: none;
+  margin-top: auto;
+}
+.mdash-promo svg {
+  color: var(--gold);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.mdash-promo b {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 3px;
+}
+.mdash-promo span {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7690;
+  line-height: 1.4;
 }
 
 .mdash-center {
@@ -874,11 +950,19 @@ h2.section-title {
   border-radius: 20px;
   padding: 14px;
   min-width: 0;
+  overflow: hidden;
+}
+.mdash-center:fullscreen {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .mdash-svg {
   width: 100%;
   height: auto;
   display: block;
+  overflow: hidden;
 }
 .mdash-map-badge {
   position: absolute;
@@ -905,6 +989,61 @@ h2.section-title {
   color: #6b7690;
   font-weight: 500;
 }
+.mdash-map-controls {
+  position: absolute;
+  top: 26px;
+  right: 26px;
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+.mdash-map-controls button {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 20px -10px rgba(10, 31, 68, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy);
+  cursor: pointer;
+}
+.mdash-map-controls button:hover {
+  color: var(--red);
+}
+.mdash-zoom-controls {
+  position: absolute;
+  bottom: 66px;
+  right: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 2;
+}
+.mdash-zoom-controls button {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: none;
+  background: #fff;
+  box-shadow: 0 8px 20px -10px rgba(10, 31, 68, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy);
+  cursor: pointer;
+}
+.mdash-zoom-controls button:hover:not(:disabled) {
+  color: var(--red);
+}
+.mdash-zoom-controls button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
 .mdash-center-badge {
   position: absolute;
   top: 50%;
@@ -927,7 +1066,7 @@ h2.section-title {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #4fae5e;
+  background: var(--gold);
   flex-shrink: 0;
 }
 
@@ -949,7 +1088,7 @@ h2.section-title {
 }
 .mdash-cell.is-hovered .mdash-plot {
   transform: scale(1.03);
-  filter: drop-shadow(0 8px 16px rgba(31, 122, 61, 0.35)) saturate(1.15);
+  filter: drop-shadow(0 8px 16px rgba(176, 30, 58, 0.35)) saturate(1.15);
 }
 .mdash-cell.is-dimmed .mdash-plot {
   opacity: 0.3;
@@ -965,7 +1104,7 @@ h2.section-title {
 .mdash-legend {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
   margin-top: 14px;
   padding: 0 4px;
@@ -977,18 +1116,21 @@ h2.section-title {
   font-size: 11px;
   font-weight: 600;
   color: #6b7690;
+  background: rgba(10, 31, 68, 0.04);
+  border-radius: 999px;
+  padding: 4px 10px 4px 6px;
 }
 .mdash-legend-item i {
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
   display: inline-block;
   box-shadow: inset 0 0 0 1px rgba(10, 31, 68, 0.1);
 }
 .mdash-legend-caption {
   font-size: 11px;
+  font-weight: 600;
   color: #97a0b5;
-  margin-left: auto;
 }
 
 .mdash-right {
@@ -1074,18 +1216,18 @@ h2.section-title {
 .mdash-ai-note {
   display: flex;
   gap: 8px;
-  background: rgba(43, 122, 67, 0.08);
+  background: rgba(201, 154, 46, 0.1);
   border-radius: 12px;
   padding: 10px 12px;
   font-size: 11.5px;
-  color: #2c3e2f;
+  color: #5c4a1f;
   margin-bottom: 14px;
   line-height: 1.5;
 }
 .mdash-ai-note svg {
   flex-shrink: 0;
   margin-top: 2px;
-  color: #2b7a43;
+  color: var(--gold);
 }
 .mdash-panel-actions {
   display: flex;
@@ -1134,32 +1276,52 @@ h2.section-title {
 .mdash-chip {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 9px;
   flex-shrink: 0;
-  background: rgba(10, 31, 68, 0.04);
+  background: rgba(10, 31, 68, 0.03);
   border: 1.5px solid transparent;
   border-radius: 14px;
-  padding: 9px 14px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--navy);
+  padding: 8px 14px 8px 8px;
   cursor: pointer;
   transition:
     background 150ms ease,
     border-color 150ms ease;
 }
 .mdash-chip:hover {
-  background: rgba(10, 31, 68, 0.08);
+  background: rgba(10, 31, 68, 0.07);
 }
 .mdash-chip.active {
   border-color: var(--red);
+  background: rgba(215, 25, 32, 0.06);
 }
-.mdash-chip b {
-  font-weight: 800;
-  color: #2b7a43;
+.mdash-chip-ic {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(215, 25, 32, 0.12);
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
-.mdash-chip svg {
-  color: #97a0b5;
+.mdash-chip-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  white-space: nowrap;
+}
+.mdash-chip-text b {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.mdash-chip-text em {
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #6b7690;
 }
 
 .grid {

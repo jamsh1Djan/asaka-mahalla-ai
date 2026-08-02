@@ -1,12 +1,6 @@
 import type { Mahalla } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import {
-  bucketColorFor,
-  computeVoronoiCells,
-  parsePoints,
-  polygonCentroid,
-  roundedPolygonPath,
-} from "@/lib/voronoiMap";
+import { computeVoronoiCells, parsePoints, polygonCentroid, roundedPolygonPath } from "@/lib/voronoiMap";
 import { CREDIT_PRODUCTS, MAHALLA_YANDEX_LINKS, pickCreditProduct } from "@/lib/data";
 import { BUSINESS_IDEAS } from "@/lib/businessIdeas";
 import MapDashboardCanvas, { type DashboardCell, type DashboardStats } from "@/components/MapDashboardCanvas";
@@ -36,9 +30,12 @@ export default async function MahallaMapDashboard({ mahallas: allMahallas }: { m
     return [cx, cy] as [number, number];
   });
   const cellPolygons = computeVoronoiCells(sites, BOUNDS);
-  const populations = mahallas.map((m) => m.aholi);
   const typicalCredit = pickCreditProduct(TYPICAL_STARTUP_COST);
 
+  // No `color` baked in here — the dashboard lets the visitor switch which
+  // metric the map is colored by (aholi vs tadbirkorlik), so bucketColorFor
+  // runs client-side against whichever one is active instead of a single
+  // fixed value computed once on the server.
   const cells: DashboardCell[] = mahallas.map((m, i) => {
     const cellPoints = cellPolygons[i];
     const { cx: labelCx, cy: labelCy } = cellPoints.length
@@ -60,7 +57,6 @@ export default async function MahallaMapDashboard({ mahallas: allMahallas }: { m
       path: roundedPolygonPath(cellPoints, 8),
       labelCx,
       labelCy,
-      color: bucketColorFor(m.aholi, populations),
     };
   });
 

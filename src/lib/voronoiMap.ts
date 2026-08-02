@@ -103,10 +103,12 @@ export function roundedPolygonPath(ring: Point[], radius = 8): string {
   return d + "Z";
 }
 
-/** Fixed 5-step green scale (pale -> deep green), used as discrete buckets
- * rather than a continuous gradient — easier to read at a glance. Lowest
- * bucket = smallest population ("Kam"), highest = largest ("Yuqori"). */
-const BUCKET_COLORS = ["#E8F5E9", "#B9E4BE", "#7FCB8C", "#43A85A", "#1F7A3D"];
+/** Fixed 5-step brand-red scale (pale -> deep red), used as discrete buckets
+ * rather than a continuous gradient — easier to read at a glance, and
+ * matches the site's actual brand color (var(--red)) instead of an
+ * off-brand green. Lowest bucket = smallest value ("Kam"), highest =
+ * largest ("Yuqori"). */
+const BUCKET_COLORS = ["#FBE4E8", "#F3B4BE", "#E8798B", "#D6455E", "#B01E3A"];
 
 export type PopulationBucket = { color: string; min: number; max: number };
 
