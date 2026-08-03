@@ -1,13 +1,13 @@
 // Asaka Mahalla AI — Prisma schema
-// Dev: SQLite (file-based, zero setup). Production: switch provider to "postgresql"
-// and set DATABASE_URL to a Postgres connection string — models below are portable as-is.
+// Deployed to Neon Postgres (via Vercel) — models below are the same ones
+// that ran fine against local SQLite during development.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
