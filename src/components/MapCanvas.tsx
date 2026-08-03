@@ -18,7 +18,6 @@ export type MapCell = {
   path: string;
   cx: number;
   cy: number;
-  order: number;
   color: string;
 };
 
@@ -95,7 +94,6 @@ export default function MapCanvas({
                 className={`map-hex-cell ${isDimmed ? "is-dimmed" : ""}`}
                 style={{ left: `${(c.cx / VIEW_W) * 100}%`, top: `${(c.cy / VIEW_H) * 100}%` }}
               >
-                <span className="map-hex-badge">{c.order}</span>
                 <Icon size={18} color={isSelected ? "#fff" : "var(--red)"} />
                 <b style={{ color: isSelected ? "#fff" : undefined }}>{c.nomi}</b>
                 <span style={{ color: isSelected ? "rgba(255,255,255,.85)" : undefined }}>{fmt(c.aholi)} aholi</span>

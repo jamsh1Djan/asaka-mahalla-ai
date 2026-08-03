@@ -1,19 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Send } from "lucide-react";
 import LogoMark from "@/components/Logo";
-
-/** Simplified stand-in for the Asakabank corporate mark (red square, white
- * diagonal "A" cut) — not the trademark file itself, just a small credit
- * icon for the footer sign-off next to "Asakabank" text. */
-function AsakabankMark({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="1" y="1" width="22" height="22" rx="6" fill="#D71920" />
-      <path d="M7 17 12 6l1.8 4-3.2 7H7Z" fill="#fff" />
-      <path d="M13.4 11.2 16 17h-2.6l-1.3-3Z" fill="#fff" />
-    </svg>
-  );
-}
 
 function FacebookIcon({ size = 15 }: { size?: number }) {
   return (
@@ -114,7 +102,7 @@ export default function Footer() {
       <div className="foot-bottom">
         <span>© 2026 Asaka Mahalla AI — Asakabank platformasi</span>
         <span className="foot-asakabank">
-          <AsakabankMark size={16} /> Asakabank
+          <Image src="/assets/asakabank-logo.png" alt="" width={16} height={16} style={{ borderRadius: 4 }} /> Asakabank
         </span>
       </div>
     </footer>

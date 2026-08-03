@@ -45,7 +45,6 @@ export default async function MahallaMapDashboard({ mahallas: allMahallas }: { m
       path: hexPath(pos.cx, pos.cy),
       labelCx: pos.cx,
       labelCy: pos.cy,
-      order: pos.order,
     };
   });
 

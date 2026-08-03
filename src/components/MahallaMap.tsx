@@ -33,7 +33,6 @@ export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: 
       path: hexPath(pos.cx, pos.cy),
       cx: pos.cx,
       cy: pos.cy,
-      order: pos.order,
       color: bucketColorFor(m.aholi, populations),
     };
   });

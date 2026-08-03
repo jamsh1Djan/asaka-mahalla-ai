@@ -39,7 +39,6 @@ export type DashboardCell = {
   path: string;
   labelCx: number;
   labelCy: number;
-  order: number;
 };
 
 export type DashboardStats = {
@@ -293,7 +292,6 @@ export default function MapDashboardCanvas({
                   className={`mdash-hex-cell ${isDimmed || !isSearchMatch ? "is-dimmed" : ""}`}
                   style={{ left: `${(c.labelCx / VIEW_W) * 100}%`, top: `${(c.labelCy / VIEW_H) * 100}%` }}
                 >
-                  <span className="mdash-hex-badge">{c.order}</span>
                   <Icon size={22} color={isSelected ? "#fff" : "var(--red)"} />
                   <b style={{ color: isSelected ? "#fff" : undefined }}>{c.nomi}</b>
                   <span style={{ color: isSelected ? "rgba(255,255,255,.85)" : undefined }}>

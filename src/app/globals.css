@@ -739,26 +739,6 @@ h2.section-title {
 .map-hex-cell.is-dimmed {
   opacity: 0.45;
 }
-.map-hex-badge {
-  position: absolute;
-  top: -20px;
-  left: 6px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  /* Solid, not a translucent tint — badges sit right on hex boundaries, so
-     a see-through background blends into whatever color is directly under
-     it (nearly invisible over the darker buckets) instead of always
-     reading clearly. */
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(10, 31, 68, 0.25);
-  color: var(--red);
-  font-size: 10px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .map-hex-cell b {
   font-size: 12.5px;
   font-weight: 800;
@@ -816,12 +796,6 @@ h2.section-title {
   }
   .map-hex-pill span {
     font-size: 7px;
-  }
-  .map-hex-badge {
-    top: -14px;
-    width: 15px;
-    height: 15px;
-    font-size: 8.5px;
   }
   .map-hex-cell {
     width: 92px;
@@ -1144,23 +1118,6 @@ h2.section-title {
 .mdash-hex-cell.is-dimmed {
   opacity: 0.4;
 }
-.mdash-hex-badge {
-  position: absolute;
-  top: -26px;
-  left: 10px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  /* Solid, not a translucent tint — see .map-hex-badge for why. */
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(10, 31, 68, 0.25);
-  color: var(--red);
-  font-size: 12px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .mdash-hex-cell b {
   font-size: 15px;
   font-weight: 800;
@@ -1193,12 +1150,6 @@ h2.section-title {
   .mdash-hex-cell {
     width: 108px;
     gap: 1px;
-  }
-  .mdash-hex-badge {
-    top: -16px;
-    width: 18px;
-    height: 18px;
-    font-size: 9.5px;
   }
   .mdash-hex-cell b {
     font-size: 11.5px;
