@@ -1,6 +1,6 @@
 import type { Mahalla } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { DISTRICT_OUTLINE, REGION_LABEL_POS, REGION_PATHS } from "@/lib/districtShapes";
+import { HEX_POSITIONS, hexPath } from "@/lib/hexMap";
 import { CREDIT_PRODUCTS, MAHALLA_YANDEX_LINKS, pickCreditProduct } from "@/lib/data";
 import { BUSINESS_IDEAS } from "@/lib/businessIdeas";
 import MapDashboardCanvas, { type DashboardCell, type DashboardStats } from "@/components/MapDashboardCanvas";
@@ -12,9 +12,9 @@ import MapDashboardCanvas, { type DashboardCell, type DashboardStats } from "@/c
 const TYPICAL_STARTUP_COST = 15_000_000;
 
 export default async function MahallaMapDashboard({ mahallas: allMahallas }: { mahallas: Mahalla[] }) {
-  // Only the 7 real seed mahallas have a hand-drawn shape — same
+  // Only the 7 real seed mahallas have a fixed hex position — same
   // admin-added-mahallas-without-a-shape caveat as the compact map.
-  const mahallas = allMahallas.filter((m) => REGION_PATHS[m.id]);
+  const mahallas = allMahallas.filter((m) => HEX_POSITIONS[m.id]);
 
   const links = await prisma.bankerMahalla.findMany({
     where: { mahallaId: { in: mahallas.map((m) => m.id) } },
@@ -28,7 +28,7 @@ export default async function MahallaMapDashboard({ mahallas: allMahallas }: { m
   // runs client-side against whichever one is active instead of a single
   // fixed value computed once on the server.
   const cells: DashboardCell[] = mahallas.map((m) => {
-    const [labelCx, labelCy] = REGION_LABEL_POS[m.id];
+    const pos = HEX_POSITIONS[m.id];
     return {
       id: m.id,
       nomi: m.nomi,
@@ -42,9 +42,10 @@ export default async function MahallaMapDashboard({ mahallas: allMahallas }: { m
       yandexUrl: MAHALLA_YANDEX_LINKS[m.id] ?? null,
       bankerName: bankerByMahalla.get(m.id) ?? null,
       inactive: m.status === "FAOL_EMAS",
-      path: REGION_PATHS[m.id],
-      labelCx,
-      labelCy,
+      path: hexPath(pos.cx, pos.cy),
+      labelCx: pos.cx,
+      labelCy: pos.cy,
+      order: pos.order,
     };
   });
 
@@ -59,7 +60,6 @@ export default async function MahallaMapDashboard({ mahallas: allMahallas }: { m
     <MapDashboardCanvas
       cells={cells}
       stats={stats}
-      outline={DISTRICT_OUTLINE}
       typicalCredit={{
         nomi: typicalCredit.nomi,
         miqdori: typicalCredit.miqdori,

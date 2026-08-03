@@ -958,16 +958,8 @@ h2.section-title {
     padding: 16px;
     border-radius: 22px;
   }
-  .mdash-map-badge,
-  .mdash-map-controls {
-    top: 12px;
-  }
   .mdash-map-badge {
-    left: 12px;
     padding: 6px 9px;
-  }
-  .mdash-map-controls {
-    right: 12px;
   }
 }
 
@@ -1117,26 +1109,117 @@ h2.section-title {
   align-items: center;
   justify-content: center;
 }
-.mdash-svg {
+.mdash-hexbox {
+  position: relative;
   width: 100%;
-  height: auto;
-  display: block;
-  overflow: hidden;
+  aspect-ratio: 520 / 400;
+}
+.mdash-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.mdash-hex-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.mdash-hex-cell {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 160px;
+  text-align: center;
+  transition: opacity 150ms ease;
+}
+.mdash-hex-cell.is-dimmed {
+  opacity: 0.4;
+}
+.mdash-hex-badge {
+  position: absolute;
+  top: -26px;
+  left: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(215, 25, 32, 0.12);
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mdash-hex-cell b {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.mdash-hex-cell > span {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #6b7690;
+}
+.mdash-hex-arrow {
+  pointer-events: auto;
+  margin-top: 5px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.mdash-hex-arrow:hover {
+  background: #fff;
+  color: var(--red);
+}
+@media (max-width: 560px) {
+  .mdash-hex-cell {
+    width: 108px;
+    gap: 1px;
+  }
+  .mdash-hex-badge {
+    top: -16px;
+    width: 18px;
+    height: 18px;
+    font-size: 9.5px;
+  }
+  .mdash-hex-cell b {
+    font-size: 11.5px;
+  }
+  .mdash-hex-cell > span {
+    font-size: 9.5px;
+  }
+  .mdash-hex-arrow {
+    width: 22px;
+    height: 22px;
+    margin-top: 2px;
+  }
+}
+.mdash-map-toprow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 .mdash-map-badge {
-  position: absolute;
-  top: 26px;
-  left: 26px;
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #fff;
   padding: 8px 12px;
   border-radius: 14px;
   box-shadow: 0 8px 20px -10px rgba(10, 31, 68, 0.25);
-  z-index: 2;
   color: var(--navy);
 }
 .mdash-map-badge b {
@@ -1149,12 +1232,9 @@ h2.section-title {
   font-weight: 500;
 }
 .mdash-map-controls {
-  position: absolute;
-  top: 26px;
-  right: 26px;
   display: flex;
   gap: 8px;
-  z-index: 2;
+  flex-shrink: 0;
 }
 .mdash-map-controls button {
   width: 34px;
@@ -1174,15 +1254,9 @@ h2.section-title {
 .mdash-map-controls button:hover {
   color: var(--red);
 }
-.mdash-cell {
+.mdash-plot {
   cursor: pointer;
   outline: none;
-}
-.mdash-cell:focus-visible .mdash-plot {
-  outline: 3px solid var(--gold);
-  outline-offset: 2px;
-}
-.mdash-plot {
   transform-box: fill-box;
   transform-origin: center;
   transition:
@@ -1190,16 +1264,16 @@ h2.section-title {
     filter 150ms ease,
     opacity 150ms ease;
 }
-.mdash-cell.is-hovered .mdash-plot {
+.mdash-plot:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+.mdash-plot.is-hovered {
   transform: scale(1.03);
   filter: drop-shadow(0 8px 16px rgba(176, 30, 58, 0.35)) saturate(1.15) brightness(1.1);
 }
-.mdash-cell.is-dimmed .mdash-plot {
+.mdash-plot.is-dimmed {
   opacity: 0.3;
-}
-.mdash-cell.is-dimmed text {
-  opacity: 0.35;
-  transition: opacity 150ms ease;
 }
 .mdash-plot.inactive {
   opacity: 0.6;

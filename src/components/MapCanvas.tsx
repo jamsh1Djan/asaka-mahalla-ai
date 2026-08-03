@@ -2,24 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Users,
-  Briefcase,
-  ClipboardList,
-  UserRound,
-  Info,
-  Scissors,
-  Factory,
-  Home,
-  Store,
-  ShoppingBag,
-  ShoppingCart,
-  UtensilsCrossed,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, Users, Briefcase, ClipboardList, UserRound, Info, Store } from "lucide-react";
 import { fmt } from "@/lib/format";
 import type { PopulationBucket } from "@/lib/voronoiMap";
+import { MAHALLA_ICON } from "@/lib/hexMap";
 
 export type MapCell = {
   id: string;
@@ -34,19 +20,6 @@ export type MapCell = {
   cy: number;
   order: number;
   color: string;
-};
-
-/** One representative icon per mahalla, picked from its real faoliyatTurlari
- * (Otchopar-1 leads with "Sartaroshxona", Otchopar-2 is manufacturing-heavy,
- * etc.) — not decoration picked at random. */
-const MAHALLA_ICON: Record<string, LucideIcon> = {
-  otchopar1: Scissors,
-  otchopar2: Factory,
-  muruvvat: Home,
-  oqtepa: Store,
-  yurtobod: ShoppingBag,
-  posira: ShoppingCart,
-  yangiariq: UtensilsCrossed,
 };
 
 const VIEW_W = 520;

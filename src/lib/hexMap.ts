@@ -1,7 +1,19 @@
-// Fixed hexagon-flower layout for the compact home-page map: 1 center cell
-// (Oqtepa) surrounded by 6 neighbors, standard pointy-top hex-grid math
-// (Red Blob Games axial neighbor offsets) so every pair of adjacent hexes
-// shares a real edge — no gaps, no overlap.
+// Fixed hexagon-flower layout, shared by the compact home-page map and the
+// full /mahallalar dashboard map: 1 center cell (Oqtepa) surrounded by 6
+// neighbors, standard pointy-top hex-grid math (Red Blob Games axial
+// neighbor offsets) so every pair of adjacent hexes shares a real edge —
+// no gaps, no overlap.
+
+import {
+  Wrench,
+  Factory,
+  Home,
+  Store,
+  ShoppingBag,
+  ShoppingCart,
+  UtensilsCrossed,
+  type LucideIcon,
+} from "lucide-react";
 
 export type HexPos = { cx: number; cy: number; order: number };
 
@@ -24,6 +36,21 @@ export const HEX_POSITIONS: Record<string, HexPos> = {
   yurtobod: { cx: CENTER_X + DX_FULL, cy: CENTER_Y, order: 5 },
   posira: { cx: CENTER_X - DX, cy: CENTER_Y + DY, order: 6 },
   yangiariq: { cx: CENTER_X + DX, cy: CENTER_Y + DY, order: 7 },
+};
+
+/** One representative icon per mahalla, picked from its real faoliyatTurlari
+ * — Otchopar-1's top listed activities are repair/service shops (Wrench),
+ * Otchopar-2 is manufacturing-heavy (Factory), Yangiariq leads with
+ * bakeries/milliy taomlar (UtensilsCrossed), etc. Not decoration picked at
+ * random, and shared by both map components so they never disagree. */
+export const MAHALLA_ICON: Record<string, LucideIcon> = {
+  otchopar1: Wrench,
+  otchopar2: Factory,
+  muruvvat: Home,
+  oqtepa: Store,
+  yurtobod: ShoppingBag,
+  posira: ShoppingCart,
+  yangiariq: UtensilsCrossed,
 };
 
 type Point = [number, number];

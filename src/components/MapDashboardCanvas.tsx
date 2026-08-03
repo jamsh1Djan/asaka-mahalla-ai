@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { fmt } from "@/lib/format";
 import { bucketColorFor } from "@/lib/voronoiMap";
+import { MAHALLA_ICON } from "@/lib/hexMap";
 
 export type DashboardCell = {
   id: string;
@@ -38,6 +39,7 @@ export type DashboardCell = {
   path: string;
   labelCx: number;
   labelCy: number;
+  order: number;
 };
 
 export type DashboardStats = {
@@ -66,12 +68,10 @@ export default function MapDashboardCanvas({
   cells,
   stats,
   typicalCredit,
-  outline,
 }: {
   cells: DashboardCell[];
   stats: DashboardStats;
   typicalCredit: TypicalCredit;
-  outline: string;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -209,55 +209,61 @@ export default function MapDashboardCanvas({
       </div>
 
       <div className="mdash-center" ref={mapWrapRef}>
-        <div className="mdash-map-badge">
-          <MapPin size={13} />
-          <div>
-            <b>Yunusobod tumani</b>
-            <span>Toshkent shahri</span>
+        <div className="mdash-map-toprow">
+          <div className="mdash-map-badge">
+            <MapPin size={13} />
+            <div>
+              <b>Yunusobod tumani</b>
+              <span>Toshkent shahri</span>
+            </div>
+          </div>
+
+          <div className="mdash-map-controls">
+            <button
+              type="button"
+              title="Ko'rsatkichni almashtirish (aholi / tadbirkorlik)"
+              aria-label="Ko'rsatkichni almashtirish"
+              onClick={() => setMetric((m) => (m === "aholi" ? "tadbirkorlik" : "aholi"))}
+            >
+              <Layers size={15} />
+            </button>
+            <button type="button" title="To'liq ekran" aria-label="To'liq ekran" onClick={toggleFullscreen}>
+              {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
+            </button>
           </div>
         </div>
 
-        <div className="mdash-map-controls">
-          <button
-            type="button"
-            title="Ko'rsatkichni almashtirish (aholi / tadbirkorlik)"
-            aria-label="Ko'rsatkichni almashtirish"
-            onClick={() => setMetric((m) => (m === "aholi" ? "tadbirkorlik" : "aholi"))}
+        <div className="mdash-hexbox">
+          <svg
+            className="mdash-svg"
+            viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+            role="group"
+            aria-label="Yunusobod tumani mahallalar xaritasi"
           >
-            <Layers size={15} />
-          </button>
-          <button type="button" title="To'liq ekran" aria-label="To'liq ekran" onClick={toggleFullscreen}>
-            {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
-          </button>
-        </div>
+            <defs>
+              <pattern id="mdash-texture" width="32" height="32" patternUnits="userSpaceOnUse">
+                <circle cx="1.2" cy="1.2" r="1.1" fill="#0A1F44" opacity="0.035" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width={VIEW_W} height={VIEW_H} fill="url(#mdash-texture)" />
 
-        <svg
-          className="mdash-svg"
-          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
-          role="group"
-          aria-label="Yunusobod tumani mahallalar xaritasi"
-        >
-          <defs>
-            <pattern id="mdash-texture" width="32" height="32" patternUnits="userSpaceOnUse">
-              <circle cx="1.2" cy="1.2" r="1.1" fill="#0A1F44" opacity="0.035" />
-            </pattern>
-            <clipPath id="mdash-outline">
-              <path d={outline} />
-            </clipPath>
-          </defs>
-          <path d={outline} fill="url(#mdash-texture)" />
-
-          <g clipPath="url(#mdash-outline)">
             {cells.map((c) => {
               const isHovered = hovered === c.id;
               const isSelected = selected === c.id;
               const isDimmed = selected !== null && !isSelected;
               const isSearchMatch = filteredCells.some((f) => f.id === c.id);
-              const color = c.inactive ? "#c7ccd6" : bucketColorFor(c[metric], metricValues);
+              const color = c.inactive ? "#c7ccd6" : isSelected ? "#B01E3A" : bucketColorFor(c[metric], metricValues);
               return (
-                <g
+                <path
                   key={c.id}
-                  className={`mdash-cell ${isHovered ? "is-hovered" : ""} ${isDimmed || !isSearchMatch ? "is-dimmed" : ""}`}
+                  className={`mdash-plot ${c.inactive ? "inactive" : ""} ${isHovered ? "is-hovered" : ""} ${isDimmed || !isSearchMatch ? "is-dimmed" : ""}`}
+                  d={c.path}
+                  fill={color}
+                  stroke={c.inactive ? "#9aa2b1" : "#fff"}
+                  strokeWidth={c.inactive ? 1.4 : isSelected ? 6 : 5}
+                  strokeLinejoin="round"
+                  strokeDasharray={c.inactive ? "5 4" : undefined}
+                  style={{ cursor: "pointer" }}
                   role="button"
                   tabIndex={0}
                   aria-label={`${c.nomi} MFY, ${fmt(c[metric])} ${METRIC_UNIT[metric]}`}
@@ -270,44 +276,42 @@ export default function MapDashboardCanvas({
                       select(c.id);
                     }
                   }}
-                >
-                  <path
-                    className={`mdash-plot ${c.inactive ? "inactive" : ""}`}
-                    d={c.path}
-                    fill={color}
-                    stroke={c.inactive ? "#9aa2b1" : "#fff"}
-                    strokeWidth={c.inactive ? 1.4 : isSelected ? 6 : 5}
-                    strokeLinejoin="round"
-                    strokeLinecap="round"
-                    strokeDasharray={c.inactive ? "5 4" : undefined}
-                  />
-                  <text
-                    x={c.labelCx}
-                    y={c.labelCy - 2}
-                    fontSize={13}
-                    fontWeight={700}
-                    fill="#0A1F44"
-                    textAnchor="middle"
-                    style={{ fontFamily: "var(--font-inter), sans-serif" }}
-                  >
-                    {c.nomi}
-                  </text>
-                  <text
-                    x={c.labelCx}
-                    y={c.labelCy + 13}
-                    fontSize={10.5}
-                    fontWeight={600}
-                    fill="#5c2430"
-                    textAnchor="middle"
-                    style={{ fontFamily: "var(--font-inter), sans-serif" }}
-                  >
-                    {fmt(c[metric])} {METRIC_UNIT[metric]}
-                  </text>
-                </g>
+                />
               );
             })}
-          </g>
-        </svg>
+          </svg>
+
+          <div className="mdash-hex-overlay">
+            {cells.map((c) => {
+              const Icon = MAHALLA_ICON[c.id] ?? Landmark;
+              const isSelected = selected === c.id;
+              const isDimmed = selected !== null && !isSelected;
+              const isSearchMatch = filteredCells.some((f) => f.id === c.id);
+              return (
+                <div
+                  key={c.id}
+                  className={`mdash-hex-cell ${isDimmed || !isSearchMatch ? "is-dimmed" : ""}`}
+                  style={{ left: `${(c.labelCx / VIEW_W) * 100}%`, top: `${(c.labelCy / VIEW_H) * 100}%` }}
+                >
+                  <span className="mdash-hex-badge">{c.order}</span>
+                  <Icon size={22} color={isSelected ? "#fff" : "var(--red)"} />
+                  <b style={{ color: isSelected ? "#fff" : undefined }}>{c.nomi}</b>
+                  <span style={{ color: isSelected ? "rgba(255,255,255,.85)" : undefined }}>
+                    {fmt(c[metric])} {METRIC_UNIT[metric]}
+                  </span>
+                  <button
+                    type="button"
+                    className="mdash-hex-arrow"
+                    aria-label={`${c.nomi} tafsilotlari`}
+                    onClick={() => select(c.id)}
+                  >
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         <div className="mdash-legend">
           <span className="mdash-legend-caption">{METRIC_LABEL[metric]} bo&apos;yicha ko&apos;rsatkich:</span>

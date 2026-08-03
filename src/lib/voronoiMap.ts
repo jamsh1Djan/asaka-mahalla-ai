@@ -1,7 +1,6 @@
 // Population/metric -> color bucketing for the mahalla map. The map's
-// actual district shapes are hand-authored (see districtShapes.ts) rather
-// than computed from these points, but the color-scale logic here is
-// shape-agnostic and still used by both map components.
+// actual hexagon layout lives in hexMap.ts — this file is just the
+// shape-agnostic color-scale logic, used by both map components.
 
 /** Fixed 5-step brand-red scale (pale -> deep red), used as discrete buckets
  * rather than a continuous gradient — easier to read at a glance, and
