@@ -49,13 +49,23 @@ export default function Footer() {
           </a>
           <p>Biz ijtimoiy tarmoqlarda:</p>
           <div className="social">
-            <a href="#" aria-label="Telegram">
+            <a href="https://t.me/bank_asaka" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
               <Send size={15} />
             </a>
-            <a href="#" aria-label="Facebook">
+            <a
+              href="https://www.facebook.com/asakabankofficial/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+            >
               <FacebookIcon />
             </a>
-            <a href="#" aria-label="Instagram">
+            <a
+              href="https://www.instagram.com/asakabankofficial/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+            >
               <InstagramIcon />
             </a>
           </div>
