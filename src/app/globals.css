@@ -746,7 +746,12 @@ h2.section-title {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: rgba(215, 25, 32, 0.12);
+  /* Solid, not a translucent tint — badges sit right on hex boundaries, so
+     a see-through background blends into whatever color is directly under
+     it (nearly invisible over the darker buckets) instead of always
+     reading clearly. */
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(10, 31, 68, 0.25);
   color: var(--red);
   font-size: 10px;
   font-weight: 800;
@@ -1146,7 +1151,9 @@ h2.section-title {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(215, 25, 32, 0.12);
+  /* Solid, not a translucent tint — see .map-hex-badge for why. */
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(10, 31, 68, 0.25);
   color: var(--red);
   font-size: 12px;
   font-weight: 800;
