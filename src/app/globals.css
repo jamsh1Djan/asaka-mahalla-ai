@@ -662,9 +662,6 @@ h2.section-title {
   color: #6b7690;
 }
 
-.mv-cell {
-  cursor: pointer;
-}
 .mv-plot {
   transform-box: fill-box;
   transform-origin: center;
@@ -673,20 +670,169 @@ h2.section-title {
     filter 150ms ease,
     opacity 150ms ease;
 }
-.mv-cell.is-hovered .mv-plot {
-  transform: scale(1.03);
+.mv-plot.is-hovered {
+  transform: scale(1.05);
   filter: drop-shadow(0 8px 16px rgba(10, 31, 68, 0.25)) saturate(1.15) brightness(1.1);
 }
-.mv-cell.is-dimmed .mv-plot {
-  opacity: 0.35;
-}
-.mv-cell.is-dimmed text,
-.mv-cell.is-dimmed circle {
+.mv-plot.is-dimmed {
   opacity: 0.4;
-  transition: opacity 150ms ease;
 }
 .mv-plot.inactive {
   opacity: 0.6;
+}
+
+/* ---------- Hex-flower compact map ---------- */
+.map-hex-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 520 / 400;
+}
+.map-hex-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.map-hex-toprow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+.map-hex-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid rgba(10, 31, 68, 0.08);
+  border-radius: 14px;
+  padding: 7px 12px;
+  box-shadow: 0 8px 20px -12px rgba(10, 31, 68, 0.25);
+  color: var(--red);
+}
+.map-hex-pill b {
+  display: block;
+  font-size: 14px;
+  color: var(--red);
+  line-height: 1.2;
+}
+.map-hex-pill span {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #6b7690;
+}
+.map-hex-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.map-hex-cell {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 118px;
+  text-align: center;
+  transition: opacity 150ms ease;
+}
+.map-hex-cell.is-dimmed {
+  opacity: 0.45;
+}
+.map-hex-badge {
+  position: absolute;
+  top: -20px;
+  left: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(215, 25, 32, 0.12);
+  color: var(--red);
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-hex-cell b {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.map-hex-cell > span {
+  font-size: 10px;
+  font-weight: 500;
+  color: #6b7690;
+}
+.map-hex-arrow {
+  pointer-events: auto;
+  margin-top: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.map-hex-arrow:hover {
+  background: #fff;
+  color: var(--red);
+}
+.map-hex-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: #97a0b5;
+}
+@media (max-width: 420px) {
+  /* At this width .map-card is close to full viewport width, so the hex
+     wrap and its numbered badges shrink a lot — scale text/controls down
+     to match (the stat pill itself no longer overlaps anything since it
+     sits in its own row above the map, not absolutely positioned over it). */
+  .map-hex-pill {
+    padding: 4px 7px;
+    gap: 5px;
+    border-radius: 10px;
+  }
+  .map-hex-pill svg {
+    width: 11px;
+    height: 11px;
+  }
+  .map-hex-pill b {
+    font-size: 10.5px;
+  }
+  .map-hex-pill span {
+    font-size: 7px;
+  }
+  .map-hex-badge {
+    top: -14px;
+    width: 15px;
+    height: 15px;
+    font-size: 8.5px;
+  }
+  .map-hex-cell {
+    width: 92px;
+    gap: 1px;
+  }
+  .map-hex-cell b {
+    font-size: 10.5px;
+  }
+  .map-hex-cell > span {
+    font-size: 8.5px;
+  }
+  .map-hex-arrow {
+    width: 19px;
+    height: 19px;
+    margin-top: 2px;
+  }
 }
 
 .mv-legend {

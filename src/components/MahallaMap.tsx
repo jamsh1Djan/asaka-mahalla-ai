@@ -1,14 +1,14 @@
 import type { Mahalla } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { bucketColorFor, computeBuckets } from "@/lib/voronoiMap";
-import { DISTRICT_OUTLINE, REGION_LABEL_POS, REGION_PATHS } from "@/lib/districtShapes";
+import { HEX_POSITIONS, hexPath } from "@/lib/hexMap";
 import MapCanvas, { type MapCell } from "@/components/MapCanvas";
 
 export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: Mahalla[] }) {
-  // Only the 7 real seed mahallas have a hand-drawn shape — admin-added
+  // Only the 7 real seed mahallas have a fixed hex position — admin-added
   // ones simply don't appear on the map (still fully visible in the
-  // grid/list views), same as before.
-  const mahallas = allMahallas.filter((m) => REGION_PATHS[m.id]);
+  // grid/list views).
+  const mahallas = allMahallas.filter((m) => HEX_POSITIONS[m.id]);
 
   const links = await prisma.bankerMahalla.findMany({
     where: { mahallaId: { in: mahallas.map((m) => m.id) } },
@@ -18,9 +18,10 @@ export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: 
 
   const populations = mahallas.map((m) => m.aholi);
   const buckets = computeBuckets(populations);
+  const totalAholi = mahallas.reduce((s, m) => s + m.aholi, 0);
 
   const cells: MapCell[] = mahallas.map((m) => {
-    const [labelCx, labelCy] = REGION_LABEL_POS[m.id];
+    const pos = HEX_POSITIONS[m.id];
     return {
       id: m.id,
       nomi: m.nomi,
@@ -29,9 +30,10 @@ export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: 
       vakansiya: m.vakansiya,
       bankerName: bankerByMahalla.get(m.id) ?? null,
       inactive: m.status === "FAOL_EMAS",
-      path: REGION_PATHS[m.id],
-      labelCx,
-      labelCy,
+      path: hexPath(pos.cx, pos.cy),
+      cx: pos.cx,
+      cy: pos.cy,
+      order: pos.order,
       color: bucketColorFor(m.aholi, populations),
     };
   });
@@ -40,7 +42,7 @@ export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: 
     <div className="map-card">
       <h4>Yunusobod tumani — mahallalar xaritasi</h4>
       <p>Mahallani tanlang va batafsil ma&apos;lumotni ko&apos;ring</p>
-      <MapCanvas cells={cells} buckets={buckets} outline={DISTRICT_OUTLINE} />
+      <MapCanvas cells={cells} buckets={buckets} totalAholi={totalAholi} />
     </div>
   );
 }
