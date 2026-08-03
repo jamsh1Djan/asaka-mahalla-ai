@@ -1,29 +1,14 @@
 import type { Mahalla } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import {
-  bucketColorFor,
-  computeBuckets,
-  computeVoronoiCells,
-  districtOutlinePath,
-  parsePoints,
-  polygonCentroid,
-  roundedPolygonPath,
-} from "@/lib/voronoiMap";
+import { bucketColorFor, computeBuckets } from "@/lib/voronoiMap";
+import { DISTRICT_OUTLINE, REGION_LABEL_POS, REGION_PATHS } from "@/lib/districtShapes";
 import MapCanvas, { type MapCell } from "@/components/MapCanvas";
 
-// Modestly oversized relative to the 520x400 viewBox so cells extend past
-// the organic outline clip's edges (the visible shape comes from the
-// clipPath, not this rectangle) — but not so oversized that an outer
-// cell's true unclipped extent balloons and drags its centroid (used for
-// the label position) into an area the clip removes.
-const BOUNDS: [number, number, number, number] = [-30, -30, 550, 430];
-
 export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: Mahalla[] }) {
-  // Admin-added mahallas have no hand-drawn reference point yet — they simply
-  // don't appear on the map (still fully visible in the grid/list views).
-  const mahallas = allMahallas.filter(
-    (m): m is Mahalla & { mapPoints: string } => !!m.mapPoints
-  );
+  // Only the 7 real seed mahallas have a hand-drawn shape — admin-added
+  // ones simply don't appear on the map (still fully visible in the
+  // grid/list views), same as before.
+  const mahallas = allMahallas.filter((m) => REGION_PATHS[m.id]);
 
   const links = await prisma.bankerMahalla.findMany({
     where: { mahallaId: { in: mahallas.map((m) => m.id) } },
@@ -31,22 +16,11 @@ export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: 
   });
   const bankerByMahalla = new Map(links.map((l) => [l.mahallaId, l.banker.ism]));
 
-  // The centroids of the original hand-drawn reference shapes become Voronoi
-  // sites, so the map area is partitioned mathematically instead of by
-  // hand-picked coordinates.
-  const sites = mahallas.map((m) => {
-    const { cx, cy } = polygonCentroid(parsePoints(m.mapPoints));
-    return [cx, cy] as [number, number];
-  });
-  const cellPolygons = computeVoronoiCells(sites, BOUNDS);
-  const outline = districtOutlinePath(mahallas.flatMap((m) => parsePoints(m.mapPoints)));
-
   const populations = mahallas.map((m) => m.aholi);
   const buckets = computeBuckets(populations);
 
-  const cells: MapCell[] = mahallas.map((m, i) => {
-    const cellPoints = cellPolygons[i];
-    const { cx: labelCx, cy: labelCy } = cellPoints.length ? polygonCentroid(cellPoints) : { cx: sites[i][0], cy: sites[i][1] };
+  const cells: MapCell[] = mahallas.map((m) => {
+    const [labelCx, labelCy] = REGION_LABEL_POS[m.id];
     return {
       id: m.id,
       nomi: m.nomi,
@@ -55,7 +29,7 @@ export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: 
       vakansiya: m.vakansiya,
       bankerName: bankerByMahalla.get(m.id) ?? null,
       inactive: m.status === "FAOL_EMAS",
-      path: roundedPolygonPath(cellPoints, 8),
+      path: REGION_PATHS[m.id],
       labelCx,
       labelCy,
       color: bucketColorFor(m.aholi, populations),
@@ -66,7 +40,7 @@ export default async function MahallaMap({ mahallas: allMahallas }: { mahallas: 
     <div className="map-card">
       <h4>Yunusobod tumani — mahallalar xaritasi</h4>
       <p>Mahallani tanlang va batafsil ma&apos;lumotni ko&apos;ring</p>
-      <MapCanvas cells={cells} buckets={buckets} outline={outline} />
+      <MapCanvas cells={cells} buckets={buckets} outline={DISTRICT_OUTLINE} />
     </div>
   );
 }

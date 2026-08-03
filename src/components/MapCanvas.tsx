@@ -70,8 +70,8 @@ export default function MapCanvas({
                 className={`mv-plot ${c.inactive ? "inactive" : ""}`}
                 d={c.path}
                 fill={c.inactive ? "#c7ccd6" : c.color}
-                stroke={c.inactive ? "#9aa2b1" : "#8a1120"}
-                strokeWidth={isSelected ? 2.5 : 1.4}
+                stroke={c.inactive ? "#9aa2b1" : "#fff"}
+                strokeWidth={c.inactive ? 1.4 : isSelected ? 6 : 5}
                 strokeLinejoin="round"
                 strokeLinecap="round"
                 strokeDasharray={c.inactive ? "5 4" : undefined}

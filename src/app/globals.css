@@ -658,7 +658,7 @@ h2.section-title {
 }
 .mv-cell.is-hovered .mv-plot {
   transform: scale(1.03);
-  filter: drop-shadow(0 8px 16px rgba(10, 31, 68, 0.25)) saturate(1.15);
+  filter: drop-shadow(0 8px 16px rgba(10, 31, 68, 0.25)) saturate(1.15) brightness(1.1);
 }
 .mv-cell.is-dimmed .mv-plot {
   opacity: 0.35;
@@ -1029,7 +1029,7 @@ h2.section-title {
 }
 .mdash-cell.is-hovered .mdash-plot {
   transform: scale(1.03);
-  filter: drop-shadow(0 8px 16px rgba(176, 30, 58, 0.35)) saturate(1.15);
+  filter: drop-shadow(0 8px 16px rgba(176, 30, 58, 0.35)) saturate(1.15) brightness(1.1);
 }
 .mdash-cell.is-dimmed .mdash-plot {
   opacity: 0.3;

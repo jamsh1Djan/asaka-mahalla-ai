@@ -275,8 +275,8 @@ export default function MapDashboardCanvas({
                     className={`mdash-plot ${c.inactive ? "inactive" : ""}`}
                     d={c.path}
                     fill={color}
-                    stroke={c.inactive ? "#9aa2b1" : "#8a1120"}
-                    strokeWidth={isSelected ? 2.6 : 1.4}
+                    stroke={c.inactive ? "#9aa2b1" : "#fff"}
+                    strokeWidth={c.inactive ? 1.4 : isSelected ? 6 : 5}
                     strokeLinejoin="round"
                     strokeLinecap="round"
                     strokeDasharray={c.inactive ? "5 4" : undefined}
