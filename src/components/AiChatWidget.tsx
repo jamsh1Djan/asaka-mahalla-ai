@@ -11,6 +11,7 @@ import {
 } from "@/actions/chat";
 import { getBusinessIdeasAction, type BusinessIdea } from "@/actions/ai";
 import { SOHALAR } from "@/lib/businessIdeas";
+import { OPEN_AI_CHAT_EVENT } from "@/components/OpenAiChatButton";
 import type { EmploymentStatus } from "@/lib/data";
 
 type Bubble = { from: "bot" | "me"; content: ReactNode; key: string };
@@ -73,6 +74,14 @@ export default function AiChatWidget() {
       getMahallaOptionsAction().then(setMahallas);
     }
   }, [open, mahallas]);
+
+  useEffect(() => {
+    function onOpenRequest() {
+      setOpen(true);
+    }
+    window.addEventListener(OPEN_AI_CHAT_EVENT, onOpenRequest);
+    return () => window.removeEventListener(OPEN_AI_CHAT_EVENT, onOpenRequest);
+  }, []);
 
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" });

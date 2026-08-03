@@ -9,6 +9,8 @@ import CreditCard from "@/components/CreditCard";
 import MahallaCard from "@/components/MahallaCard";
 import Reveal from "@/components/Reveal";
 import MotionLink from "@/components/MotionLink";
+import OpenAiChatButton from "@/components/OpenAiChatButton";
+import OpenAiChatCard from "@/components/OpenAiChatCard";
 
 export default async function HomePage() {
   const mahallas = await prisma.mahalla.findMany({ orderBy: { nomi: "asc" } });
@@ -41,10 +43,10 @@ export default async function HomePage() {
             </Reveal>
             <Reveal delay={240}>
               <div className="hero-cta">
-                <MotionLink href="/mahallalar" className="btn btn-primary">
+                <OpenAiChatButton className="btn btn-primary">
                   <Sparkles size={16} />
                   AI yordamchi bilan boshlash
-                </MotionLink>
+                </OpenAiChatButton>
                 <MotionLink href="/biznes-reja" className="btn btn-outline">
                   Biznes reja yordamchisi
                   <ArrowRight size={16} />
@@ -83,7 +85,7 @@ export default async function HomePage() {
                 priority
               />
             </div>
-            <Link href="/mahallalar" className="chatbox chatbox-link chatbox-hero">
+            <OpenAiChatCard className="chatbox chatbox-link chatbox-hero">
               <div className="card-head" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, paddingBottom: 14, borderBottom: "1px solid rgba(15,43,108,.08)" }}>
                 <div className="chat-avatar">
                   <Sparkles size={15} />
@@ -115,7 +117,7 @@ export default async function HomePage() {
               <div className="chatbox-cta">
                 Suhbatni boshlash <ArrowRight size={14} />
               </div>
-            </Link>
+            </OpenAiChatCard>
           </Reveal>
         </div>
       </section>
