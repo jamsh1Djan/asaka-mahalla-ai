@@ -2,13 +2,15 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Sparkles, X, CheckCircle2, FileText, UserRound, ArrowRight } from "lucide-react";
+import { Sparkles, X, CheckCircle2, FileText, UserRound, ArrowRight, Lightbulb } from "lucide-react";
 import {
   getMahallaOptionsAction,
   matchCreditAction,
   type MahallaOption,
   type CreditMatchResult,
 } from "@/actions/chat";
+import { getBusinessIdeasAction, type BusinessIdea } from "@/actions/ai";
+import { SOHALAR } from "@/lib/businessIdeas";
 import type { EmploymentStatus } from "@/lib/data";
 
 type Bubble = { from: "bot" | "me"; content: ReactNode; key: string };
@@ -18,10 +20,21 @@ type Stage =
   | "credit-employment"
   | "credit-mahalla"
   | "credit-result"
-  | "biznes"
+  | "biznes-mahalla"
+  | "biznes-soha"
+  | "biznes-result"
   | "ariza-info"
   | "bankir-mahalla"
   | "bankir-result";
+
+const AVTOMATIK = "AI o'zi tanlasin";
+const BIZ_SOHA_OPTIONS = [AVTOMATIK, ...SOHALAR];
+// Fixed light defaults for the chat's quick 2-question flow — the full
+// so'rovnoma (budget/tajriba/jamoa hajmi) lives on /biznes-reja for anyone
+// who wants results tailored beyond just mahalla + soha.
+const BIZ_DEFAULT_BUDGET = "5-20 mln";
+const BIZ_DEFAULT_TAJRIBA = "Yangi boshlovchi";
+const BIZ_DEFAULT_JAMOA = "Yolg'iz o'zim";
 
 const AMOUNT_OPTIONS = [
   { label: "5 mln gacha", value: 5_000_000 },
@@ -51,6 +64,7 @@ export default function AiChatWidget() {
   const [mahallas, setMahallas] = useState<MahallaOption[] | null>(null);
   const [amount, setAmount] = useState<number | null>(null);
   const [employment, setEmployment] = useState<EmploymentStatus | null>(null);
+  const [bizMahalla, setBizMahalla] = useState<MahallaOption | null>(null);
   const [pending, setPending] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
 
@@ -73,6 +87,7 @@ export default function AiChatWidget() {
     setBubbles([{ from: "bot", content: WELCOME, key: nextKey() }]);
     setAmount(null);
     setEmployment(null);
+    setBizMahalla(null);
   }
 
   function chooseMenu(label: string, next: Stage, botLine: string) {
@@ -108,6 +123,34 @@ export default function AiChatWidget() {
     }
     say("bot", <CreditActionCard result={result} />);
     setStage("credit-result");
+  }
+
+  function chooseBizMahalla(m: MahallaOption) {
+    say("me", m.nomi);
+    setBizMahalla(m);
+    say("bot", "Qaysi sohaga qiziqasiz?");
+    setStage("biznes-soha");
+  }
+
+  async function chooseBizSoha(soha: string) {
+    say("me", soha);
+    if (!bizMahalla) return;
+    setPending(true);
+    const result = await getBusinessIdeasAction(
+      bizMahalla.id,
+      BIZ_DEFAULT_BUDGET,
+      BIZ_DEFAULT_TAJRIBA,
+      soha === AVTOMATIK ? "avtomatik" : soha,
+      BIZ_DEFAULT_JAMOA
+    );
+    setPending(false);
+    if ("error" in result) {
+      say("bot", result.error);
+      setStage("menu");
+      return;
+    }
+    say("bot", <BusinessIdeaResults ideas={result.ideas.slice(0, 3)} matched={result.matched} mahallaId={bizMahalla.id} />);
+    setStage("biznes-result");
   }
 
   async function chooseBankirMahalla(m: MahallaOption) {
@@ -175,22 +218,7 @@ export default function AiChatWidget() {
                   <button onClick={() => chooseMenu("💰 Kredit tanlash", "credit-amount", "Qancha miqdorda kredit kerak?")}>
                     💰 Kredit tanlash
                   </button>
-                  <button
-                    onClick={() => {
-                      say("me", "💡 Biznes g'oya");
-                      say(
-                        "bot",
-                        <span>
-                          Mahallangizga mos biznes g&apos;oyalarini{" "}
-                          <Link href="/biznes-reja" style={{ color: "var(--red)", fontWeight: 700 }} onClick={() => setOpen(false)}>
-                            Biznes reja yordamchisi
-                          </Link>{" "}
-                          bo&apos;limida to&apos;liq so&apos;rovnoma orqali topib beraman.
-                        </span>
-                      );
-                      setStage("biznes");
-                    }}
-                  >
+                  <button onClick={() => chooseMenu("💡 Biznes g'oya", "biznes-mahalla", "Qaysi mahalladansiz?")}>
                     💡 Biznes g&apos;oya
                   </button>
                   <button
@@ -231,6 +259,20 @@ export default function AiChatWidget() {
                   </button>
                 ))}
 
+              {stage === "biznes-mahalla" &&
+                (mahallas ?? []).map((m) => (
+                  <button key={m.id} onClick={() => chooseBizMahalla(m)}>
+                    {m.nomi}
+                  </button>
+                ))}
+
+              {stage === "biznes-soha" &&
+                BIZ_SOHA_OPTIONS.map((s) => (
+                  <button key={s} disabled={pending} onClick={() => chooseBizSoha(s)}>
+                    {s}
+                  </button>
+                ))}
+
               {stage === "bankir-mahalla" &&
                 (mahallas ?? []).map((m) => (
                   <button key={m.id} onClick={() => chooseBankirMahalla(m)}>
@@ -238,7 +280,7 @@ export default function AiChatWidget() {
                   </button>
                 ))}
 
-              {(stage === "credit-result" || stage === "ariza-info" || stage === "biznes" || stage === "bankir-result") && (
+              {(stage === "credit-result" || stage === "ariza-info" || stage === "biznes-result" || stage === "bankir-result") && (
                 <button onClick={reset}>
                   <ArrowRight size={13} style={{ transform: "rotate(180deg)" }} /> Boshqa savol
                 </button>
@@ -272,6 +314,37 @@ function CreditActionCard({ result }: { result: CreditMatchResult }) {
       </div>
       <Link href={`/mahallalar/${result.mahallaId}`} className="btn btn-primary btn-sm" style={{ marginTop: 10, justifyContent: "center" }}>
         Ariza berish <ArrowRight size={14} />
+      </Link>
+    </div>
+  );
+}
+
+/** Compact inline preview (top 3, no budget/tajriba/jamoa questions asked)
+ * of the same rule-based matching the full /biznes-reja wizard uses — the
+ * chat stays a conversation instead of redirecting away immediately, and
+ * "To'liq moslashtirish" hands off to the full so'rovnoma for anyone who
+ * wants results narrowed by budget/experience/team size too. */
+function BusinessIdeaResults({ ideas, matched, mahallaId }: { ideas: BusinessIdea[]; matched: boolean; mahallaId: string }) {
+  return (
+    <div className="ai-widget-card ai-widget-card-full">
+      <div className="ai-widget-card-row">
+        <Lightbulb size={16} color="var(--gold)" />
+        <span>
+          {matched
+            ? "Mahallangiz yo'nalishiga mos biznes g'oyalari:"
+            : "Mahallangiz yo'nalishiga to'g'ridan-to'g'ri mos kelmadi — umumiy tavsiyalar:"}
+        </span>
+      </div>
+      {ideas.map((idea, i) => (
+        <div key={i} className="ai-widget-idea-row">
+          <b>{idea.nomi}</b>
+          <span>
+            {idea.boshlangich_xarajat} · {idea.mos_kredit}
+          </span>
+        </div>
+      ))}
+      <Link href="/biznes-reja" className="btn btn-outline btn-sm" style={{ marginTop: 6, justifyContent: "center" }}>
+        To&apos;liq moslashtirish <ArrowRight size={14} />
       </Link>
     </div>
   );
