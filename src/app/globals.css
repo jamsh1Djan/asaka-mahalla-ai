@@ -204,7 +204,11 @@ header.site {
 .hidden-mobile {
   display: inline-flex;
 }
-@media (max-width: 900px) {
+@media (max-width: 1030px) {
+  /* .navlinks (5 links) + brand + navactions genuinely don't fit in one
+     row below ~1024px — this hid navlinks at 900px, leaving a wide gap
+     (901-1023px) where nothing had hidden yet and the header overflowed
+     the page horizontally. Raised to cover that whole range. */
   .navlinks {
     display: none;
   }
@@ -330,58 +334,304 @@ h1.hero-title .accent {
   color: var(--sub2);
 }
 
-/* Photo and card are stacked in normal document flow (no absolute
-   positioning, no percentage-width overlap math) — at every viewport
-   width, not just mobile. An earlier version overlapped them with
-   position:absolute, which broke at wider viewports because
-   object-fit:cover repositions the photo's content unpredictably as the
-   container's aspect ratio changes, and the card ended up colliding with a
-   person's face. Plain stacking can't collide, by construction. */
 .hero-visual {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
-.hero-photo {
+
+/* ---------- Hero showcase (floating feature cards around an AI preview) --------- */
+.hero-showcase {
   position: relative;
-  height: 280px;
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-}
-.chatbox-hero {
   width: 100%;
-}
-.chatbox {
-  position: relative;
-  display: block;
-  background: var(--glass-bg);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: 0 30px 70px -24px rgba(15, 43, 108, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-}
-.chatbox-link {
-  cursor: pointer;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-.chatbox-link:hover {
-  box-shadow: 0 34px 80px -20px rgba(15, 43, 108, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  transform: translateY(-2px);
-}
-.chatbox-cta {
+  min-height: 560px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(15, 43, 108, 0.08);
-  font-weight: 700;
+  padding: 30px 76px;
+}
+.hero-showcase-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 55% at 50% 55%, rgba(215, 25, 32, 0.07), transparent 70%);
+}
+.hero-connectors {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+.hero-connectors path {
+  fill: none;
+  stroke: rgba(15, 43, 108, 0.16);
+  stroke-width: 0.5;
+  stroke-dasharray: 2.2 2.2;
+}
+
+.hero-chat-card {
+  position: relative;
+  z-index: 2;
+  width: 320px;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 30px 70px -24px rgba(15, 43, 108, 0.35);
+  border: 1px solid rgba(15, 43, 108, 0.06);
+}
+.hero-chat-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.hero-chat-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--red);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.hero-chat-head b {
+  display: block;
   font-size: 13.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.hero-chat-head span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--sub2);
+  font-weight: 600;
+}
+.hero-chat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2ecc71;
+  display: inline-block;
+}
+.hero-chat-more {
+  margin-left: auto;
+  color: var(--sub2);
+}
+.hero-chat-greeting {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
+.hero-reco-card {
+  background: rgba(15, 43, 108, 0.03);
+  border: 1px solid rgba(15, 43, 108, 0.06);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.hero-reco-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.hero-reco-head > span:first-child {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.hero-reco-badge {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.hero-reco-label {
+  display: block;
+  font-size: 10.5px;
+  color: var(--sub2);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.hero-reco-amount {
+  font-size: 22px;
+  font-weight: 900;
   color: var(--red);
+  margin-bottom: 10px;
+}
+.hero-reco-pills {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.hero-reco-pills span {
+  background: #fff;
+  border: 1px solid rgba(15, 43, 108, 0.1);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--navy);
+  padding: 4px 9px;
+  border-radius: 999px;
+}
+.hero-reco-btn {
+  width: 100%;
+  justify-content: center;
+}
+.hero-chat-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid rgba(15, 43, 108, 0.08);
+  padding: 12px 0 0;
+  margin-top: 4px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+.hero-chat-hint svg {
+  color: var(--gold);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.hero-chat-hint b {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.hero-chat-hint > span > span {
+  font-size: 10.5px;
+  color: var(--sub2);
+  font-weight: 500;
+}
+
+.hero-mini-card {
+  position: absolute;
+  z-index: 1;
+  width: 188px;
+}
+.hero-mini-card-link,
+.hero-mini-bankir {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  background: #fff;
+  border: 1px solid rgba(15, 43, 108, 0.06);
+  border-radius: 14px;
+  padding: 11px 12px;
+  box-shadow: 0 14px 30px -14px rgba(15, 43, 108, 0.25);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hero-mini-bankir {
+  font: inherit;
+  text-align: left;
+}
+.hero-mini-card-link:hover,
+.hero-mini-bankir:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px -14px rgba(15, 43, 108, 0.32);
+}
+.hero-mini-ic {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.hero-mini-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+.hero-mini-text b {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.hero-mini-text span {
+  font-size: 9.5px;
+  color: var(--sub2);
+  font-weight: 500;
+  line-height: 1.3;
+}
+.hero-mini-arrow {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(15, 43, 108, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sub2);
+  flex-shrink: 0;
+}
+.hero-mini-bankir {
+  bottom: 3%;
+  right: -4%;
+}
+@media (max-width: 1100px) {
+  .hero-showcase {
+    padding: 30px 56px;
+  }
+  .hero-mini-card {
+    width: 148px;
+  }
+}
+@media (max-width: 920px) {
+  /* The floating cluster only works with room to breathe on either side of
+     the chat card — below this width it stops being "floating cards" and
+     starts being "overlapping cards", so it collapses to the chat preview
+     plus a plain grid of the same 5 real links instead of trying to force
+     absolute positioning into a narrow column. */
+  .hero-showcase {
+    min-height: 0;
+    padding: 0;
+    display: block;
+  }
+  .hero-showcase-bg,
+  .hero-connectors {
+    display: none;
+  }
+  .hero-chat-card {
+    width: 100%;
+    margin: 0 auto 16px;
+  }
+  .hero-mini-card {
+    position: static;
+    width: auto;
+  }
+  .hero-mini-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+}
+@media (max-width: 480px) {
+  .hero-mini-cards-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------- AI chat widget (button-driven, no external API) ---------- */

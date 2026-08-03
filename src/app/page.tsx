@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { fmt } from "@/lib/format";
@@ -10,7 +9,7 @@ import MahallaCard from "@/components/MahallaCard";
 import Reveal from "@/components/Reveal";
 import MotionLink from "@/components/MotionLink";
 import OpenAiChatButton from "@/components/OpenAiChatButton";
-import OpenAiChatCard from "@/components/OpenAiChatCard";
+import HeroShowcase from "@/components/HeroShowcase";
 
 export default async function HomePage() {
   const mahallas = await prisma.mahalla.findMany({ orderBy: { nomi: "asc" } });
@@ -75,49 +74,7 @@ export default async function HomePage() {
             </Reveal>
           </div>
           <Reveal variant="scale" delay={200} className="hero-visual">
-            <div className="hero-photo">
-              <Image
-                src="/images/hero-photo.jpg"
-                alt="Mahalla bankiri mijozga bank ilovasi orqali yordam bermoqda"
-                fill
-                sizes="(max-width: 920px) 100vw, 45vw"
-                style={{ objectFit: "cover" }}
-                priority
-              />
-            </div>
-            <OpenAiChatCard className="chatbox chatbox-link chatbox-hero">
-              <div className="card-head" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, paddingBottom: 14, borderBottom: "1px solid rgba(15,43,108,.08)" }}>
-                <div className="chat-avatar">
-                  <Sparkles size={15} />
-                </div>
-                <div>
-                  <b style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: "var(--ink)" }}>Asaka AI</b>
-                  <span style={{ fontSize: 11.5, color: "var(--sub2)", display: "flex", alignItems: "center", gap: 4 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#2ECC71", display: "inline-block" }} />
-                    Onlayn · Sizga yordam berishga tayyor
-                  </span>
-                </div>
-              </div>
-              <div className="chat-row">
-                <div className="chat-bubble">
-                  Assalomu alaykum! Kredit yoki biznes reja bo&apos;yicha yordam beraymi?
-                </div>
-              </div>
-              <div className="chat-row me">
-                <div className="chat-bubble">
-                  Menga 20 million kredit kerak, o&apos;zimni o&apos;zim band qilganman
-                </div>
-              </div>
-              <div className="chat-row">
-                <div className="chat-bubble">
-                  Sizga <b>Biznesga birinchi qadam 2.0</b> (17 mln, 27%) mos keladi. Batafsil
-                  ko&apos;raymi?
-                </div>
-              </div>
-              <div className="chatbox-cta">
-                Suhbatni boshlash <ArrowRight size={14} />
-              </div>
-            </OpenAiChatCard>
+            <HeroShowcase />
           </Reveal>
         </div>
       </section>
