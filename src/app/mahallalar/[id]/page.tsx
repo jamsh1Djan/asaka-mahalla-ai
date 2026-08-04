@@ -122,6 +122,7 @@ export default async function MahallaDetailPage({
             <ArizaForm
               mahallaId={mahalla.id}
               mahallaNomi={mahalla.nomi}
+              loggedIn={session?.kind === "fuqaro"}
               defaultName={citizenName}
               defaultPhone={citizenPhone}
             />

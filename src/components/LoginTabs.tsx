@@ -35,8 +35,11 @@ export default function LoginTabs({ initialTab }: { initialTab: "fuqaro" | "bank
           </div>
           <div className="field">
             <label>Telefon raqami</label>
-            <input name="phone" placeholder="+998 90 000 00 00" />
+            <input name="phone" placeholder="+998 90 000 00 00" required />
           </div>
+          <p className="small-muted" style={{ marginTop: -8, marginBottom: 12 }}>
+            Birinchi marta kirsangiz, shu raqam bilan hisobingiz avtomatik yaratiladi.
+          </p>
           {citizenState?.error && <div className="err">{citizenState.error}</div>}
           <button
             className="btn btn-primary"

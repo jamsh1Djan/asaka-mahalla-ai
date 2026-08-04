@@ -141,12 +141,29 @@ model Application {
   id        String            @id @default(cuid())
   mahallaId String
   mahalla   Mahalla           @relation(fields: [mahallaId], references: [id], onDelete: Cascade)
+  /// Nullable so pre-registration applications (submitted before this field
+  /// existed) don't get orphaned by a required relation.
+  citizenId String?
+  citizen   Citizen?          @relation(fields: [citizenId], references: [id], onDelete: SetNull)
   fio       String
   phone     String
   kredit    String
   izoh      String?
   status    ApplicationStatus @default(YANGI)
   createdAt DateTime          @default(now())
+}
+
+/// A citizen's persistent identity, keyed by phone — created (or reused) the
+/// moment they log in via the "Fuqaro sifatida" tab, so "Arizalarim" can
+/// list everything they've ever submitted instead of trusting a fresh
+/// free-text name/phone on every ariza.
+model Citizen {
+  id           String        @id @default(cuid())
+  phone        String        @unique
+  name         String
+  applications Application[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Listing {

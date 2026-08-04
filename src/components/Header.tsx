@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { FileText } from "lucide-react";
 import type { Session } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
 import LogoMark from "@/components/Logo";
@@ -65,6 +66,22 @@ export default function Header({ session }: { session: Session | null }) {
                 </span>
                 {label && <span className="badge-role">{label}</span>}
               </span>
+              {session.kind === "fuqaro" && (
+                // Icon-only, not icon+label: .navlinks + .navactions already sit
+                // at the edge of fitting one row between ~1031-1350px (see the
+                // max-width:1030px breakpoint below), so a full extra button
+                // with a text label reopened that overflow. An icon alone adds
+                // ~30px instead of ~110px and stays inside the existing margin.
+                <Link
+                  href="/arizalarim"
+                  className={`btn btn-outline btn-sm${pathname === "/arizalarim" ? " active" : ""}`}
+                  style={{ padding: "8px 10px" }}
+                  title="Arizalarim"
+                  aria-label="Arizalarim"
+                >
+                  <FileText size={15} />
+                </Link>
+              )}
               <form action={logoutAction}>
                 <button className="btn btn-outline btn-sm" type="submit">
                   Chiqish

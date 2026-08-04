@@ -8,7 +8,7 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 const PENDING_2FA_COOKIE = "am_2fa_pending";
 const PENDING_2FA_TTL_SECONDS = 60 * 5; // 5 minutes to enter the code
 
-export type CitizenSession = { kind: "fuqaro"; name: string; phone: string };
+export type CitizenSession = { kind: "fuqaro"; citizenId: string; name: string; phone: string };
 export type BankerSession = {
   kind: "banker";
   bankerId: string;

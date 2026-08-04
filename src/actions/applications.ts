@@ -14,6 +14,11 @@ export async function submitArizaAction(
   _prevState: ArizaState,
   formData: FormData
 ): Promise<ArizaState> {
+  const session = await getSession();
+  if (!session || session.kind !== "fuqaro") {
+    return { error: "Ariza berish uchun avval tizimga kiring" };
+  }
+
   const fio = String(formData.get("fio") || "").trim();
   const phone = String(formData.get("phone") || "").trim();
   const kredit = String(formData.get("kredit") || "").trim();
@@ -25,10 +30,11 @@ export async function submitArizaAction(
   if (!mahalla) return { error: "Mahalla topilmadi" };
 
   await prisma.application.create({
-    data: { mahallaId, fio, phone, kredit, izoh: izoh || null },
+    data: { mahallaId, fio, phone, kredit, izoh: izoh || null, citizenId: session.citizenId },
   });
 
   revalidatePath(`/mahallalar/${mahallaId}`);
+  revalidatePath("/arizalarim");
   revalidatePath("/bankir");
   revalidatePath("/admin");
   return { success: true };

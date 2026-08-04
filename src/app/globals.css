@@ -96,10 +96,17 @@ header.site {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: nowrap;
+  /* Wraps whenever brand + navlinks + navactions genuinely don't fit one
+     row, instead of relying on nowrap + a hand-picked breakpoint per
+     possible content combination (that approach kept needing a new fix
+     every time navactions grew — a logged-in citizen's name+badge+buttons
+     is wider than an anonymous visitor's lone Kirish button, and different
+     session types were never all checked against the same breakpoint). */
+  flex-wrap: wrap;
+  row-gap: 10px;
   gap: 20px;
-  height: 72px;
-  padding: 0 32px;
+  min-height: 72px;
+  padding: 14px 32px;
   max-width: 1280px;
   margin: 0 auto;
 }
@@ -145,6 +152,17 @@ header.site {
 }
 .navactions {
   display: flex;
+  flex-wrap: wrap;
+  /* A logged-in citizen's row (name+role badge, the Arizalarim shortcut,
+     Chiqish, the AI chat trigger) is wider than an anonymous visitor's
+     lone Kirish button, and .nav itself only wraps below 480px — so
+     without letting .navactions wrap its own children, that combination
+     forced real horizontal page overflow anywhere narrower than roughly
+     1279px, not just genuinely tiny phones. Wrapping onto a second line
+     here costs nothing when there's room and fixes it everywhere there
+     isn't, instead of chasing another one-off breakpoint. */
+  justify-content: flex-end;
+  row-gap: 8px;
   gap: 12px;
   align-items: center;
   flex-shrink: 0;
@@ -214,19 +232,15 @@ header.site {
   }
 }
 @media (max-width: 480px) {
-  /* At narrow widths, brand + Kirish/Chiqish + the AI chat trigger no
-     longer fit on one row and pushed the whole page into horizontal
-     scroll. Wrapping (rather than hiding the AI chat button, which is a
-     real feature entry point, not decoration) keeps every control usable. */
   .nav {
-    flex-wrap: wrap;
-    height: auto;
     padding: 12px 20px;
-    row-gap: 10px;
   }
+  /* Below this width, brand + navactions rarely fit side by side even
+     after .nav wraps, so force navactions onto its own full row under
+     the brand right away instead of leaving a lopsided single item
+     stranded next to a nearly-empty first row. */
   .navactions {
     flex: 1 1 100%;
-    justify-content: flex-end;
   }
 }
 

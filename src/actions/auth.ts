@@ -25,8 +25,18 @@ export async function citizenLoginAction(
   const name = String(formData.get("name") || "").trim();
   const phone = String(formData.get("phone") || "").trim();
   if (!name) return { error: "Ismingizni kiriting" };
+  if (!phone) return { error: "Telefon raqamingizni kiriting" };
 
-  await setSession({ kind: "fuqaro", name, phone });
+  // Phone is the account key: first login with a given number registers it,
+  // every later login with the same number just signs back in — this is what
+  // lets "Arizalarim" list a citizen's applications across sessions.
+  const citizen = await prisma.citizen.upsert({
+    where: { phone },
+    update: { name },
+    create: { phone, name },
+  });
+
+  await setSession({ kind: "fuqaro", citizenId: citizen.id, name: citizen.name, phone: citizen.phone });
   redirect("/");
 }
 
