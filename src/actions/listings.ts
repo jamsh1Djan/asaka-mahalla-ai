@@ -1,8 +1,7 @@
 "use server";
 
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import sharp from "sharp";
+import { put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession, isBanker } from "@/lib/auth";
@@ -15,21 +14,27 @@ export type ListingState = { error?: string; success?: boolean } | null;
 const LISTING_TYPES: ListingType[] = ["IJARA", "ISH", "BOSHQA"];
 const MAX_IMAGES = 2;
 
+// Vercel's serverless functions have a read-only filesystem outside /tmp, so
+// writing uploaded files to public/uploads (which works fine locally) never
+// persists in production — Blob storage is the actual durable, publicly
+// servable destination.
 async function saveListingImages(mahallaId: string, files: File[]): Promise<string[]> {
-  const dir = path.join(process.cwd(), "public", "uploads", "listings");
-  await mkdir(dir, { recursive: true });
-  const paths: string[] = [];
+  const urls: string[] = [];
   for (const file of files) {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const filename = `${mahallaId}-${Date.now()}-${paths.length}.jpg`;
+    const filename = `${mahallaId}-${Date.now()}-${urls.length}.jpg`;
     const resized = await sharp(buffer)
       .resize(960, undefined, { withoutEnlargement: true })
       .jpeg({ quality: 82 })
       .toBuffer();
-    await writeFile(path.join(dir, filename), resized);
-    paths.push(`/uploads/listings/${filename}`);
+    const blob = await put(`listings/${filename}`, resized, {
+      access: "public",
+      contentType: "image/jpeg",
+      addRandomSuffix: true,
+    });
+    urls.push(blob.url);
   }
-  return paths;
+  return urls;
 }
 
 function getImageFiles(formData: FormData): File[] {
