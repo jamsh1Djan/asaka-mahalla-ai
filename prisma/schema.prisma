@@ -28,6 +28,17 @@ enum ListingType {
   BOSHQA
 }
 
+enum ListingStatus {
+  KUTILMOQDA
+  TASDIQLANGAN
+  RAD_ETILGAN
+}
+
+enum ListingSource {
+  BANKIR
+  FUQARO
+}
+
 enum MahallaStatus {
   FAOL
   FAOL_EMAS
@@ -177,9 +188,22 @@ model Listing {
   manzil      String
   telefon     String
   amalMuddati DateTime?
-  image       String?
-  createdBy   String
-  banker      Banker      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  /// 1 tadan 2 tagacha rasm yo'li — eski bitta-rasm maydoni o'rniga (Postgres
+  /// native array).
+  images      String[]    @default([])
+
+  /// Bankir tomonidan qo'shilgan e'lonlar uchun — fuqaro e'lonlarida bo'sh.
+  createdBy String?
+  banker    Banker? @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  /// Fuqaro tomonidan qo'shilgan e'lonlar uchun — bankir e'lonlarida bo'sh.
+  citizenName  String?
+  citizenPhone String?
+
+  source ListingSource @default(BANKIR)
+  status ListingStatus @default(TASDIQLANGAN)
+  /// Bankir rad etsa, sababini yozishi mumkin (fuqaroga ko'rsatiladi).
+  rejectReason String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

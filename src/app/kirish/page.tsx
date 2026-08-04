@@ -5,15 +5,15 @@ export const metadata = { title: "Kirish — Asaka Mahalla AI" };
 export default async function KirishPage({
   searchParams,
 }: {
-  searchParams: Promise<{ rol?: string }>;
+  searchParams: Promise<{ rol?: string; next?: string }>;
 }) {
-  const { rol } = await searchParams;
+  const { rol, next } = await searchParams;
   const initialTab = rol === "banker" ? "banker" : "fuqaro";
 
   return (
     <section>
       <div className="wrap">
-        <LoginTabs initialTab={initialTab} />
+        <LoginTabs initialTab={initialTab} next={next} />
       </div>
     </section>
   );

@@ -3,7 +3,13 @@
 import { useActionState, useState } from "react";
 import { citizenLoginAction, bankerLoginAction, type AuthState } from "@/actions/auth";
 
-export default function LoginTabs({ initialTab }: { initialTab: "fuqaro" | "banker" }) {
+export default function LoginTabs({
+  initialTab,
+  next,
+}: {
+  initialTab: "fuqaro" | "banker";
+  next?: string;
+}) {
   const [tab, setTab] = useState<"fuqaro" | "banker">(initialTab);
   const [citizenState, citizenFormAction, citizenPending] = useActionState<AuthState, FormData>(
     citizenLoginAction,
@@ -29,6 +35,7 @@ export default function LoginTabs({ initialTab }: { initialTab: "fuqaro" | "bank
 
       {tab === "fuqaro" ? (
         <form action={citizenFormAction}>
+          {next && <input type="hidden" name="next" value={next} />}
           <div className="field">
             <label>Ism familiya</label>
             <input name="name" placeholder="Masalan: Aliyev Vali" required />

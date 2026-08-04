@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from "react";
 import { createListingAction, updateListingAction, type ListingState } from "@/actions/listings";
+import ImagePicker from "@/components/ImagePicker";
 import type { Listing, Mahalla } from "@prisma/client";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -88,8 +89,12 @@ export default function ListingForm({
         </div>
       </div>
       <div className="field">
-        <label>Rasm (ixtiyoriy)</label>
-        <input type="file" name="image" accept="image/*" />
+        <label>Rasmlar (ixtiyoriy, 2 tagacha)</label>
+        <ImagePicker
+          name="images"
+          max={2}
+          helpText={isEdit ? "Yangi rasm(lar) tanlasangiz, avvalgi rasmlar o'rniga shular saqlanadi." : undefined}
+        />
       </div>
       {state?.error && <div className="err">{state.error}</div>}
       <button className="btn btn-primary" type="submit" disabled={pending}>

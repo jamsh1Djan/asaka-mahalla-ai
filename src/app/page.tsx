@@ -10,6 +10,7 @@ import Reveal from "@/components/Reveal";
 import MotionLink from "@/components/MotionLink";
 import OpenAiChatButton from "@/components/OpenAiChatButton";
 import HeroShowcase from "@/components/HeroShowcase";
+import HomepageListingHook from "@/components/HomepageListingHook";
 
 export default async function HomePage() {
   const mahallas = await prisma.mahalla.findMany({ orderBy: { nomi: "asc" } });
@@ -78,6 +79,8 @@ export default async function HomePage() {
           </Reveal>
         </div>
       </section>
+
+      <HomepageListingHook />
 
       <section>
         <div className="wrap">

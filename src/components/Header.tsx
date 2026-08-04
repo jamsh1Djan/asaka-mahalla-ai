@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText } from "lucide-react";
+import { FileText, Megaphone } from "lucide-react";
 import type { Session } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
 import LogoMark from "@/components/Logo";
@@ -72,15 +72,26 @@ export default function Header({ session }: { session: Session | null }) {
                 // max-width:1030px breakpoint below), so a full extra button
                 // with a text label reopened that overflow. An icon alone adds
                 // ~30px instead of ~110px and stays inside the existing margin.
-                <Link
-                  href="/arizalarim"
-                  className={`btn btn-outline btn-sm${pathname === "/arizalarim" ? " active" : ""}`}
-                  style={{ padding: "8px 10px" }}
-                  title="Arizalarim"
-                  aria-label="Arizalarim"
-                >
-                  <FileText size={15} />
-                </Link>
+                <>
+                  <Link
+                    href="/arizalarim"
+                    className={`btn btn-outline btn-sm${pathname === "/arizalarim" ? " active" : ""}`}
+                    style={{ padding: "8px 10px" }}
+                    title="Arizalarim"
+                    aria-label="Arizalarim"
+                  >
+                    <FileText size={15} />
+                  </Link>
+                  <Link
+                    href="/mening-elonlarim"
+                    className={`btn btn-outline btn-sm${pathname === "/mening-elonlarim" ? " active" : ""}`}
+                    style={{ padding: "8px 10px" }}
+                    title="Mening e'lonlarim"
+                    aria-label="Mening e'lonlarim"
+                  >
+                    <Megaphone size={15} />
+                  </Link>
+                </>
               )}
               <form action={logoutAction}>
                 <button className="btn btn-outline btn-sm" type="submit">

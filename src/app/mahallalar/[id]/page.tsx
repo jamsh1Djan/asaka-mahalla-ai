@@ -1,6 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Users, Home, Briefcase, Wrench, Building2, ClipboardList } from "lucide-react";
+import { Users, Home, Briefcase, Wrench, Building2, ClipboardList, Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { fmt, initials } from "@/lib/format";
 import { getSession } from "@/lib/auth";
@@ -36,8 +37,10 @@ export default async function MahallaDetailPage({
     prisma.listing.findMany({
       where: {
         mahallaId: id,
+        status: "TASDIQLANGAN",
         OR: [{ amalMuddati: null }, { amalMuddati: { gte: new Date() } }],
       },
+      include: { banker: { select: { ism: true } } },
       orderBy: { createdAt: "desc" },
     }),
     getSystemSettings(),
@@ -139,6 +142,13 @@ export default async function MahallaDetailPage({
           </div>
         </div>
 
+        {session?.kind === "fuqaro" && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 14 }}>
+            <Link href={`/elon-berish?mahallaId=${mahalla.id}`} className="btn btn-outline btn-sm">
+              <Plus size={14} /> E&apos;lon berish
+            </Link>
+          </div>
+        )}
         <PublicListings listings={listings} />
 
         {settings.aiPlannerYoqilgan ? (

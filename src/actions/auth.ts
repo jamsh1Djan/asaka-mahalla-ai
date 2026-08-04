@@ -37,7 +37,12 @@ export async function citizenLoginAction(
   });
 
   await setSession({ kind: "fuqaro", citizenId: citizen.id, name: citizen.name, phone: citizen.phone });
-  redirect("/");
+
+  // Only an internal, same-origin path is ever honored here — a bare "next"
+  // value straight from form input would otherwise be an open-redirect hole
+  // (e.g. next=https://evil.example).
+  const next = String(formData.get("next") || "");
+  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/");
 }
 
 async function finishBankerLogin(acc: Banker): Promise<never> {

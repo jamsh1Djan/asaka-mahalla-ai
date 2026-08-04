@@ -1,7 +1,7 @@
-import Image from "next/image";
-import { Home, Briefcase, Megaphone } from "lucide-react";
-import { fmt } from "@/lib/format";
-import type { Listing } from "@prisma/client";
+import { Home, Briefcase, Megaphone, Users, Wallet, MapPin, Phone } from "lucide-react";
+import { fmt, initials } from "@/lib/format";
+import ListingImageLightbox from "@/components/ListingImageLightbox";
+import type { Listing, Banker } from "@prisma/client";
 
 const TYPE_ICONS: Record<string, typeof Home> = {
   IJARA: Home,
@@ -14,34 +14,76 @@ const TYPE_LABELS: Record<string, string> = {
   BOSHQA: "E'lon",
 };
 
-export default function PublicListings({ listings }: { listings: Listing[] }) {
-  if (listings.length === 0) return null;
+type ListingWithBanker = Listing & { banker: Pick<Banker, "ism"> | null };
+
+export default function PublicListings({ listings }: { listings: ListingWithBanker[] }) {
+  // Defense in depth — the page query already filters by status, but a
+  // moderation queue leaking into the public list here would be a real
+  // privacy/trust problem, not just a display glitch.
+  const visible = listings.filter((l) => l.status === "TASDIQLANGAN");
+  if (visible.length === 0) return null;
 
   return (
     <div style={{ marginBottom: 26 }}>
       <h4 style={{ margin: "0 0 14px" }}>Mahalladagi e&apos;lonlar</h4>
       <div className="grid grid-2">
-        {listings.map((l) => {
+        {visible.map((l) => {
           const Icon = TYPE_ICONS[l.turi];
           return (
-          <div key={l.id} className="card">
-            {l.image && (
-              <div style={{ position: "relative", width: "100%", height: 140, borderRadius: 12, overflow: "hidden", marginBottom: 12 }}>
-                <Image src={l.image} alt={l.sarlavha} fill style={{ objectFit: "cover" }} />
+            <div key={l.id} className="card listing-card">
+              <div className="listing-image-area">
+                {l.images.length > 0 ? (
+                  <ListingImageLightbox images={l.images} alt={l.sarlavha} />
+                ) : (
+                  <div className="listing-image-placeholder">
+                    <Icon size={30} />
+                  </div>
+                )}
+                <span className="listing-type-tag listing-type-tag-overlay">
+                  <Icon size={12} />
+                  {TYPE_LABELS[l.turi]}
+                </span>
               </div>
-            )}
-            <span className="tag" style={{ background: "var(--navy)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-              <Icon size={12} />
-              {TYPE_LABELS[l.turi]}
-            </span>
-            <h4 style={{ margin: "10px 0 6px" }}>{l.sarlavha}</h4>
-            <p style={{ fontSize: 13.5, marginBottom: 8 }}>{l.tavsif}</p>
-            {l.narx != null && (
-              <div className="small-muted">Narx/maosh: {fmt(l.narx)} so&apos;m</div>
-            )}
-            <div className="small-muted">Manzil: {l.manzil}</div>
-            <div className="small-muted">Tel: {l.telefon}</div>
-          </div>
+
+              <h3 className="listing-title">{l.sarlavha}</h3>
+              <p className="listing-desc">{l.tavsif}</p>
+
+              <div className="listing-meta">
+                {l.narx != null && (
+                  <span>
+                    <Wallet size={13} /> {fmt(l.narx)} so&apos;m
+                  </span>
+                )}
+                <span>
+                  <MapPin size={13} /> {l.manzil}
+                </span>
+                <span>
+                  <Phone size={13} /> {l.telefon}
+                </span>
+              </div>
+
+              <hr className="soft" />
+              <div className="listing-poster">
+                {l.source === "FUQARO" ? (
+                  <>
+                    <div className="chat-avatar" style={{ background: "var(--sub2)" }}>
+                      {initials(l.citizenName || "?")}
+                    </div>
+                    <span>Qo&apos;shni: {l.citizenName}</span>
+                    <span className="listing-source-tag">
+                      <Users size={11} /> Qo&apos;shni tomonidan
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="chat-avatar" style={{ background: "var(--navy)" }}>
+                      {initials(l.banker?.ism || "?")}
+                    </div>
+                    <span>Bankir: {l.banker?.ism}</span>
+                  </>
+                )}
+              </div>
+            </div>
           );
         })}
       </div>
