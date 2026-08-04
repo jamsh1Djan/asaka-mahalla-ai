@@ -21,6 +21,14 @@ import { OPEN_AI_CHAT_EVENT } from "@/components/OpenAiChatButton";
 const PREVIEW_CREDIT = { nomi: "Biznesga birinchi qadam 2.0", amount: "17 000 000 so'm", term: "36 oy", rate: "27%" };
 
 const MINI_CARDS = [
+  // .hero-showcase only ever renders at one deterministic width in the
+  // range where this absolute layout is even active: exactly 547.2px (see
+  // the comment on .hero-showcase in globals.css for why). Against that
+  // fixed width, with the 320px chat card centered, its edges sit at
+  // 113.6px from each side. Every offset below is sized so a 188px-wide
+  // card clears that edge with ~24px to spare — computed against the
+  // container, not eyeballed at one viewport width, which is exactly what
+  // let these slide under the chat card before.
   {
     key: "kalkulyator",
     href: "/kalkulyator",
@@ -28,7 +36,7 @@ const MINI_CARDS = [
     tone: "rose",
     title: "Kredit kalkulyatori",
     sub: "To'lovlarni hisoblang",
-    pos: { top: "2%", left: "0%" },
+    pos: { top: "2%", left: "-18%" },
   },
   {
     key: "ariza",
@@ -37,7 +45,7 @@ const MINI_CARDS = [
     tone: "blue",
     title: "Ariza yuborish",
     sub: "Online ariza to'ldiring",
-    pos: { top: "38%", left: "-2%" },
+    pos: { top: "40%", left: "-18%" },
   },
   {
     key: "biznes-reja",
@@ -46,7 +54,7 @@ const MINI_CARDS = [
     tone: "violet",
     title: "Biznes reja",
     sub: "AI bilan reja yarating",
-    pos: { top: "0%", right: "-2%" },
+    pos: { top: "0%", right: "-18%" },
   },
   {
     key: "imtiyozlar",
@@ -55,7 +63,7 @@ const MINI_CARDS = [
     tone: "amber",
     title: "Mahalla imtiyozlari",
     sub: "Imtiyoz va dasturlar",
-    pos: { top: "40%", right: "-4%" },
+    pos: { top: "42%", right: "-18%" },
   },
 ] as const;
 

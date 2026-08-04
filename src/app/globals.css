@@ -341,7 +341,19 @@ h1.hero-title .accent {
 /* ---------- Hero showcase (floating feature cards around an AI preview) --------- */
 .hero-showcase {
   position: relative;
+  /* The mini-cards are positioned in % offset from this box specifically to
+     clear the fixed-320px chat card's edges. That math only holds at a
+     known box width — but .hero-grid's 0.95fr visual column, inside
+     .wrap's 1280px cap, never actually reaches this max-width:580px; it
+     plateaus at exactly 547.2px once the viewport is wide enough for
+     .wrap to hit its own max-width (>=1280px), and shrinks below that at
+     anything narrower. Below 1280px the floating layout is abandoned
+     entirely (see the max-width:1279px breakpoint) specifically so the
+     offsets below only ever have to work against that single, constant
+     547.2px case instead of a moving target. */
   width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
   min-height: 560px;
   display: flex;
   align-items: center;
@@ -528,7 +540,6 @@ h1.hero-title .accent {
   display: flex;
   align-items: center;
   gap: 9px;
-  width: 100%;
   background: #fff;
   border: 1px solid rgba(15, 43, 108, 0.06);
   border-radius: 14px;
@@ -538,6 +549,13 @@ h1.hero-title .accent {
   color: inherit;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hero-mini-card-link {
+  /* Fills its 188px .hero-mini-card parent. .hero-mini-bankir must NOT
+     get this — it has no separate parent card, it IS the positioned
+     188px-wide element (via .hero-mini-card), so width:100% here would
+     resolve against .hero-showcase instead and stretch it full-width. */
+  width: 100%;
 }
 .hero-mini-bankir {
   font: inherit;
@@ -589,22 +607,16 @@ h1.hero-title .accent {
 }
 .hero-mini-bankir {
   bottom: 3%;
-  right: -4%;
+  right: -18%;
 }
-@media (max-width: 1100px) {
-  .hero-showcase {
-    padding: 30px 56px;
-  }
-  .hero-mini-card {
-    width: 148px;
-  }
-}
-@media (max-width: 920px) {
-  /* The floating cluster only works with room to breathe on either side of
-     the chat card — below this width it stops being "floating cards" and
-     starts being "overlapping cards", so it collapses to the chat preview
-     plus a plain grid of the same 5 real links instead of trying to force
-     absolute positioning into a narrow column. */
+@media (max-width: 1279px) {
+  /* The floating cluster's offsets are only ever correct against the one
+     constant 547.2px box width that shows up once .wrap hits its own
+     1280px max-width (see .hero-showcase above) — below that, the visual
+     column shrinks continuously with the viewport and the same
+     percentages leave less and less real clearance, so instead of
+     re-tuning per breakpoint this collapses straight to the chat preview
+     plus a plain grid of the same 5 real links. */
   .hero-showcase {
     min-height: 0;
     padding: 0;
