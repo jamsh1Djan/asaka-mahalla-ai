@@ -4,7 +4,13 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { pickCreditProductForRequest, type EmploymentStatus } from "@/lib/data";
 
-export type MahallaOption = { id: string; nomi: string; bankerName: string | null };
+export type MahallaOption = {
+  id: string;
+  nomi: string;
+  bankerName: string | null;
+  bankerPhone: string | null;
+  bankerTelegram: string | null;
+};
 
 /** The 7 real mahallas with their currently-assigned banker (if any) — used by
  * every branch of the chat widget that needs a mahalla picker. */
@@ -16,10 +22,19 @@ export async function getMahallaOptionsAction(): Promise<MahallaOption[]> {
   });
   const links = await prisma.bankerMahalla.findMany({
     where: { mahallaId: { in: mahallas.map((m) => m.id) } },
-    include: { banker: { select: { ism: true } } },
+    include: { banker: { select: { ism: true, telefon: true, telegram: true } } },
   });
-  const bankerByMahalla = new Map(links.map((l) => [l.mahallaId, l.banker.ism]));
-  return mahallas.map((m) => ({ id: m.id, nomi: m.nomi, bankerName: bankerByMahalla.get(m.id) ?? null }));
+  const bankerByMahalla = new Map(links.map((l) => [l.mahallaId, l.banker]));
+  return mahallas.map((m) => {
+    const b = bankerByMahalla.get(m.id);
+    return {
+      id: m.id,
+      nomi: m.nomi,
+      bankerName: b?.ism ?? null,
+      bankerPhone: b?.telefon ?? null,
+      bankerTelegram: b?.telegram ?? null,
+    };
+  });
 }
 
 export type CreditMatchResult = {
@@ -28,6 +43,7 @@ export type CreditMatchResult = {
   creditFoiz: string;
   requiredDocuments: string[];
   bankerName: string | null;
+  bankerPhone: string | null;
   mahallaNomi: string;
   mahallaId: string;
 };
@@ -48,7 +64,7 @@ export async function matchCreditAction(
 
   const link = await prisma.bankerMahalla.findFirst({
     where: { mahallaId },
-    include: { banker: { select: { ism: true } } },
+    include: { banker: { select: { ism: true, telefon: true } } },
   });
 
   try {
@@ -74,6 +90,7 @@ export async function matchCreditAction(
     creditFoiz: credit.foiz,
     requiredDocuments: credit.requiredDocuments,
     bankerName: link?.banker.ism ?? null,
+    bankerPhone: link?.banker.telefon ?? null,
     mahallaNomi: mahalla.nomi,
     mahallaId: mahalla.id,
   };

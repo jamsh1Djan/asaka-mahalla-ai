@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Sparkles, X, CheckCircle2, FileText, UserRound, ArrowRight, Lightbulb } from "lucide-react";
+import { Sparkles, X, CheckCircle2, FileText, UserRound, ArrowRight, Lightbulb, Phone, Send } from "lucide-react";
 import {
   getMahallaOptionsAction,
   matchCreditAction,
@@ -167,12 +167,34 @@ export default function AiChatWidget() {
     say(
       "bot",
       m.bankerName ? (
-        <div className="ai-widget-card">
-          <UserRound size={16} />
-          <div>
-            <div style={{ fontWeight: 800 }}>{m.bankerName}</div>
-            <div className="small-muted">{m.nomi} MFY mas&apos;ul bankiri</div>
+        <div className="ai-widget-card ai-widget-card-full">
+          <div className="ai-widget-card-row">
+            <UserRound size={16} color="var(--navy)" />
+            <span>
+              <b>{m.bankerName}</b> {`— ${m.nomi} MFY mas'ul bankiri`}
+            </span>
           </div>
+          {m.bankerPhone ? (
+            <a href={`tel:${m.bankerPhone.replace(/\s+/g, "")}`} className="btn btn-primary btn-sm" style={{ marginTop: 10, justifyContent: "center" }}>
+              <Phone size={14} /> {m.bankerPhone}
+            </a>
+          ) : (
+            <div className="ai-widget-card-row">
+              <Phone size={16} color="var(--sub2)" />
+              <span className="small-muted">Telefon raqami ko&apos;rsatilmagan</span>
+            </div>
+          )}
+          {m.bankerTelegram && (
+            <a
+              href={m.bankerTelegram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline btn-sm"
+              style={{ marginTop: 8, justifyContent: "center" }}
+            >
+              <Send size={14} /> Telegram
+            </a>
+          )}
         </div>
       ) : (
         `${m.nomi} mahallasiga hali bankir biriktirilmagan — admin tez orada tayinlaydi.`
@@ -318,9 +340,23 @@ function CreditActionCard({ result }: { result: CreditMatchResult }) {
       <div className="ai-widget-card-row">
         <UserRound size={16} color="var(--red)" />
         <span>
-          Mas&apos;ul bankir: <b>{result.bankerName ?? "hali biriktirilmagan"}</b> — {result.mahallaNomi} MFY
+          {"Mas'ul bankir: "}
+          <b>{result.bankerName ?? "hali biriktirilmagan"}</b>
+          {` — ${result.mahallaNomi} MFY`}
         </span>
       </div>
+      {result.bankerName && (
+        <div className="ai-widget-card-row">
+          <Phone size={16} color="var(--navy)" />
+          {result.bankerPhone ? (
+            <a href={`tel:${result.bankerPhone.replace(/\s+/g, "")}`} style={{ fontWeight: 700, color: "var(--navy)" }}>
+              {result.bankerPhone}
+            </a>
+          ) : (
+            <span className="small-muted">Telefon raqami ko&apos;rsatilmagan</span>
+          )}
+        </div>
+      )}
       <Link href={`/mahallalar/${result.mahallaId}`} className="btn btn-primary btn-sm" style={{ marginTop: 10, justifyContent: "center" }}>
         Ariza berish <ArrowRight size={14} />
       </Link>
