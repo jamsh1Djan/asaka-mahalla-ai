@@ -55,6 +55,12 @@ export async function addBankerAction(
     `yangi ${role === "ADMIN" ? "admin" : "bankir"}: ${created.ism} (${login})`
   );
   revalidatePath("/admin");
+  // A new banker with mahalla assignments shows up immediately on that
+  // mahalla's public "Mahalla bankiri" card and on /mahallalar's own panel.
+  if (mahallaIds.length > 0) {
+    revalidatePath("/mahallalar/[id]", "page");
+    revalidatePath("/mahallalar");
+  }
   return { success: true };
 }
 
@@ -84,6 +90,13 @@ export async function updateBankerCredentialsAction(
   const changed = Object.keys(updateData).join(", ");
   await logActivity(session.bankerId, "banker_ozgartirildi", `bankir: ${bankerId} (${changed})`);
   revalidatePath("/admin");
+  // A name change shows up on every mahalla page this banker is assigned to
+  // (the "Mahalla bankiri" card) — revalidating every mahalla detail page
+  // at once is simpler and just as correct as looking up which ones apply.
+  if (updateData.ism !== undefined) {
+    revalidatePath("/mahallalar/[id]", "page");
+    revalidatePath("/mahallalar");
+  }
   return {};
 }
 
@@ -113,6 +126,11 @@ export async function toggleBankerMahallaAction(
     `bankir: ${bankerId}, mahalla ${checked ? "biriktirildi" : "olib tashlandi"}: ${mahallaId}`
   );
   revalidatePath("/admin");
+  // Assigning/unassigning a banker changes what that mahalla's public
+  // "Mahalla bankiri" card shows — either the new banker's info, or
+  // "hali biriktirilmagan" once removed.
+  revalidatePath(`/mahallalar/${mahallaId}`);
+  revalidatePath("/mahallalar");
 }
 
 export async function toggleBankerStatusAction(bankerId: string, status: BankerStatus) {
@@ -156,6 +174,10 @@ export async function deleteBankerAction(bankerId: string): Promise<{ error?: st
     `o'chirildi: ${target.ism} (${target.login})`
   );
   revalidatePath("/admin");
+  // Their mahalla assignments cascade-delete with them — every mahalla they
+  // were on now needs to show "hali biriktirilmagan" instead of their name.
+  revalidatePath("/mahallalar/[id]", "page");
+  revalidatePath("/mahallalar");
   return {};
 }
 
@@ -202,6 +224,10 @@ export async function saveProfileAction(
 
   await logActivity(session.bankerId, "profil_yangilandi");
   revalidatePath("/bankir");
+  // ism/telefon/ishVaqti/telegram all show on the public "Mahalla bankiri"
+  // card of every mahalla this banker is assigned to.
+  revalidatePath("/mahallalar/[id]", "page");
+  revalidatePath("/mahallalar");
   return { success: true };
 }
 

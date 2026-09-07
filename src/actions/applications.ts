@@ -62,4 +62,8 @@ export async function updateArizaStatusAction(applicationId: string, status: App
   revalidatePath("/bankir");
   revalidatePath("/admin");
   revalidatePath(`/mahallalar/${app.mahallaId}`);
+  // The citizen who submitted this ariza watches its status on /arizalarim —
+  // without this, a status change here wouldn't show there until whatever
+  // already-cached page they're on expires or they hard-refresh.
+  revalidatePath("/arizalarim");
 }

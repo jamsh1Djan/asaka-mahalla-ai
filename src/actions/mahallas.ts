@@ -1,8 +1,7 @@
 "use server";
 
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import sharp from "sharp";
+import { put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession, isAdmin } from "@/lib/auth";
@@ -39,6 +38,9 @@ export async function updateMahallaStatsAction(
   revalidatePath(`/mahallalar/${mahallaId}`);
   revalidatePath("/mahallalar");
   revalidatePath("/");
+  // The banker's own "Mahallalarim" tab renders MahallaCard with these same
+  // stats — without this it'd show stale numbers until manually refreshed.
+  revalidatePath("/bankir");
   return { success: true };
 }
 
@@ -50,16 +52,20 @@ export async function uploadMahallaImageAction(mahallaId: string, formData: Form
   if (!(file instanceof File) || file.size === 0) return;
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const dir = path.join(process.cwd(), "public", "uploads", "mahallas");
-  await mkdir(dir, { recursive: true });
-
   const filename = `${mahallaId}-${Date.now()}.jpg`;
   const resized = await sharp(buffer).resize(960, undefined, { withoutEnlargement: true }).jpeg({ quality: 82 }).toBuffer();
-  await writeFile(path.join(dir, filename), resized);
+  // Local disk (public/uploads/...) doesn't persist on Vercel's read-only
+  // serverless filesystem — same issue already found and fixed for listing
+  // photos in src/actions/listings.ts. Blob storage is the real destination.
+  const blob = await put(`mahallas/${filename}`, resized, {
+    access: "public",
+    contentType: "image/jpeg",
+    addRandomSuffix: true,
+  });
 
   await prisma.mahalla.update({
     where: { id: mahallaId },
-    data: { image: `/uploads/mahallas/${filename}` },
+    data: { image: blob.url },
   });
 
   const actorId = session?.kind === "banker" ? session.bankerId : null;
@@ -68,6 +74,7 @@ export async function uploadMahallaImageAction(mahallaId: string, formData: Form
   revalidatePath(`/mahallalar/${mahallaId}`);
   revalidatePath("/mahallalar");
   revalidatePath("/");
+  revalidatePath("/bankir");
 }
 
 export async function adminUpdateMahallaAction(mahallaId: string, formData: FormData) {
@@ -89,6 +96,7 @@ export async function adminUpdateMahallaAction(mahallaId: string, formData: Form
   revalidatePath(`/mahallalar/${mahallaId}`);
   revalidatePath("/mahallalar");
   revalidatePath("/");
+  revalidatePath("/bankir");
 }
 
 function slugify(nomi: string): string {
@@ -152,6 +160,7 @@ export async function createMahallaAction(
   revalidatePath("/admin");
   revalidatePath("/mahallalar");
   revalidatePath("/");
+  revalidatePath("/bankir");
   return { success: true };
 }
 
@@ -165,6 +174,8 @@ export async function toggleMahallaStatusAction(mahallaId: string, status: "FAOL
   revalidatePath("/admin");
   revalidatePath("/mahallalar");
   revalidatePath("/");
+  revalidatePath("/bankir");
+  revalidatePath(`/mahallalar/${mahallaId}`);
 }
 
 export async function deleteMahallaAction(mahallaId: string) {
@@ -183,4 +194,5 @@ export async function deleteMahallaAction(mahallaId: string) {
   revalidatePath("/admin");
   revalidatePath("/mahallalar");
   revalidatePath("/");
+  revalidatePath("/bankir");
 }
