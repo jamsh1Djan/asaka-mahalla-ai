@@ -64,6 +64,7 @@ export default function AdminBankersPanel({
       </div>
 
       <h4 style={{ margin: "0 0 14px" }}>Bankirlar ro&apos;yxati</h4>
+      <div className="table-scroll">
       <table className="table">
         <thead>
           <tr>
@@ -95,7 +96,7 @@ export default function AdminBankersPanel({
                   />
                 </td>
                 <td className="small-muted">{b.login}</td>
-                <td>
+                <td className="table-wrap-cell">
                   {mahallas.map((m) => (
                     <label key={m.id} style={{ fontSize: 11.5, marginRight: 6 }}>
                       <input
@@ -186,6 +187,7 @@ export default function AdminBankersPanel({
           })}
         </tbody>
       </table>
+      </div>
       <hr className="soft" />
       <h4>Yangi bankir qo&apos;shish</h4>
       <form action={formAction} onSubmit={handleAddSubmit}>

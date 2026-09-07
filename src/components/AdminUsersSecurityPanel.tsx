@@ -35,6 +35,7 @@ export default function AdminUsersSecurityPanel({
         Mavjud parolni hech kim — hatto Super Admin ham — ochiq holda ko&apos;rmaydi. Faqat
         yangi (vaqtinchalik) parol generatsiya qilib beriladi.
       </p>
+      <div className="table-scroll">
       <table className="table">
         <thead>
           <tr>
@@ -146,6 +147,7 @@ export default function AdminUsersSecurityPanel({
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

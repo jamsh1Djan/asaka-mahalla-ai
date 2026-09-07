@@ -58,32 +58,34 @@ export default async function ArizalarimPage() {
         ) : (
           <Reveal variant="scale" delay={100}>
             <div className="card">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Mahalla</th>
-                    <th>Kredit turi</th>
-                    <th>Izoh</th>
-                    <th>Yuborilgan</th>
-                    <th>Holati</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {applications.map((a) => (
-                    <tr key={a.id}>
-                      <td>{a.mahalla.nomi}</td>
-                      <td>{a.kredit}</td>
-                      <td className="small-muted">{a.izoh || "—"}</td>
-                      <td className="small-muted">{fmtDateTime(a.createdAt)}</td>
-                      <td>
-                        <span className={`status-badge ${STATUS_CLASS[a.status]}`}>
-                          {STATUS_LABEL[a.status]}
-                        </span>
-                      </td>
+              <div className="table-scroll">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Mahalla</th>
+                      <th>Kredit turi</th>
+                      <th>Izoh</th>
+                      <th>Yuborilgan</th>
+                      <th>Holati</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {applications.map((a) => (
+                      <tr key={a.id}>
+                        <td>{a.mahalla.nomi}</td>
+                        <td>{a.kredit}</td>
+                        <td className="small-muted table-wrap-cell">{a.izoh || "—"}</td>
+                        <td className="small-muted">{fmtDateTime(a.createdAt)}</td>
+                        <td>
+                          <span className={`status-badge ${STATUS_CLASS[a.status]}`}>
+                            {STATUS_LABEL[a.status]}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </Reveal>
         )}

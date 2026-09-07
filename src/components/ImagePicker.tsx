@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { X, ImagePlus } from "lucide-react";
 
 /** Multi-file image picker with thumbnail previews and per-image removal.
  * Keeps a real hidden <input type="file" multiple> in sync via DataTransfer
@@ -52,7 +52,25 @@ export default function ImagePicker({
 
   return (
     <div>
-      <input ref={inputRef} type="file" name={name} accept="image/*" multiple onChange={onChange} />
+      {/* A native <input type="file"> can't be restyled consistently — its
+          "Choose Files" button is a browser-default control that clashes
+          with every other pill-shaped, bordered field on the form. Hiding
+          it and triggering it from a real styled button (still a normal
+          part of the form, so FormData still picks up the files on submit)
+          is the standard fix. */}
+      <input
+        ref={inputRef}
+        type="file"
+        name={name}
+        accept="image/*"
+        multiple
+        onChange={onChange}
+        hidden
+      />
+      <button type="button" className="btn btn-outline btn-sm" onClick={() => inputRef.current?.click()}>
+        <ImagePlus size={14} />
+        {files.length > 0 ? `Rasm tanlash (${files.length}/${max})` : "Rasm tanlash"}
+      </button>
       {helpText && (
         <p className="small-muted" style={{ marginTop: 6 }}>
           {helpText}

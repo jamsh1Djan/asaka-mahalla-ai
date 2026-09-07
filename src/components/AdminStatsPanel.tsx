@@ -86,16 +86,18 @@ export default async function AdminStatsPanel() {
           {applicationsByStatus.length === 0 ? (
             <div className="empty">Hozircha arizalar yo&apos;q</div>
           ) : (
-            <table className="table">
-              <tbody>
-                {applicationsByStatus.map((g) => (
-                  <tr key={g.status}>
-                    <td>{STATUS_LABELS[g.status] ?? g.status}</td>
-                    <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="table-scroll">
+              <table className="table">
+                <tbody>
+                  {applicationsByStatus.map((g) => (
+                    <tr key={g.status}>
+                      <td>{STATUS_LABELS[g.status] ?? g.status}</td>
+                      <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
@@ -104,16 +106,18 @@ export default async function AdminStatsPanel() {
           {byMahallaSorted.length === 0 ? (
             <div className="empty">Hozircha arizalar yo&apos;q</div>
           ) : (
-            <table className="table">
-              <tbody>
-                {byMahallaSorted.map((g) => (
-                  <tr key={g.mahallaId}>
-                    <td>{mahallaNameById[g.mahallaId] ?? g.mahallaId}</td>
-                    <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.mahallaId}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="table-scroll">
+              <table className="table">
+                <tbody>
+                  {byMahallaSorted.map((g) => (
+                    <tr key={g.mahallaId}>
+                      <td>{mahallaNameById[g.mahallaId] ?? g.mahallaId}</td>
+                      <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.mahallaId}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>
@@ -128,24 +132,26 @@ export default async function AdminStatsPanel() {
         {businessPlanBySoha.length === 0 ? (
           <div className="empty">Hozircha so&apos;rovlar yo&apos;q</div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Soha</th>
-                <th style={{ textAlign: "right" }}>So&apos;rovlar soni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...businessPlanBySoha]
-                .sort((a, b) => b._count.soha - a._count.soha)
-                .map((g) => (
-                  <tr key={g.soha}>
-                    <td>{g.soha}</td>
-                    <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.soha}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+          <div className="table-scroll">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Soha</th>
+                  <th style={{ textAlign: "right" }}>So&apos;rovlar soni</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...businessPlanBySoha]
+                  .sort((a, b) => b._count.soha - a._count.soha)
+                  .map((g) => (
+                    <tr key={g.soha}>
+                      <td>{g.soha}</td>
+                      <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.soha}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -156,24 +162,26 @@ export default async function AdminStatsPanel() {
         {creditChatByProduct.length === 0 ? (
           <div className="empty">Hozircha so&apos;rovlar yo&apos;q</div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Mos kelgan kredit</th>
-                <th style={{ textAlign: "right" }}>So&apos;rovlar soni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...creditChatByProduct]
-                .sort((a, b) => b._count.matchedCreditId - a._count.matchedCreditId)
-                .map((g) => (
-                  <tr key={g.matchedCreditId}>
-                    <td>{CREDIT_PRODUCTS.find((c) => c.id === g.matchedCreditId)?.nomi ?? g.matchedCreditId}</td>
-                    <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.matchedCreditId}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+          <div className="table-scroll">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Mos kelgan kredit</th>
+                  <th style={{ textAlign: "right" }}>So&apos;rovlar soni</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...creditChatByProduct]
+                  .sort((a, b) => b._count.matchedCreditId - a._count.matchedCreditId)
+                  .map((g) => (
+                    <tr key={g.matchedCreditId}>
+                      <td>{CREDIT_PRODUCTS.find((c) => c.id === g.matchedCreditId)?.nomi ?? g.matchedCreditId}</td>
+                      <td style={{ textAlign: "right", fontWeight: 800 }}>{g._count.matchedCreditId}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

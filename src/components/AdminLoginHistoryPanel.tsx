@@ -54,38 +54,40 @@ export default async function AdminLoginHistoryPanel({
         {logs.length === 0 ? (
           <div className="empty">Hozircha yozuvlar yo&apos;q</div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Foydalanuvchi</th>
-                <th>Rol</th>
-                <th>Kirgan vaqt</th>
-                <th>Chiqqan vaqt</th>
-                <th>IP manzil</th>
-                <th>Qurilma/brauzer</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((log) => (
-                <tr key={log.id}>
-                  <td>{log.banker.ism} ({log.banker.login})</td>
-                  <td className="small-muted">{log.banker.role === "ADMIN" ? "Super Admin" : "Bankir"}</td>
-                  <td className="small-muted">{fmtDateTime(log.loginAt)}</td>
-                  <td className="small-muted">
-                    {log.logoutAt ? (
-                      fmtDateTime(log.logoutAt)
-                    ) : (
-                      <span className="status-badge status-bog">hali faol</span>
-                    )}
-                  </td>
-                  <td className="small-muted">{log.ipAddress ?? "—"}</td>
-                  <td className="small-muted" title={log.userAgent ?? undefined}>
-                    {shortUserAgent(log.userAgent)}
-                  </td>
+          <div className="table-scroll">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Foydalanuvchi</th>
+                  <th>Rol</th>
+                  <th>Kirgan vaqt</th>
+                  <th>Chiqqan vaqt</th>
+                  <th>IP manzil</th>
+                  <th>Qurilma/brauzer</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {logs.map((log) => (
+                  <tr key={log.id}>
+                    <td>{log.banker.ism} ({log.banker.login})</td>
+                    <td className="small-muted">{log.banker.role === "ADMIN" ? "Super Admin" : "Bankir"}</td>
+                    <td className="small-muted">{fmtDateTime(log.loginAt)}</td>
+                    <td className="small-muted">
+                      {log.logoutAt ? (
+                        fmtDateTime(log.logoutAt)
+                      ) : (
+                        <span className="status-badge status-bog">hali faol</span>
+                      )}
+                    </td>
+                    <td className="small-muted">{log.ipAddress ?? "—"}</td>
+                    <td className="small-muted" title={log.userAgent ?? undefined}>
+                      {shortUserAgent(log.userAgent)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

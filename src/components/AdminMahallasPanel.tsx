@@ -46,6 +46,7 @@ export default function AdminMahallasPanel({
       )}
 
       <div className="card">
+        <div className="table-scroll">
         <table className="table">
           <thead>
             <tr>
@@ -113,6 +114,7 @@ export default function AdminMahallasPanel({
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

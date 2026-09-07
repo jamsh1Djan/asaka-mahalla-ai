@@ -1194,11 +1194,24 @@ h2.section-title {
        the container's width and let its content wrap/shrink into it. */
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      "pills"
       "left"
       "center"
       "right"
       "list";
+  }
+  /* .mdash-pills (a compact "at a glance" bar) and .mdash-left's stat cards
+     show the exact same 4 numbers — on the desktop 3-column layout they sit
+     in visually distinct places (a top bar vs. a sidebar next to the map),
+     but once everything collapses into one column here they stacked
+     directly on top of each other, showing the same numbers twice in a
+     row. The sidebar cards are the more detailed of the two, so drop the
+     pills bar here instead of the reverse. */
+  .mdash-pills {
+    /* The unconditional .mdash-pills{display:flex} rule further down this
+       file comes later in source order, so at equal specificity it would
+       otherwise win the cascade over this media query regardless of match —
+       same reason .mdash-left below needs !important too. */
+    display: none !important;
   }
   .mdash-left {
     flex-direction: row !important;
@@ -2129,6 +2142,23 @@ h2.section-title {
   box-shadow: 0 20px 50px -26px rgba(15, 43, 108, 0.3);
   position: relative;
 }
+/* Tailwind's preflight (see @import "tailwindcss" at the top of this file)
+   strips list-style/margin/padding from every <ul>, so a plain <ul><li>
+   with no component-specific styling (unlike e.g. .benefits-list, which
+   already builds its own bullets from an icon) rendered as bulletless,
+   unindented, unspaced lines that just read as one wall of text. */
+.card ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 0;
+}
+.card li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+.card li:last-child {
+  margin-bottom: 0;
+}
 .card-credit .tag {
   display: inline-block;
   background: var(--navy);
@@ -2154,13 +2184,24 @@ h2.section-title {
 .credit-rows .row {
   display: flex;
   justify-content: space-between;
+  /* justify-content:space-between only inserts space that's left over after
+     both children take their needed width — for a long value like "3-shaxs
+     kafilligi yoki sug'urta polis" that wraps onto 2 lines, there was
+     sometimes zero space left over, and the label and value rendered flush
+     against each other with no visible gap at all. This gap is a floor that
+     always applies regardless of how that leftover-space math comes out. */
+  gap: 12px;
   font-size: 13px;
   font-weight: 500;
   border-bottom: 1px dashed var(--line);
   padding-bottom: 7px;
 }
+.credit-rows .row span {
+  flex-shrink: 0;
+}
 .credit-rows .row b {
   color: var(--navy);
+  text-align: right;
 }
 .credit-goal {
   font-size: 12.5px;
@@ -2680,8 +2721,18 @@ footer.site {
   color: #fff;
   border-color: var(--navy);
 }
+/* A table forced to width:100% on a narrow screen has no way to fit more
+   than 2-3 columns without every cell wrapping mid-word — on mobile that
+   turned "Otchopar 1" into four stacked lines and, worse, let a label and a
+   wrapped value collide with no gap at all (see .credit-rows .row below).
+   table-scroll lets the table take its natural (wider) width and scroll
+   horizontally instead of being crushed into the viewport. */
+.table-scroll {
+  overflow-x: auto;
+}
 .table {
   width: 100%;
+  min-width: max-content;
   border-collapse: collapse;
   font-size: 13.5px;
 }
@@ -2694,12 +2745,21 @@ footer.site {
   color: var(--sub2);
   padding: 8px 10px;
   border-bottom: 1.5px solid var(--line);
+  white-space: nowrap;
 }
 .table td {
   padding: 10px;
   font-weight: 500;
   border-bottom: 1px solid var(--line);
   vertical-align: middle;
+  white-space: nowrap;
+}
+/* Opt back into wrapping for a free-text column (a comment, an activity-log
+   detail) that would otherwise force the whole table absurdly wide trying
+   to fit one long sentence on a single line. */
+.table-wrap-cell {
+  white-space: normal;
+  max-width: 260px;
 }
 .status-badge {
   padding: 4px 10px;
