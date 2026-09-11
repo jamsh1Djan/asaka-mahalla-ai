@@ -60,6 +60,14 @@ export default function MahallaEditPanel({ mahalla }: { mahalla: Mahalla }) {
             <input type="number" name="aholi" defaultValue={mahalla.aholi} />
           </div>
           <div className="field" style={{ gridColumn: "1 / -1" }}>
+            <label>Manzil</label>
+            {/* This field was missing entirely, but updateMahallaStatsAction
+                always saves whatever it finds under "manzil" — with no input
+                for it here, that was always an empty string, silently
+                wiping the address on every save. */}
+            <input name="manzil" defaultValue={mahalla.manzil} />
+          </div>
+          <div className="field" style={{ gridColumn: "1 / -1" }}>
             <label>Ixtisoslashuv (drayver)</label>
             <input name="drayver" defaultValue={mahalla.drayver} />
           </div>

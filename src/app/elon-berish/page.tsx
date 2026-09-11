@@ -26,7 +26,14 @@ export default async function ElonBerishPage({
     redirect(`/kirish?rol=fuqaro&next=${encodeURIComponent(nextPath(turi, mahallaId))}`);
   }
 
-  const mahallas = await prisma.mahalla.findMany({ orderBy: { nomi: "asc" } });
+  const [mahallas, businesses] = await Promise.all([
+    prisma.mahalla.findMany({ orderBy: { nomi: "asc" } }),
+    // Small dataset (one row per real business, not per listing) — fetched
+    // whole and filtered by mahalla client-side, so switching mahalla in the
+    // form doesn't need its own round trip to a database far enough away
+    // that every one of those has real, felt latency.
+    prisma.business.findMany({ orderBy: { nomi: "asc" } }),
+  ]);
 
   return (
     <section>
@@ -45,6 +52,7 @@ export default async function ElonBerishPage({
           <div className="card">
             <CitizenListingForm
               mahallas={mahallas}
+              businesses={businesses}
               defaultMahallaId={mahallaId}
               defaultTuri={turi}
               citizenName={session.name}

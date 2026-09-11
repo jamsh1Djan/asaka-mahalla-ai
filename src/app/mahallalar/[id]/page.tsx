@@ -1,17 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Users, Home, Briefcase, Wrench, Building2, ClipboardList, Plus } from "lucide-react";
+import { Users, Home, Briefcase, Wrench, Building2, ClipboardList, Plus, ExternalLink } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { fmt, initials } from "@/lib/format";
 import { getSession } from "@/lib/auth";
 import { canEditMahalla } from "@/lib/authz";
 import { getSystemSettings } from "@/lib/settings";
+import type { Banker } from "@prisma/client";
 import ArizaForm from "@/components/ArizaForm";
 import AiPlanner from "@/components/AiPlanner";
 import MahallaEditPanel from "@/components/MahallaEditPanel";
 import ArizalarTable from "@/components/ArizalarTable";
 import PublicListings from "@/components/PublicListings";
+import BusinessList from "@/components/BusinessList";
+import BusinessManager from "@/components/BusinessManager";
 import Reveal from "@/components/Reveal";
 
 export default async function MahallaDetailPage({
@@ -20,31 +23,52 @@ export default async function MahallaDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const mahalla = await prisma.mahalla.findUnique({ where: { id } });
-  if (!mahalla) notFound();
 
+  // Each round trip to the (remote) Neon database costs real, fixed latency
+  // (300ms-1.5s was measured per query here — this app's users are far from
+  // its us-east-1 region), so the only lever that actually helps is
+  // collapsing every independent query into one wave instead of paying that
+  // latency once per sequential stage. getSession() is cookie-only, no DB,
+  // so it resolves first and everything else — including canEditMahalla's
+  // own DB check, and the banker lookup that used to be BankerInfo's own
+  // separate nested-component fetch — fires together in a single batch.
   const session = await getSession();
-  const canEdit = await canEditMahalla(session, id);
-
-  const [applications, listings, settings] = await Promise.all([
-    canEdit
-      ? prisma.application.findMany({
-          where: { mahallaId: id },
-          include: { mahalla: { select: { nomi: true } } },
-          orderBy: { createdAt: "desc" },
-        })
-      : Promise.resolve([]),
+  const [mahalla, canEdit, listings, settings, bankerLink, businesses] = await Promise.all([
+    prisma.mahalla.findUnique({ where: { id } }),
+    canEditMahalla(session, id),
     prisma.listing.findMany({
       where: {
         mahallaId: id,
         status: "TASDIQLANGAN",
         OR: [{ amalMuddati: null }, { amalMuddati: { gte: new Date() } }],
       },
-      include: { banker: { select: { ism: true } } },
+      include: { banker: { select: { ism: true } }, business: { select: { nomi: true } } },
       orderBy: { createdAt: "desc" },
     }),
     getSystemSettings(),
+    prisma.bankerMahalla.findFirst({ where: { mahallaId: id }, include: { banker: true } }),
+    prisma.business.findMany({
+      where: { mahallaId: id },
+      include: {
+        listings: {
+          where: { turi: "ISH", status: "TASDIQLANGAN" },
+          select: { id: true, sarlavha: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
+  if (!mahalla) notFound();
+
+  // Only staff (canEdit) ever see this, and it needs canEdit's result first,
+  // so it's the one genuinely sequential fetch left.
+  const applications = canEdit
+    ? await prisma.application.findMany({
+        where: { mahallaId: id },
+        include: { mahalla: { select: { nomi: true } } },
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
 
   const citizenName = session?.kind === "fuqaro" ? session.name : undefined;
   const citizenPhone = session?.kind === "fuqaro" ? session.phone : undefined;
@@ -104,6 +128,26 @@ export default async function MahallaDetailPage({
           </div>
         </div>
 
+        {/* Yagona milliy vakansiyalar bazasi (ish.mehnat.uz) hudud bo'yicha
+            filtrlashni ulashiladigan URL parametr orqali qo'llab-quvvatlamaydi
+            (real brauzerda tekshirilgan — filtr client-side/ichki API orqali
+            ishlaydi, natija URL'ga aks etmaydi), shuning uchun oddiy havola —
+            foydalanuvchi o'zi "Yunusobod" tumanini tanlaydi. */}
+        <div style={{ marginBottom: 26 }}>
+          <a
+            href="https://ish.mehnat.uz/vacancies"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline btn-sm"
+          >
+            <ExternalLink size={14} /> Yunusobod tumani bo&apos;yicha barcha vakansiyalar
+          </a>
+          <p className="small-muted" style={{ marginTop: 8 }}>
+            Bandlikni ta&apos;minlash agentligining rasmiy milliy vakansiyalar bazasi — u yerda
+            hududni &quot;Yunusobod&quot; deb tanlang.
+          </p>
+        </div>
+
         {mahalla.faoliyatTurlari && (
           <div className="card" style={{ marginBottom: 26 }}>
             <h4 style={{ margin: "0 0 10px" }}>Mahalladagi tadbirkorlik joylari</h4>
@@ -117,10 +161,12 @@ export default async function MahallaDetailPage({
           </div>
         )}
 
+        <BusinessList businesses={businesses} />
+
         <div className="grid grid-2" style={{ marginBottom: 10 }}>
           <div className="card">
             <h4 style={{ margin: "0 0 12px" }}>Mahalla bankiri</h4>
-            <BankerInfo mahallaId={mahalla.id} />
+            <BankerInfo banker={bankerLink?.banker ?? null} />
             <hr className="soft" />
             <ArizaForm
               mahallaId={mahalla.id}
@@ -162,6 +208,7 @@ export default async function MahallaDetailPage({
         {canEdit && (
           <>
             <MahallaEditPanel mahalla={mahalla} />
+            <BusinessManager mahallaId={mahalla.id} businesses={businesses} />
             <ArizalarTable applications={applications} title={`Arizalar (${mahalla.nomi})`} />
           </>
         )}
@@ -170,15 +217,10 @@ export default async function MahallaDetailPage({
   );
 }
 
-async function BankerInfo({ mahallaId }: { mahallaId: string }) {
-  const link = await prisma.bankerMahalla.findFirst({
-    where: { mahallaId },
-    include: { banker: true },
-  });
-  if (!link) {
+function BankerInfo({ banker: b }: { banker: Banker | null }) {
+  if (!b) {
     return <p className="small-muted">Bankir hali biriktirilmagan</p>;
   }
-  const b = link.banker;
   return (
     <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
       <div className="chat-avatar" style={{ background: "var(--navy)", width: 44, height: 44, fontSize: 16 }}>

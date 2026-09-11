@@ -5,7 +5,14 @@ import { useTransition } from "react";
 import { Home, Briefcase, Megaphone, AlertCircle } from "lucide-react";
 import { deleteOwnListingAction } from "@/actions/listings";
 import { fmt, fmtDateTime } from "@/lib/format";
-import type { Listing, Mahalla } from "@prisma/client";
+import type { Business, Listing, Mahalla } from "@prisma/client";
+
+function maoshLine(l: Pick<Listing, "maoshMin" | "maoshMax">): string | null {
+  if (l.maoshMin != null && l.maoshMax != null) return `${fmt(l.maoshMin)} – ${fmt(l.maoshMax)} so'm`;
+  if (l.maoshMin != null) return `${fmt(l.maoshMin)} so'mdan`;
+  if (l.maoshMax != null) return `${fmt(l.maoshMax)} so'mgacha`;
+  return null;
+}
 
 const TYPE_ICONS: Record<string, typeof Home> = {
   IJARA: Home,
@@ -28,7 +35,7 @@ const STATUS_CLASS: Record<string, string> = {
   RAD_ETILGAN: "status-yangi",
 };
 
-type Row = Listing & { mahalla: Pick<Mahalla, "nomi"> };
+type Row = Listing & { mahalla: Pick<Mahalla, "nomi">; business: Pick<Business, "nomi"> | null };
 
 export default function MyListingsList({ listings }: { listings: Row[] }) {
   const [isPending, startTransition] = useTransition();
@@ -65,6 +72,9 @@ export default function MyListingsList({ listings }: { listings: Row[] }) {
             <p className="small-muted" style={{ marginBottom: 8 }}>{l.mahalla.nomi} mahallasi</p>
             <p style={{ fontSize: 13.5, marginBottom: 8 }}>{l.tavsif}</p>
             {l.narx != null && <div className="small-muted">Narx/maosh: {fmt(l.narx)} so&apos;m</div>}
+            {maoshLine(l) && <div className="small-muted">Maosh: {maoshLine(l)}</div>}
+            {l.business && <div className="small-muted">Korxona: {l.business.nomi}</div>}
+            {l.talablar && <div className="small-muted">Talablar: {l.talablar}</div>}
             <div className="small-muted">Manzil: {l.manzil}</div>
             <div className="small-muted">Yuborilgan: {fmtDateTime(l.createdAt)}</div>
 

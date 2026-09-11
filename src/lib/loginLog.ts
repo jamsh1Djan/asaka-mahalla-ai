@@ -1,4 +1,5 @@
 import "server-only";
+import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getClientIp, getUserAgent } from "@/lib/requestInfo";
 
@@ -15,15 +16,19 @@ export async function openLoginLog(bankerId: string): Promise<string | null> {
   }
 }
 
-/** Best-effort — closing the session record must never block logout itself. */
+/** Best-effort — closing the session record must never block logout itself,
+ * and its result is never used, so defer it past the response like
+ * logActivity (see there for why). */
 export async function closeLoginLog(loginLogId: string | null | undefined) {
   if (!loginLogId) return;
-  try {
-    await prisma.loginLog.update({
-      where: { id: loginLogId },
-      data: { logoutAt: new Date() },
-    });
-  } catch {
-    // ignore — the row may already be gone (banker deleted), that's fine
-  }
+  after(async () => {
+    try {
+      await prisma.loginLog.update({
+        where: { id: loginLogId },
+        data: { logoutAt: new Date() },
+      });
+    } catch {
+      // ignore — the row may already be gone (banker deleted), that's fine
+    }
+  });
 }

@@ -50,14 +50,17 @@ export default async function BankirPage({
         })
       : [];
 
-  const listings =
+  const [listings, businesses] =
     tab === "elonlar"
-      ? await prisma.listing.findMany({
-          where: { mahallaId: { in: myMahallaIds } },
-          include: { mahalla: { select: { nomi: true } } },
-          orderBy: { createdAt: "desc" },
-        })
-      : [];
+      ? await Promise.all([
+          prisma.listing.findMany({
+            where: { mahallaId: { in: myMahallaIds } },
+            include: { mahalla: { select: { nomi: true } }, business: { select: { nomi: true } } },
+            orderBy: { createdAt: "desc" },
+          }),
+          prisma.business.findMany({ where: { mahallaId: { in: myMahallaIds } }, orderBy: { nomi: "asc" } }),
+        ])
+      : [[], []];
 
   return (
     <>
@@ -86,7 +89,9 @@ export default async function BankirPage({
             </div>
           )}
 
-          {tab === "elonlar" && <ListingsManager listings={listings} mahallas={myMahallas} />}
+          {tab === "elonlar" && (
+            <ListingsManager listings={listings} mahallas={myMahallas} businesses={businesses} />
+          )}
 
           {tab === "profil" && (
             <>

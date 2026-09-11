@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { createListingAction, updateListingAction, type ListingState } from "@/actions/listings";
 import ImagePicker from "@/components/ImagePicker";
-import type { Listing, Mahalla } from "@prisma/client";
+import type { Business, Listing, Mahalla, ListingType } from "@prisma/client";
 
 const TYPE_LABELS: Record<string, string> = {
   IJARA: "Ijaraga beriladigan joy",
@@ -18,11 +18,13 @@ function toDateInputValue(d: Date | null | undefined) {
 
 export default function ListingForm({
   mahallas,
+  businesses,
   defaultMahallaId,
   listing,
   onDone,
 }: {
   mahallas: Pick<Mahalla, "id" | "nomi">[];
+  businesses: Pick<Business, "id" | "nomi" | "mahallaId">[];
   defaultMahallaId?: string;
   listing?: Listing;
   onDone?: () => void;
@@ -30,6 +32,12 @@ export default function ListingForm({
   const isEdit = !!listing;
   const action = isEdit ? updateListingAction.bind(null, listing.id) : createListingAction;
   const [state, formAction, pending] = useActionState<ListingState, FormData>(action, null);
+  const [mahallaId, setMahallaId] = useState(
+    listing?.mahallaId ?? defaultMahallaId ?? mahallas[0]?.id ?? ""
+  );
+  const [turi, setTuri] = useState<ListingType>(listing?.turi ?? "IJARA");
+  const isIsh = turi === "ISH";
+  const mahallaBusinesses = businesses.filter((b) => b.mahallaId === mahallaId);
 
   useEffect(() => {
     if (state?.success) onDone?.();
@@ -41,7 +49,7 @@ export default function ListingForm({
       {!isEdit && (
         <div className="field">
           <label>Mahalla</label>
-          <select name="mahallaId" defaultValue={defaultMahallaId ?? mahallas[0]?.id}>
+          <select name="mahallaId" value={mahallaId} onChange={(e) => setMahallaId(e.target.value)}>
             {mahallas.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.nomi}
@@ -52,7 +60,7 @@ export default function ListingForm({
       )}
       <div className="field">
         <label>Turi</label>
-        <select name="turi" defaultValue={listing?.turi ?? "IJARA"}>
+        <select name="turi" value={turi} onChange={(e) => setTuri(e.target.value as ListingType)}>
           {Object.entries(TYPE_LABELS).map(([value, label]) => (
             <option key={value} value={value}>
               {label}
@@ -68,11 +76,44 @@ export default function ListingForm({
         <label>Tavsif</label>
         <textarea name="tavsif" rows={3} defaultValue={listing?.tavsif} required />
       </div>
+
+      {isIsh && (
+        <>
+          <div className="field">
+            <label>Korxona (ixtiyoriy)</label>
+            <select name="businessId" defaultValue={listing?.businessId ?? ""}>
+              <option value="">— Ko&apos;rsatilmasin —</option>
+              {mahallaBusinesses.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.nomi}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-2">
+            <div className="field">
+              <label>Maosh, dan (so&apos;m, ixtiyoriy)</label>
+              <input type="number" name="maoshMin" defaultValue={listing?.maoshMin ?? undefined} />
+            </div>
+            <div className="field">
+              <label>Maosh, gacha (so&apos;m, ixtiyoriy)</label>
+              <input type="number" name="maoshMax" defaultValue={listing?.maoshMax ?? undefined} />
+            </div>
+          </div>
+          <div className="field">
+            <label>Talablar (ixtiyoriy)</label>
+            <textarea name="talablar" rows={2} defaultValue={listing?.talablar ?? undefined} placeholder="Masalan: tajriba, malaka" />
+          </div>
+        </>
+      )}
+
       <div className="grid grid-2">
-        <div className="field">
-          <label>Narx / Maosh (so&apos;m, ixtiyoriy)</label>
-          <input type="number" name="narx" defaultValue={listing?.narx ?? undefined} />
-        </div>
+        {!isIsh && (
+          <div className="field">
+            <label>Narx (so&apos;m, ixtiyoriy)</label>
+            <input type="number" name="narx" defaultValue={listing?.narx ?? undefined} />
+          </div>
+        )}
         <div className="field">
           <label>Amal qilish muddati (ixtiyoriy)</label>
           <input type="date" name="amalMuddati" defaultValue={toDateInputValue(listing?.amalMuddati)} />

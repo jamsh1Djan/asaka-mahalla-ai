@@ -80,6 +80,7 @@ model Mahalla {
   bankers              BankerMahalla[]
   applications         Application[]
   listings             Listing[]
+  businesses           Business[]
   businessPlanRequests BusinessPlanRequest[]
   creditChatRequests   CreditChatRequest[]
 
@@ -108,6 +109,7 @@ model Banker {
   mahallalar   BankerMahalla[]
   activityLogs ActivityLog[]
   listings     Listing[]
+  businesses   Business[]
   loginLogs    LoginLog[]
 
   createdAt DateTime @default(now())
@@ -127,10 +129,10 @@ model ActivityLog {
 /// One row per session — created at login, closed (logoutAt set) at logout.
 /// A null logoutAt on a recent row means the session is still active.
 model LoginLog {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   bankerId  String
-  banker    Banker   @relation(fields: [bankerId], references: [id], onDelete: Cascade)
-  loginAt   DateTime @default(now())
+  banker    Banker    @relation(fields: [bankerId], references: [id], onDelete: Cascade)
+  loginAt   DateTime  @default(now())
   logoutAt  DateTime?
   ipAddress String?
   userAgent String?
@@ -192,6 +194,16 @@ model Listing {
   /// native array).
   images      String[]    @default([])
 
+  /// turi=ISH bo'lganda ixtiyoriy ravishda ro'yxatdagi korxonaga bog'lanadi —
+  /// masalan MChJ o'z bo'sh ish o'rnini shu korxona ostida joylashi uchun.
+  businessId String?
+  business   Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  /// Faqat turi=ISH uchun — narx (yolg'iz qiymat) o'rniga oylik oralig'i.
+  maoshMin   Int?
+  maoshMax   Int?
+  /// Faqat turi=ISH uchun — talab qilinadigan tajriba/malaka, erkin matn.
+  talablar   String?
+
   /// Bankir tomonidan qo'shilgan e'lonlar uchun — fuqaro e'lonlarida bo'sh.
   createdBy String?
   banker    Banker? @relation(fields: [createdBy], references: [id], onDelete: Cascade)
@@ -200,10 +212,34 @@ model Listing {
   citizenName  String?
   citizenPhone String?
 
-  source ListingSource @default(BANKIR)
-  status ListingStatus @default(TASDIQLANGAN)
+  source       ListingSource @default(BANKIR)
+  status       ListingStatus @default(TASDIQLANGAN)
   /// Bankir rad etsa, sababini yozishi mumkin (fuqaroga ko'rsatiladi).
   rejectReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// A real, named business operating in a mahalla (a do'kon, sartaroshxona,
+/// MChJ, etc.) — added by the mahalla bankiri/admin who actually knows it
+/// exists, distinct from `Mahalla.mchj` (just a headcount) and from the
+/// free-text `Mahalla.faoliyatTurlari` categories list. Job postings
+/// (Listing where turi=ISH) can optionally link to one of these so a
+/// vacancy shows which real business is hiring.
+model Business {
+  id        String  @id @default(cuid())
+  mahallaId String
+  mahalla   Mahalla @relation(fields: [mahallaId], references: [id], onDelete: Cascade)
+  nomi      String
+  turi      String
+  manzil    String
+  telefon   String?
+
+  createdBy String?
+  banker    Banker? @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  listings Listing[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

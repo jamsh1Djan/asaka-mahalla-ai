@@ -1,10 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { createCitizenListingAction, type ListingState } from "@/actions/listings";
 import ImagePicker from "@/components/ImagePicker";
-import type { Mahalla, ListingType } from "@prisma/client";
+import type { Business, Mahalla, ListingType } from "@prisma/client";
 
 const TYPE_LABELS: Record<ListingType, string> = {
   IJARA: "Ijaraga beriladigan joy",
@@ -18,12 +18,14 @@ function isListingType(v: string | undefined): v is ListingType {
 
 export default function CitizenListingForm({
   mahallas,
+  businesses,
   defaultMahallaId,
   defaultTuri,
   citizenName,
   defaultPhone,
 }: {
   mahallas: Pick<Mahalla, "id" | "nomi">[];
+  businesses: Pick<Business, "id" | "nomi" | "mahallaId">[];
   defaultMahallaId?: string;
   defaultTuri?: string;
   citizenName: string;
@@ -33,6 +35,10 @@ export default function CitizenListingForm({
     createCitizenListingAction,
     null
   );
+  const [mahallaId, setMahallaId] = useState(defaultMahallaId ?? mahallas[0]?.id ?? "");
+  const [turi, setTuri] = useState<ListingType>(isListingType(defaultTuri) ? defaultTuri : "IJARA");
+  const isIsh = turi === "ISH";
+  const mahallaBusinesses = businesses.filter((b) => b.mahallaId === mahallaId);
 
   if (state?.success) {
     return (
@@ -53,7 +59,12 @@ export default function CitizenListingForm({
       </p>
       <div className="field">
         <label>Mahalla</label>
-        <select name="mahallaId" defaultValue={defaultMahallaId ?? mahallas[0]?.id} required>
+        <select
+          name="mahallaId"
+          value={mahallaId}
+          onChange={(e) => setMahallaId(e.target.value)}
+          required
+        >
           {mahallas.map((m) => (
             <option key={m.id} value={m.id}>
               {m.nomi}
@@ -63,7 +74,7 @@ export default function CitizenListingForm({
       </div>
       <div className="field">
         <label>Turi</label>
-        <select name="turi" defaultValue={isListingType(defaultTuri) ? defaultTuri : "IJARA"}>
+        <select name="turi" value={turi} onChange={(e) => setTuri(e.target.value as ListingType)}>
           {Object.entries(TYPE_LABELS).map(([value, label]) => (
             <option key={value} value={value}>
               {label}
@@ -79,11 +90,44 @@ export default function CitizenListingForm({
         <label>Tavsif</label>
         <textarea name="tavsif" rows={3} placeholder="Batafsil yozing — shart va imkoniyatlar" required />
       </div>
+
+      {isIsh && (
+        <>
+          <div className="field">
+            <label>Korxona (ixtiyoriy)</label>
+            <select name="businessId" defaultValue="">
+              <option value="">— Ko&apos;rsatilmasin —</option>
+              {mahallaBusinesses.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.nomi}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-2">
+            <div className="field">
+              <label>Maosh, dan (so&apos;m, ixtiyoriy)</label>
+              <input type="number" name="maoshMin" />
+            </div>
+            <div className="field">
+              <label>Maosh, gacha (so&apos;m, ixtiyoriy)</label>
+              <input type="number" name="maoshMax" />
+            </div>
+          </div>
+          <div className="field">
+            <label>Talablar (ixtiyoriy)</label>
+            <textarea name="talablar" rows={2} placeholder="Masalan: tajriba, malaka" />
+          </div>
+        </>
+      )}
+
       <div className="grid grid-2">
-        <div className="field">
-          <label>Narx / Maosh (so&apos;m, ixtiyoriy)</label>
-          <input type="number" name="narx" />
-        </div>
+        {!isIsh && (
+          <div className="field">
+            <label>Narx (so&apos;m, ixtiyoriy)</label>
+            <input type="number" name="narx" />
+          </div>
+        )}
         <div className="field">
           <label>Manzil</label>
           <input name="manzil" required />

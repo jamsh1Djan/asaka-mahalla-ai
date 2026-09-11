@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { pickCreditProduct } from "@/lib/data";
 import { BUSINESS_IDEAS, type BusinessIdeaTemplate } from "@/lib/businessIdeas";
@@ -102,8 +103,10 @@ function explainIdea(idea: BusinessIdeaTemplate, mahalla: Mahalla, soha: string,
 }
 
 /** Best-effort survey log for the admin Statistika tab — never blocks or
- * fails the actual recommendation flow. */
-async function logBusinessPlanRequest(data: {
+ * fails the actual recommendation flow, and deferred via after() so its own
+ * (real, remote) DB write doesn't add to the wait for a response the citizen
+ * is actively looking at. */
+function logBusinessPlanRequest(data: {
   mahallaId: string;
   soha: string;
   budget: string;
@@ -111,19 +114,21 @@ async function logBusinessPlanRequest(data: {
   jamoaHajmi: string;
   matched: boolean;
 }) {
-  try {
-    const session = await getSession();
-    const citizen = session?.kind === "fuqaro" ? session : null;
-    await prisma.businessPlanRequest.create({
-      data: {
-        ...data,
-        citizenName: citizen?.name ?? null,
-        citizenPhone: citizen?.phone ?? null,
-      },
-    });
-  } catch {
-    // logging is not allowed to break the user-facing recommendation flow
-  }
+  after(async () => {
+    try {
+      const session = await getSession();
+      const citizen = session?.kind === "fuqaro" ? session : null;
+      await prisma.businessPlanRequest.create({
+        data: {
+          ...data,
+          citizenName: citizen?.name ?? null,
+          citizenPhone: citizen?.phone ?? null,
+        },
+      });
+    } catch {
+      // logging is not allowed to break the user-facing recommendation flow
+    }
+  });
 }
 
 export async function getBusinessIdeasAction(

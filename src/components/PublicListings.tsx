@@ -1,7 +1,7 @@
-import { Home, Briefcase, Megaphone, Users, Wallet, MapPin, Phone } from "lucide-react";
+import { Home, Briefcase, Megaphone, Users, Wallet, MapPin, Phone, Store, ClipboardList } from "lucide-react";
 import { fmt, initials } from "@/lib/format";
 import ListingImageLightbox from "@/components/ListingImageLightbox";
-import type { Listing, Banker } from "@prisma/client";
+import type { Listing, Banker, Business } from "@prisma/client";
 
 const TYPE_ICONS: Record<string, typeof Home> = {
   IJARA: Home,
@@ -14,7 +14,17 @@ const TYPE_LABELS: Record<string, string> = {
   BOSHQA: "E'lon",
 };
 
-type ListingWithBanker = Listing & { banker: Pick<Banker, "ism"> | null };
+type ListingWithBanker = Listing & {
+  banker: Pick<Banker, "ism"> | null;
+  business: Pick<Business, "nomi"> | null;
+};
+
+function maoshLine(l: Pick<Listing, "maoshMin" | "maoshMax">): string | null {
+  if (l.maoshMin != null && l.maoshMax != null) return `${fmt(l.maoshMin)} – ${fmt(l.maoshMax)} so'm`;
+  if (l.maoshMin != null) return `${fmt(l.maoshMin)} so'mdan`;
+  if (l.maoshMax != null) return `${fmt(l.maoshMax)} so'mgacha`;
+  return null;
+}
 
 export default function PublicListings({ listings }: { listings: ListingWithBanker[] }) {
   // Defense in depth — the page query already filters by status, but a
@@ -54,6 +64,16 @@ export default function PublicListings({ listings }: { listings: ListingWithBank
                     <Wallet size={13} /> {fmt(l.narx)} so&apos;m
                   </span>
                 )}
+                {maoshLine(l) && (
+                  <span>
+                    <Wallet size={13} /> {maoshLine(l)}
+                  </span>
+                )}
+                {l.business && (
+                  <span>
+                    <Store size={13} /> {l.business.nomi}
+                  </span>
+                )}
                 <span>
                   <MapPin size={13} /> {l.manzil}
                 </span>
@@ -61,6 +81,11 @@ export default function PublicListings({ listings }: { listings: ListingWithBank
                   <Phone size={13} /> {l.telefon}
                 </span>
               </div>
+              {l.talablar && (
+                <p className="small-muted" style={{ display: "flex", gap: 6, alignItems: "flex-start", marginTop: -4, marginBottom: 10 }}>
+                  <ClipboardList size={13} style={{ flexShrink: 0, marginTop: 2 }} /> {l.talablar}
+                </p>
+              )}
 
               <hr className="soft" />
               <div className="listing-poster">

@@ -10,7 +10,14 @@ import {
 } from "@/actions/listings";
 import { fmt, fmtDate, fmtDateTime, initials } from "@/lib/format";
 import ListingForm from "@/components/ListingForm";
-import type { Listing, Mahalla } from "@prisma/client";
+import type { Business, Listing, Mahalla } from "@prisma/client";
+
+function maoshLine(l: Pick<Listing, "maoshMin" | "maoshMax">): string | null {
+  if (l.maoshMin != null && l.maoshMax != null) return `${fmt(l.maoshMin)} – ${fmt(l.maoshMax)} so'm`;
+  if (l.maoshMin != null) return `${fmt(l.maoshMin)} so'mdan`;
+  if (l.maoshMax != null) return `${fmt(l.maoshMax)} so'mgacha`;
+  return null;
+}
 
 const TYPE_ICONS: Record<string, typeof Home> = {
   IJARA: Home,
@@ -23,14 +30,16 @@ const TYPE_LABELS: Record<string, string> = {
   BOSHQA: "Boshqa",
 };
 
-type ListingWithMahalla = Listing & { mahalla: Pick<Mahalla, "nomi"> };
+type ListingWithMahalla = Listing & { mahalla: Pick<Mahalla, "nomi">; business: Pick<Business, "nomi"> | null };
 
 export default function ListingsManager({
   listings,
   mahallas,
+  businesses,
 }: {
   listings: ListingWithMahalla[];
   mahallas: Pick<Mahalla, "id" | "nomi">[];
+  businesses: Pick<Business, "id" | "nomi" | "mahallaId">[];
 }) {
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -50,7 +59,7 @@ export default function ListingsManager({
 
       {showAdd && (
         <div className="card" style={{ marginBottom: 18 }}>
-          <ListingForm mahallas={mahallas} onDone={() => setShowAdd(false)} />
+          <ListingForm mahallas={mahallas} businesses={businesses} onDone={() => setShowAdd(false)} />
         </div>
       )}
 
@@ -80,6 +89,9 @@ export default function ListingsManager({
                   <p className="small-muted" style={{ marginBottom: 8 }}>{l.mahalla.nomi} mahallasi</p>
                   <p style={{ fontSize: 13.5, marginBottom: 8 }}>{l.tavsif}</p>
                   {l.narx != null && <div className="small-muted">Narx/maosh: {fmt(l.narx)} so&apos;m</div>}
+                  {maoshLine(l) && <div className="small-muted">Maosh: {maoshLine(l)}</div>}
+                  {l.business && <div className="small-muted">Korxona: {l.business.nomi}</div>}
+                  {l.talablar && <div className="small-muted">Talablar: {l.talablar}</div>}
                   <div className="small-muted">Manzil: {l.manzil}</div>
                   <div className="small-muted" style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6 }}>
                     <Users size={13} /> {l.citizenName} · {l.citizenPhone}
@@ -124,7 +136,7 @@ export default function ListingsManager({
           {active.map((l) =>
             editingId === l.id ? (
               <div key={l.id} className="card">
-                <ListingForm mahallas={mahallas} listing={l} onDone={() => setEditingId(null)} />
+                <ListingForm mahallas={mahallas} businesses={businesses} listing={l} onDone={() => setEditingId(null)} />
               </div>
             ) : (
               <div key={l.id} className="card">
@@ -146,6 +158,9 @@ export default function ListingsManager({
                 {l.narx != null && (
                   <div className="small-muted">Narx/maosh: {fmt(l.narx)} so&apos;m</div>
                 )}
+                {maoshLine(l) && <div className="small-muted">Maosh: {maoshLine(l)}</div>}
+                {l.business && <div className="small-muted">Korxona: {l.business.nomi}</div>}
+                {l.talablar && <div className="small-muted">Talablar: {l.talablar}</div>}
                 <div className="small-muted">Manzil: {l.manzil}</div>
                 <div className="small-muted">Tel: {l.telefon}</div>
                 {l.amalMuddati && (

@@ -41,6 +41,36 @@ function getImageFiles(formData: FormData): File[] {
   return formData.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
 }
 
+/** Job-posting-specific fields only ever apply to turi=ISH — reading them
+ * for any other type would just store stray data from a form that never
+ * showed those inputs in the first place. */
+function getJobFields(formData: FormData, turi: ListingType) {
+  if (turi !== "ISH") return { businessId: null, maoshMin: null, maoshMax: null, talablar: null };
+  const businessId = String(formData.get("businessId") || "").trim() || null;
+  const maoshMinRaw = String(formData.get("maoshMin") || "").trim();
+  const maoshMaxRaw = String(formData.get("maoshMax") || "").trim();
+  const talablar = String(formData.get("talablar") || "").trim() || null;
+  return {
+    businessId,
+    maoshMin: maoshMinRaw ? Number(maoshMinRaw) : null,
+    maoshMax: maoshMaxRaw ? Number(maoshMaxRaw) : null,
+    talablar,
+  };
+}
+
+/** A businessId submitted from the client is just a string — verify it's
+ * actually a business in the mahalla this listing is for before trusting
+ * it, rather than letting anyone link a job posting to any business by id. */
+async function resolveJobFields(
+  fields: ReturnType<typeof getJobFields>,
+  mahallaId: string
+): Promise<ReturnType<typeof getJobFields>> {
+  if (!fields.businessId) return fields;
+  const business = await prisma.business.findUnique({ where: { id: fields.businessId } });
+  if (!business || business.mahallaId !== mahallaId) return { ...fields, businessId: null };
+  return fields;
+}
+
 export async function createListingAction(
   _prevState: ListingState,
   formData: FormData
@@ -69,6 +99,7 @@ export async function createListingAction(
   const narx = narxRaw ? Number(narxRaw) : null;
   const amalMuddati = amalMuddatiRaw ? new Date(amalMuddatiRaw) : null;
   const images = files.length > 0 ? await saveListingImages(mahallaId, files) : [];
+  const jobFields = await resolveJobFields(getJobFields(formData, turi), mahallaId);
 
   await prisma.listing.create({
     data: {
@@ -81,6 +112,7 @@ export async function createListingAction(
       telefon,
       amalMuddati,
       images,
+      ...jobFields,
       createdBy: session.bankerId,
       source: "BANKIR",
       status: "TASDIQLANGAN",
@@ -124,6 +156,7 @@ export async function updateListingAction(
   // Uploading new images replaces the old set entirely (same as the old
   // single-image behavior) — leaving files empty keeps whatever's there.
   const images = files.length > 0 ? await saveListingImages(listing.mahallaId, files) : listing.images;
+  const jobFields = await resolveJobFields(getJobFields(formData, turi), listing.mahallaId);
 
   await prisma.listing.update({
     where: { id: listingId },
@@ -136,6 +169,7 @@ export async function updateListingAction(
       telefon,
       amalMuddati: amalMuddatiRaw ? new Date(amalMuddatiRaw) : null,
       images,
+      ...jobFields,
     },
   });
 
@@ -193,6 +227,7 @@ export async function createCitizenListingAction(
   if (files.length > MAX_IMAGES) return { error: "Ko'pi bilan 2 ta rasm yuklash mumkin" };
 
   const images = files.length > 0 ? await saveListingImages(mahallaId, files) : [];
+  const jobFields = await resolveJobFields(getJobFields(formData, turi), mahallaId);
 
   await prisma.listing.create({
     data: {
@@ -204,6 +239,7 @@ export async function createCitizenListingAction(
       manzil,
       telefon,
       images,
+      ...jobFields,
       citizenName: session.name,
       citizenPhone: session.phone,
       source: "FUQARO",

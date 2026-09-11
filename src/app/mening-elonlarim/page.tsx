@@ -12,7 +12,7 @@ export default async function MeningElonlarimPage() {
 
   const listings = await prisma.listing.findMany({
     where: { source: "FUQARO", citizenPhone: session.phone },
-    include: { mahalla: { select: { nomi: true } } },
+    include: { mahalla: { select: { nomi: true } }, business: { select: { nomi: true } } },
     orderBy: { createdAt: "desc" },
   });
 
