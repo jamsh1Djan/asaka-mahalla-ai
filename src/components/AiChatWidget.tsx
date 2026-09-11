@@ -384,12 +384,17 @@ function BusinessIdeaResults({ ideas, matched, mahallaId }: { ideas: BusinessIde
         <div key={i} className="ai-widget-idea-row">
           <b>{idea.nomi}</b>
           <span>
-            {idea.boshlangich_xarajat} · {idea.mos_kredit}
+            {idea.boshlangich_xarajat} · {idea.sof_oylik_foyda.replace(" (kredit to'lovidan oldin)", "")}
           </span>
+          <span>Qoplanish: {idea.breakeven_oylar}</span>
         </div>
       ))}
+      <p className="small-muted" style={{ fontSize: 11, margin: "2px 0 0" }}>
+        To&apos;liq reja (xarajatlar tafsiloti, 12 oylik prognoz, xavflar, qadamlar) — &quot;Biznes
+        yordamchi&quot; sahifasida.
+      </p>
       <Link href="/biznes-reja" className="btn btn-outline btn-sm" style={{ marginTop: 6, justifyContent: "center" }}>
-        To&apos;liq moslashtirish <ArrowRight size={14} />
+        To&apos;liq biznes-rejani ko&apos;rish <ArrowRight size={14} />
       </Link>
     </div>
   );

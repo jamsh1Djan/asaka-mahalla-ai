@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Bot } from "lucide-react";
+import { Bot, ChevronDown, ChevronUp } from "lucide-react";
 import { getBusinessIdeasAction, type BusinessIdea } from "@/actions/ai";
 import { SOHALAR } from "@/lib/businessIdeas";
+import BusinessPlanDetail from "@/components/BusinessPlanDetail";
 
 const BUDGETS = ["5 mln gacha", "5-20 mln", "20-50 mln", "50 mln dan ko'p"];
 const TAJRIBALAR = ["Yangi boshlovchi", "Tajribam bor"];
@@ -15,6 +16,7 @@ export default function AiPlanner({ mahallaId, drayver, nomi }: { mahallaId: str
   const [tajriba, setTajriba] = useState(TAJRIBALAR[0]);
   const [soha, setSoha] = useState(AVTOMATIK);
   const [ideas, setIdeas] = useState<BusinessIdea[] | null>(null);
+  const [expanded, setExpanded] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -32,6 +34,7 @@ export default function AiPlanner({ mahallaId, drayver, nomi }: { mahallaId: str
         setIdeas(null);
       } else {
         setIdeas(result.ideas);
+        setExpanded(null);
       }
     });
   }
@@ -108,6 +111,22 @@ export default function AiPlanner({ mahallaId, drayver, nomi }: { mahallaId: str
               <span>Qarzdan qutulish muddati</span>
               <b>{idea.qaytarish_muddati}</b>
             </div>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm bp-toggle"
+              onClick={() => setExpanded((cur) => (cur === i ? null : i))}
+            >
+              {expanded === i ? (
+                <>
+                  <ChevronUp size={14} /> To&apos;liq rejani yopish
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={14} /> To&apos;liq biznes-rejani ko&apos;rish
+                </>
+              )}
+            </button>
+            {expanded === i && <BusinessPlanDetail idea={idea} />}
           </div>
         ))}
       </div>

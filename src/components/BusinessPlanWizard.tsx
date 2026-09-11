@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { Bot, ArrowRight, ArrowLeft, Sparkles, CheckCircle2 } from "lucide-react";
+import { Bot, ArrowRight, ArrowLeft, Sparkles, CheckCircle2, ChevronDown, ChevronUp, Printer } from "lucide-react";
 import { getBusinessIdeasAction, type BusinessIdea } from "@/actions/ai";
 import { SOHALAR } from "@/lib/businessIdeas";
+import BusinessPlanDetail from "@/components/BusinessPlanDetail";
 import type { Mahalla } from "@prisma/client";
 
 const BUDGETS = ["5 mln gacha", "5-20 mln", "20-50 mln", "50 mln dan ko'p"];
@@ -25,8 +26,27 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
   const [ideas, setIdeas] = useState<BusinessIdea[] | null>(null);
   const [matched, setMatched] = useState(false);
   const [visibleCount, setVisibleCount] = useState(3);
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const [printOnly, setPrintOnly] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Printing an expanded card should only print that one card, not the
+  // whole results grid — toggled via a CSS class picked up only inside
+  // @media print (see .no-print in globals.css), so nothing flashes on
+  // screen before/after the print dialog.
+  useEffect(() => {
+    function clear() {
+      setPrintOnly(null);
+    }
+    window.addEventListener("afterprint", clear);
+    return () => window.removeEventListener("afterprint", clear);
+  }, []);
+
+  function printIdea(i: number) {
+    setPrintOnly(i);
+    requestAnimationFrame(() => window.print());
+  }
 
   // Each step swaps in content of a very different height. Without this, a
   // user who scrolled down to reach a mahalla card further down the grid
@@ -59,6 +79,7 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
         setIdeas(result.ideas);
         setMatched(result.matched);
         setVisibleCount(3);
+        setExpanded(null);
         setStep("natija");
       }
     });
@@ -166,7 +187,10 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
 
       {step === "natija" && mahalla && ideas && (
         <div>
-          <div className={matched ? "ok-box" : "warn-box"} style={{ marginBottom: 18, display: "flex", gap: 10, alignItems: "flex-start" }}>
+          <div
+            className={`${matched ? "ok-box" : "warn-box"}${printOnly !== null ? " no-print" : ""}`}
+            style={{ marginBottom: 18, display: "flex", gap: 10, alignItems: "flex-start" }}
+          >
             <CheckCircle2 size={18} style={{ flexShrink: 0, marginTop: 1 }} />
             <span>
               {matched
@@ -176,7 +200,11 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
           </div>
           <div className="grid grid-3">
             {ideas.slice(0, visibleCount).map((idea, i) => (
-              <div key={i} className="card">
+              <div
+                key={i}
+                className={`card${printOnly !== null && printOnly !== i ? " no-print" : ""}`}
+                style={expanded === i ? { gridColumn: "1 / -1" } : undefined}
+              >
                 <h5 style={{ margin: "0 0 8px", fontSize: 15, fontWeight: 800, color: "var(--navy)" }}>{idea.nomi}</h5>
                 <p style={{ fontSize: 13, marginBottom: 10 }}>{idea.tavsif}</p>
                 <div className="credit-rows">
@@ -201,13 +229,38 @@ export default function BusinessPlanWizard({ mahallas }: { mahallas: Mahalla[] }
                     <b>{idea.qaytarish_muddati}</b>
                   </div>
                 </div>
-                <Link href={`/mahallalar/${mahalla.id}`} className="btn btn-outline btn-sm" style={{ width: "100%", justifyContent: "center", marginTop: 12 }}>
-                  Batafsil <ArrowRight size={14} />
-                </Link>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm bp-toggle"
+                  onClick={() => setExpanded((cur) => (cur === i ? null : i))}
+                >
+                  {expanded === i ? (
+                    <>
+                      <ChevronUp size={14} /> To&apos;liq rejani yopish
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown size={14} /> To&apos;liq biznes-rejani ko&apos;rish
+                    </>
+                  )}
+                </button>
+                {expanded === i && (
+                  <>
+                    <BusinessPlanDetail idea={idea} />
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}>
+                      <Link href={`/mahallalar/${mahalla.id}`} className="btn btn-outline btn-sm no-print">
+                        Mahalla sahifasi <ArrowRight size={14} />
+                      </Link>
+                      <button type="button" className="btn btn-primary btn-sm no-print" onClick={() => printIdea(i)}>
+                        <Printer size={14} /> Rejani chop etish
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 20, display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div className={printOnly !== null ? "no-print" : undefined} style={{ marginTop: 20, display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button type="button" className="btn btn-outline" onClick={restart}>
               <ArrowLeft size={15} /> Boshqa mahalla / qaytadan urinish
             </button>

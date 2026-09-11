@@ -2533,6 +2533,64 @@ h2.section-title {
   transform: translateY(-2px);
   box-shadow: 0 24px 48px -20px rgba(15, 43, 108, 0.35);
 }
+.bp-toggle {
+  width: 100%;
+  justify-content: center;
+  margin-top: 12px;
+}
+.bp-detail {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.bp-detail-section h6 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--navy);
+}
+.bp-detail-list,
+.bp-detail-steps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.bp-detail-steps {
+  list-style: decimal;
+}
+.bp-detail-list {
+  list-style: disc;
+}
+@media print {
+  header.site,
+  footer.site,
+  .bp-steps,
+  .bp-toggle,
+  .nav-burger,
+  .no-print {
+    display: none !important;
+  }
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    break-inside: avoid;
+  }
+  body {
+    background: #fff !important;
+  }
+}
 
 .imtiyoz-card {
   display: flex;
