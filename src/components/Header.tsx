@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
@@ -15,9 +15,12 @@ import {
   Sparkles,
   MapPin,
   LayoutDashboard,
+  ChevronDown,
+  LogOut,
 } from "lucide-react";
 import type { Session } from "@/lib/auth";
 import { logoutAction } from "@/actions/auth";
+import { initials } from "@/lib/format";
 import LogoMark from "@/components/Logo";
 import AiChatWidget from "@/components/AiChatWidget";
 
@@ -64,6 +67,8 @@ export default function Header({ session }: { session: Session | null }) {
   const isStaff = session?.kind === "banker";
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -77,6 +82,7 @@ export default function Header({ session }: { session: Session | null }) {
   // the panel is open — a link-only onClick handler would miss those.
   useEffect(() => {
     setMenuOpen(false);
+    setAccountOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -86,6 +92,17 @@ export default function Header({ session }: { session: Session | null }) {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!accountOpen) return;
+    function onClickOutside(e: MouseEvent) {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [accountOpen]);
 
   return (
     <header className={`site${scrolled ? " is-scrolled" : ""}`}>
@@ -103,49 +120,47 @@ export default function Header({ session }: { session: Session | null }) {
         </nav>
         <div className="navactions">
           {session ? (
-            <>
-              <span
-                className="small-muted hidden-mobile"
-                style={{ display: "flex", alignItems: "center", gap: 8, maxWidth: 190 }}
+            <div className="account-menu hidden-mobile" ref={accountRef}>
+              <button
+                type="button"
+                className={`account-trigger${accountOpen ? " is-open" : ""}`}
+                onClick={() => setAccountOpen((v) => !v)}
+                aria-expanded={accountOpen}
               >
-                <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {session.kind === "banker" ? session.ism : session.name}
-                </span>
+                <span className="account-avatar">{initials(session.kind === "banker" ? session.ism : session.name)}</span>
+                <span className="account-name">{session.kind === "banker" ? session.ism : session.name}</span>
                 {label && <span className="badge-role">{label}</span>}
-              </span>
-              {session.kind === "fuqaro" && (
-                // Icon-only, not icon+label: .navlinks + .navactions already sit
-                // at the edge of fitting one row between ~1031-1350px (see the
-                // max-width:1030px breakpoint below), so a full extra button
-                // with a text label reopened that overflow. An icon alone adds
-                // ~30px instead of ~110px and stays inside the existing margin.
-                <>
-                  <Link
-                    href="/arizalarim"
-                    className={`btn btn-outline btn-sm hidden-mobile${pathname === "/arizalarim" ? " active" : ""}`}
-                    style={{ padding: "8px 10px" }}
-                    title="Arizalarim"
-                    aria-label="Arizalarim"
+                <ChevronDown size={15} className="account-chevron" />
+              </button>
+              <AnimatePresence>
+                {accountOpen && (
+                  <motion.div
+                    className="account-dropdown"
+                    initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                    transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <FileText size={15} />
-                  </Link>
-                  <Link
-                    href="/mening-elonlarim"
-                    className={`btn btn-outline btn-sm hidden-mobile${pathname === "/mening-elonlarim" ? " active" : ""}`}
-                    style={{ padding: "8px 10px" }}
-                    title="Mening e'lonlarim"
-                    aria-label="Mening e'lonlarim"
-                  >
-                    <Megaphone size={15} />
-                  </Link>
-                </>
-              )}
-              <form action={logoutAction} className="hidden-mobile">
-                <button className="btn btn-outline btn-sm" type="submit">
-                  Chiqish
-                </button>
-              </form>
-            </>
+                    {session.kind === "fuqaro" && (
+                      <>
+                        <Link href="/arizalarim" className={pathname === "/arizalarim" ? "active" : ""}>
+                          <FileText size={16} /> Arizalarim
+                        </Link>
+                        <Link href="/mening-elonlarim" className={pathname === "/mening-elonlarim" ? "active" : ""}>
+                          <Megaphone size={16} /> Mening e&apos;lonlarim
+                        </Link>
+                        <div className="account-dropdown-divider" />
+                      </>
+                    )}
+                    <form action={logoutAction}>
+                      <button type="submit" className="account-dropdown-logout">
+                        <LogOut size={16} /> Chiqish
+                      </button>
+                    </form>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           ) : (
             <Link href="/kirish" className="btn btn-outline btn-sm hidden-mobile">
               Kirish

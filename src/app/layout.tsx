@@ -25,7 +25,7 @@ export default async function RootLayout({
   const session = await getSession();
 
   return (
-    <html lang="uz" className={`${inter.variable} h-full antialiased`}>
+    <html lang="uz" className={`${inter.variable} h-full antialiased`} data-scroll-behavior="smooth">
       <body className="min-h-full flex flex-col">
         <div id="splash" aria-hidden="true">
           <div className="splash-corner tl" />
